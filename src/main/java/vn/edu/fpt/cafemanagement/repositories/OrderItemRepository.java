@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import vn.edu.fpt.cafemanagement.entities.OrderItem;
 
 @Repository
-public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 }
