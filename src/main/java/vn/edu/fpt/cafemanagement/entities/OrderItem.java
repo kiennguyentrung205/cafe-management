@@ -39,8 +39,8 @@ public class OrderItem {
         return orderItemId;
     }
 
-    public void setOrderItemId(int id) {
-        this.orderItemId = id;
+    public void setOrderItemId(int orderItemId) {
+        this.orderItemId = orderItemId;
     }
 
     public Order getOrder() {
