@@ -41,4 +41,101 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 
+    public Order() {
+    }
+
+    public Order(int orderId, Customer customer, Manager manager, List<PointHistory> pointHistories, String status,
+                 double totalPrice, LocalDateTime createdAt, int pointsUsed, String voucherId,
+                 List<OrderItem> orderItems) {
+        this.orderId = orderId;
+        this.customer = customer;
+        this.manager = manager;
+        this.pointHistories = pointHistories;
+        this.status = status;
+        this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.pointsUsed = pointsUsed;
+        this.voucherId = voucherId;
+        this.orderItems = orderItems;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    public List<PointHistory> getPointHistories() {
+        return pointHistories;
+    }
+
+    public void setPointHistories(List<PointHistory> pointHistories) {
+        this.pointHistories = pointHistories;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public int getPointsUsed() {
+        return pointsUsed;
+    }
+
+    public void setPointsUsed(int pointsUsed) {
+        this.pointsUsed = pointsUsed;
+    }
+
+    public String getVoucherId() {
+        return voucherId;
+    }
+
+    public void setVoucherId(String voucherId) {
+        this.voucherId = voucherId;
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
 }
