@@ -10,7 +10,7 @@ public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "voucher_id")
-    private int id;
+    private int voucherId;
 
     @Column(name = "voucher_name")
     private String voucherName;
@@ -42,9 +42,9 @@ public class Voucher {
     public Voucher() {
     }
 
-    public Voucher(int id, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
+    public Voucher(int voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
                    String discountType, double discountValue, double minOrderValue, String code, boolean isActive) {
-        this.id = id;
+        this.voucherId = voucherId;
         this.voucherName = voucherName;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -56,12 +56,12 @@ public class Voucher {
         this.isActive = isActive;
     }
 
-    public int getId() {
-        return id;
+    public int getVoucherId() {
+        return voucherId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setVoucherId(int voucherId) {
+        this.voucherId = voucherId;
     }
 
     public String getVoucherName() {

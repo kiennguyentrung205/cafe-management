@@ -8,7 +8,7 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orderitem_id")
-    private int id;
+    private int orderItemId;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
@@ -27,20 +27,20 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(int id, Order order, Product product, int quantity, String note) {
-        this.id = id;
+    public OrderItem(int orderItemId, Order order, Product product, int quantity, String note) {
+        this.orderItemId = orderItemId;
         this.order = order;
         this.product = product;
         this.quantity = quantity;
         this.note = note;
     }
 
-    public int getId() {
-        return id;
+    public int getOrderItemId() {
+        return orderItemId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setOrderItemId(int id) {
+        this.orderItemId = id;
     }
 
     public Order getOrder() {

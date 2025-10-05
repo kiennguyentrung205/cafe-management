@@ -10,8 +10,8 @@ import java.util.List;
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private int id;
+    @Column(name = "cus_id")
+    private int cusId;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Feedback> feedbacks;
@@ -22,8 +22,6 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<PointHistory> pointHistories;
 
-    @Column(name = "cus_id")
-    private int cusId;
 
     @Column(name = "name")
     private String name;
@@ -64,15 +62,14 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(int id, List<Feedback> feedbacks, List<Order> orders, List<PointHistory> pointHistories, int cusId,
+    public Customer(int cusId, List<Feedback> feedbacks, List<Order> orders, List<PointHistory> pointHistories,
                     String name, String phoneNumber, String email, int point, String address, String password,
                     String username, LocalDate dateOfBirth, String img, int failedAttempts, LocalDateTime lockedUntil,
                     List<TableBookingHistory> tableBookingHistories) {
-        this.id = id;
+        this.cusId = cusId;
         this.feedbacks = feedbacks;
         this.orders = orders;
         this.pointHistories = pointHistories;
-        this.cusId = cusId;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -87,12 +84,12 @@ public class Customer {
         this.tableBookingHistories = tableBookingHistories;
     }
 
-    public int getId() {
-        return id;
+    public int getCusId() {
+        return cusId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCusId(int cusId) {
+        this.cusId = cusId;
     }
 
     public List<Feedback> getFeedbacks() {
@@ -119,13 +116,6 @@ public class Customer {
         this.pointHistories = pointHistories;
     }
 
-    public int getCusId() {
-        return cusId;
-    }
-
-    public void setCusId(int cusId) {
-        this.cusId = cusId;
-    }
 
     public String getName() {
         return name;
