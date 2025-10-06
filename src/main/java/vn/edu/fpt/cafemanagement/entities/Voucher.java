@@ -8,9 +8,9 @@ import java.time.LocalDate;
 @Entity
 public class Voucher {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)	//xoá dòng IDENTITY
     @Column(name = "voucher_id")
-    private int voucherId;
+    private String voucherId;			//sửa lại là String
 
     @Column(name = "voucher_name")
     private String voucherName;
@@ -42,7 +42,7 @@ public class Voucher {
     public Voucher() {
     }
 
-    public Voucher(int voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
+    public Voucher(String voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
                    String discountType, double discountValue, double minOrderValue, String code, boolean isActive) {
         this.voucherId = voucherId;
         this.voucherName = voucherName;
@@ -56,11 +56,11 @@ public class Voucher {
         this.isActive = isActive;
     }
 
-    public int getVoucherId() {
+    public String getVoucherId() {
         return voucherId;
     }
 
-    public void setVoucherId(int voucherId) {
+    public void setVoucherId(String voucherId) {
         this.voucherId = voucherId;
     }
 
