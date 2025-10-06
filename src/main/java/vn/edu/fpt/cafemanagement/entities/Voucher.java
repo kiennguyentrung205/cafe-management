@@ -8,7 +8,6 @@ import java.time.LocalDate;
 @Entity
 public class Voucher {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)	//xoá dòng IDENTITY
     @Column(name = "voucher_id")
     private String voucherId;			//sửa lại là String
 
