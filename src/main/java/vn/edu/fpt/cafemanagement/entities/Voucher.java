@@ -3,6 +3,7 @@ package vn.edu.fpt.cafemanagement.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Entity
@@ -10,7 +11,7 @@ public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "voucher_id")
-    private int voucherId;
+    private String voucherId;
 
     @Column(name = "voucher_name")
     private String voucherName;
@@ -39,11 +40,15 @@ public class Voucher {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL)
+    private List<Order> orders ;
+
     public Voucher() {
     }
 
-    public Voucher(int voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
-                   String discountType, double discountValue, double minOrderValue, String code, boolean isActive) {
+    public Voucher(String voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
+                   String discountType, double discountValue, double minOrderValue, String code, boolean isActive,
+                   List<Order> orders) {
         this.voucherId = voucherId;
         this.voucherName = voucherName;
         this.startDate = startDate;
@@ -54,13 +59,14 @@ public class Voucher {
         this.minOrderValue = minOrderValue;
         this.code = code;
         this.isActive = isActive;
+        this.orders = orders;
     }
 
-    public int getVoucherId() {
+    public String getVoucherId() {
         return voucherId;
     }
 
-    public void setVoucherId(int voucherId) {
+    public void setVoucherId(String voucherId) {
         this.voucherId = voucherId;
     }
 
@@ -134,5 +140,13 @@ public class Voucher {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }

@@ -35,8 +35,9 @@ public class Order {
     @Column(name = "points_used")
     private int pointsUsed;
 
-    @Column(name = "voucher_id")
-    private String voucherId;
+    @ManyToOne
+    @JoinColumn(name = "voucher_id", nullable = false)
+    private Voucher voucher;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
@@ -45,7 +46,7 @@ public class Order {
     }
 
     public Order(int orderId, Customer customer, Manager manager, List<PointHistory> pointHistories, String status,
-                 double totalPrice, LocalDateTime createdAt, int pointsUsed, String voucherId,
+                 double totalPrice, LocalDateTime createdAt, int pointsUsed, Voucher voucher,
                  List<OrderItem> orderItems) {
         this.orderId = orderId;
         this.customer = customer;
@@ -55,7 +56,7 @@ public class Order {
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.pointsUsed = pointsUsed;
-        this.voucherId = voucherId;
+        this.voucher = voucher;
         this.orderItems = orderItems;
     }
 
@@ -123,12 +124,12 @@ public class Order {
         this.pointsUsed = pointsUsed;
     }
 
-    public String getVoucherId() {
-        return voucherId;
+    public Voucher getVoucher() {
+        return voucher;
     }
 
-    public void setVoucherId(String voucherId) {
-        this.voucherId = voucherId;
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 
     public List<OrderItem> getOrderItems() {
