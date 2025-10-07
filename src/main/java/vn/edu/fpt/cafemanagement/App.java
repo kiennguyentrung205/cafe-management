@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,5 +18,9 @@ public class App {
         for (Voucher voucher : list) {
             System.out.println(String.format("Voucher Name: %s", voucher.getVoucherName()));
         }
+
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("GOOGLE_CLIENT_ID", dotenv.get("GOOGLE_CLIENT_ID"));
+        System.setProperty("GOOGLE_CLIENT_SECRET", dotenv.get("GOOGLE_CLIENT_SECRET"));
     }
 }
