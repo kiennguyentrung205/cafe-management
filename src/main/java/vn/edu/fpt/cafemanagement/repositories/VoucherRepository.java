@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
-    List<Voucher> findAllByVoucherId(String voucherId);
+    List<Voucher> findAllByVoucherId(int voucherId);
 }

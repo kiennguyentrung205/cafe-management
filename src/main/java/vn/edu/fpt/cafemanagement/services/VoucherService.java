@@ -12,7 +12,7 @@ public class VoucherService {
     public VoucherService(VoucherRepository voucherRepository) {
         this.voucherRepository = voucherRepository;
     }
-    public List<Voucher> findAllByVoucherId(String voucherId) {
+    public List<Voucher> findAllByVoucherId(int voucherId) {
         return voucherRepository.findAllByVoucherId(voucherId);
     }
 }

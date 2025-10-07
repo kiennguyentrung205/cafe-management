@@ -1,16 +1,14 @@
 package vn.edu.fpt.cafemanagement.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 import java.sql.Date;
 
 @Entity
 public class Voucher {
     @Id
-    private String voucherId;
+    private int voucherId;
     private String voucherName;
     private Date startDate;
     private Date endDate;
@@ -21,7 +19,7 @@ public class Voucher {
     private String code;
     private boolean isActive;
 
-    public Voucher(String voucherId, String voucherName, Date startDate, Date endDate, int quantity, String discountType, Double discountValue, Double minOrderValue, String code, boolean isActive) {
+    public Voucher(int voucherId, String voucherName, Date startDate, Date endDate, int quantity, String discountType, Double discountValue, Double minOrderValue, String code, boolean isActive) {
         this.voucherId = voucherId;
         this.voucherName = voucherName;
         this.startDate = startDate;
@@ -37,11 +35,11 @@ public class Voucher {
     public Voucher() {
     }
 
-    public String getVoucherId() {
+    public int getVoucherId() {
         return voucherId;
     }
 
-    public void setVoucherId(String voucherId) {
+    public void setVoucherId(int voucherId) {
         this.voucherId = voucherId;
     }
 

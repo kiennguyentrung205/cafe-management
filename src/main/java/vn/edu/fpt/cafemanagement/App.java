@@ -13,7 +13,7 @@ public class App {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(App.class, args);
         VoucherService voucherService = context.getBean(VoucherService.class);
-        List<Voucher> list = voucherService.findAllByVoucherId("V002");
+        List<Voucher> list = voucherService.findAllByVoucherId(1);
         for (Voucher voucher : list) {
             System.out.println(String.format("Voucher Name: %s", voucher.getVoucherName()));
         }
