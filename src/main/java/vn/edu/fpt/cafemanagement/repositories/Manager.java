@@ -1,4 +1,4 @@
-package vn.edu.fpt.cafemanagement.entities;
+package vn.edu.fpt.cafemanagement.repositories;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
