@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sản phẩm</title>
+</head>
+<body>
+<!-- Tiêu đề -->
+<h1 th:if="${viewType == 'all'}">Product List</h1>
+<h1 th:if="${viewType == 'category'}">
+    Categorized Products
+    <span th:text="${category.getCateName()}"></span>
+</h1>
+
+<!-- Menu chọn Category -->
+<nav>
+    <strong>Choose Category:</strong>
+    <ul>
+        <li><a th:href="@{/product/list}">Tất cả</a></li>
+        <li th:each="c : ${categoryList}">
+            <a th:href="@{/product/list/category/{id}(id=${c.cateId})}"
+               th:text="${c.cateName}"></a>
+        </li>
+    </ul>
+</nav>
+
+<div style="margin-bottom: 20px;">
+    <a th:href="@{/product/create}"
+       style="padding: 8px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">
+        ➕ Create Product
+    </a>
+</div>
+
+
+<!-- Tổng số sản phẩm -->
+<h2>Tổng số: <span th:text="${productList.size()}"></span></h2>
+
+<!-- Bảng sản phẩm -->
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+    <tr>
+        <th>No</th>
+        <th>Product name</th>
+        <th>image</th>
+        <th>Status</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p, st : ${productList}">
+        <td th:text="${st.index + 1}"></td>
+        <td th:text="${p.proName}"></td>
+        <td><img th:src="${p.img}" alt="img" width="50"/></td>
+        <td th:text="${p.status}"></td>
+        <td th:text="${p.description}"></td>
+        <td th:text="${p.category.cateName}"></td>
+        <td>
+            <a th:href="@{'/product/edit/' + ${p.getProId()}}">Edit</a>
+            <a th:href="@{'/product/delete/' + ${p.getProId()}}">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Link quay về danh sách đầy đủ nếu đang xem theo category -->
+<div th:if="${viewType == 'category'}">
+    <br>
+    <a th:href="@{/product/list}">⬅ Back to product list</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1 th:text="${title}"></h1>
+
+<form th:action="@{/product/update}" th:object="${product}" method="post">
+    <!-- ẩn ID để biết sản phẩm nào -->
+    <input type="hidden" th:field="*{proId}"/>
+
+    <div>
+        <label>No:</label>
+        <span th:text="${product.proId}"></span>
+    </div>
+
+    <div>
+        <label>Product name:</label>
+        <input type="text" th:field="*{proName}"/>
+    </div>
+
+    <div>
+        <label>Image URL:</label>
+        <input type="text" th:field="*{img}"/>
+        <br>
+        <img th:src="${product.img}" alt="preview" width="80"/>
+    </div>
+
+    <div>
+        <label>Status:</label>
+        <input type="text" th:field="*{status}"/>
+    </div>
+
+    <div>
+        <label>Description:</label>
+        <textarea th:field="*{description}"></textarea>
+    </div>
+
+    <div>
+        <label>Category:</label>
+        <select th:field="*{category.cateId}">
+            <option th:each="c : ${categoryList}"
+                    th:value="${c.cateId}"
+                    th:text="${c.cateName}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label>Active:</label>
+        <input type="checkbox" th:field="*{active}"/>
+    </div>
+
+    <div>
+        <button type="submit">Update</button>
+    </div>
+</form>
+
+</body>
+</html>
