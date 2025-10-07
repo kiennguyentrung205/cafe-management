@@ -6,43 +6,53 @@ import java.time.LocalDateTime;
 
 @Entity
 public class TableBooking {
+
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY) // Giả định là tự tăng (IDENTITY)
-    @Column(name = "booking_id", nullable = false)
-    private Integer bookingId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "booking_id")
+    private int bookingId;
 
-    // --- Khóa ngoại (Foreign Keys) ---
+    @ManyToOne
+    @JoinColumn(name = "table_id", nullable = false)
+    private Table table;
 
-//    // Quan hệ Many-to-One với Table
-//    @ManyToOne
-//    @JoinColumn(name = "table_id", nullable = false)
-//    private TableEntity table; // Giả định Entity cho bảng 'Table' là TableEntity
-
-    // Quan hệ Many-to-One với Customer
     @ManyToOne
     @JoinColumn(name = "cus_id", nullable = false)
     private Customer customer;
 
-    // --- Các trường dữ liệu khác ---
-
+    //Cancel, Booked
     @Column(name = "status", length = 20)
-    private String status; // varchar(20), có thể null
+    private String status;
 
+    //Sau 22h không đc đặt bàn
     @Column(name = "booking_time")
-    private LocalDateTime bookingTime; // datetime, có thể null (sử dụng LocalDateTime)
+    private LocalDateTime bookingTime;
 
-    // --- Constructors, Getters, và Setters ---
-
-    // Constructor mặc định (cần thiết cho JPA)
     public TableBooking() {
     }
 
-    public Integer getBookingId() {
+    public TableBooking(int bookingId, Table table, Customer customer, String status, LocalDateTime bookingTime) {
+        this.bookingId = bookingId;
+        this.table = table;
+        this.customer = customer;
+        this.status = status;
+        this.bookingTime = bookingTime;
+    }
+
+    public int getBookingId() {
         return bookingId;
     }
 
-    public void setBookingId(Integer bookingId) {
+    public void setBookingId(int bookingId) {
         this.bookingId = bookingId;
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
     }
 
     public Customer getCustomer() {

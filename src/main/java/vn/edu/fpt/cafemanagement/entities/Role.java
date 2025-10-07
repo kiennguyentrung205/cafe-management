@@ -2,8 +2,11 @@ package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
@@ -12,15 +15,26 @@ public class Role {
     @Column(name = "role_name", nullable = false, length = 50)
     private String roleName;
 
-//    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-//    private List<Manager> managers;
-//
-//    public Role() {}
-//
-//    public Role(int roleId, String roleName) {
-//        this.roleId = roleId;
-//        this.roleName = roleName;
-//    }
+    @ManyToOne
+    @JoinColumn(name = "manager_id", nullable = false)
+    private Manager manager;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    private List<Shift> shifts;
+
+    @ManyToMany(mappedBy = "shiftRoles")
+    private List<Shift> shiftsRoles;
+
+    public Role() {
+    }
+
+    public Role(int roleId, String roleName, Manager manager, List<Shift> shifts, List<Shift> shiftsRoles) {
+        this.roleId = roleId;
+        this.roleName = roleName;
+        this.manager = manager;
+        this.shifts = shifts;
+        this.shiftsRoles = shiftsRoles;
+    }
 
     public int getRoleId() {
         return roleId;
@@ -38,11 +52,27 @@ public class Role {
         this.roleName = roleName;
     }
 
-//    public List<Manager> getManagers() {
-//        return managers;
-//    }
-//
-//    public void setManagers(List<Manager> managers) {
-//        this.managers = managers;
-//    }
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    public List<Shift> getShifts() {
+        return shifts;
+    }
+
+    public void setShifts(List<Shift> shifts) {
+        this.shifts = shifts;
+    }
+
+    public List<Shift> getShiftsRoles() {
+        return shiftsRoles;
+    }
+
+    public void setShiftsRoles(List<Shift> shiftsRoles) {
+        this.shiftsRoles = shiftsRoles;
+    }
 }

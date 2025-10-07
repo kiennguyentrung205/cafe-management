@@ -9,11 +9,12 @@ public class PointHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pointhistory_id")
+    @Column(name = "point_history_id")
     private int pointHistoryId;
 
-    @Column(name = "cus_id")
-    private int cusId;  //
+    @ManyToOne
+    @JoinColumn(name = "cus_id", nullable = false)
+    private Customer customer;
 
     @Column(name = "type_of_change", length = 100)
     private String typeOfChange;
@@ -24,19 +25,21 @@ public class PointHistory {
     @Column(name = "amount", nullable = false)
     private int amount;
 
-    @Column(name = "order_id")
-    private Integer orderId; //
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-    public PointHistory() {}
+    public PointHistory() {
+    }
 
-    public PointHistory(int pointHistoryId, int cusId, String typeOfChange,
-                        LocalDateTime changeTime, int amount, Integer orderId) {
+    public PointHistory(int pointHistoryId, Customer customer, String typeOfChange, LocalDateTime changeTime,
+                        int amount, Order order) {
         this.pointHistoryId = pointHistoryId;
-        this.cusId = cusId;
+        this.customer = customer;
         this.typeOfChange = typeOfChange;
         this.changeTime = changeTime;
         this.amount = amount;
-        this.orderId = orderId;
+        this.order = order;
     }
 
     public int getPointHistoryId() {
@@ -47,12 +50,12 @@ public class PointHistory {
         this.pointHistoryId = pointHistoryId;
     }
 
-    public int getCusId() {
-        return cusId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setCusId(int cusId) {
-        this.cusId = cusId;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public String getTypeOfChange() {
@@ -79,11 +82,11 @@ public class PointHistory {
         this.amount = amount;
     }
 
-    public Integer getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

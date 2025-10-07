@@ -1,44 +1,48 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Feedback")
 public class Feedback {
-    @Id
-    @Column(name = "feedback_id")
-    private int id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "feedback_id")
+    private int feedbackId;
+
+    @ManyToOne
+    @JoinColumn(name = "cus_id", nullable = false)
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "content")
+    @Column(name = "content", length = 500)
     private String content;
 
-    @Column(name = "create_at")
-    private LocalDateTime create_at;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public Feedback() {
     }
 
-    public Feedback(int id, Customer customer, Product product, String content, LocalDateTime create_at) {
-        this.id = id;
+    public Feedback(int feedbackId, Customer customer, Product product, String content, LocalDateTime createdAt) {
+        this.feedbackId = feedbackId;
         this.customer = customer;
         this.product = product;
         this.content = content;
-        this.create_at = create_at;
+        this.createdAt = createdAt;
     }
 
-    public int getId() {
-        return id;
+    public int getFeedbackId() {
+        return feedbackId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setFeedbackId(int feedbackId) {
+        this.feedbackId = feedbackId;
     }
 
     public Customer getCustomer() {
@@ -65,11 +69,11 @@ public class Feedback {
         this.content = content;
     }
 
-    public LocalDateTime getCreate_at() {
-        return create_at;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreate_at(LocalDateTime create_at) {
-        this.create_at = create_at;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
