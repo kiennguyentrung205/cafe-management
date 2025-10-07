@@ -1,4 +1,4 @@
-package vn.edu.fpt.cafemanagement.controller;
+package vn.edu.fpt.cafemanagement.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.cafemanagement.entities.Category;
-import vn.edu.fpt.cafemanagement.service.CategoryService;
-import vn.edu.fpt.cafemanagement.service.ProductService;
+import vn.edu.fpt.cafemanagement.services.CategoryService;
+import vn.edu.fpt.cafemanagement.services.ProductService;
 
 @Controller
 @RequestMapping(value = "/product")
