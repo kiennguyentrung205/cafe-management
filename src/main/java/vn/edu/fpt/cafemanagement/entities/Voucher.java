@@ -11,7 +11,7 @@ public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "voucher_id")
-    private String voucherId;
+    private int voucherId;
 
     @Column(name = "voucher_name")
     private String voucherName;
@@ -46,7 +46,7 @@ public class Voucher {
     public Voucher() {
     }
 
-    public Voucher(String voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
+    public Voucher(int voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
                    String discountType, double discountValue, double minOrderValue, String code, boolean isActive,
                    List<Order> orders) {
         this.voucherId = voucherId;
@@ -62,11 +62,11 @@ public class Voucher {
         this.orders = orders;
     }
 
-    public String getVoucherId() {
+    public int getVoucherId() {
         return voucherId;
     }
 
-    public void setVoucherId(String voucherId) {
+    public void setVoucherId(int voucherId) {
         this.voucherId = voucherId;
     }
 
