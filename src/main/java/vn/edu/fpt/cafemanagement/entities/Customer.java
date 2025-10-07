@@ -10,7 +10,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cus_id", nullable = false)
-    private Integer cusId;
+    private int cusId;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -22,7 +22,7 @@ public class Customer {
     private String email;
 
     @Column(name = "point")
-    private Integer point;
+    private int point;
 
     @Column(name = "address", length = 255)
     private String address;
@@ -40,7 +40,7 @@ public class Customer {
     private String img; // nvarchar(255), có thể null (thường lưu đường dẫn ảnh)
 
     @Column(name = "failed_attempts", nullable = false)
-    private Integer failedAttempts = 0; // int, not null (Đặt giá trị mặc định là 0 là hợp lý)
+    private int failedAttempts = 0; // int, not null (Đặt giá trị mặc định là 0 là hợp lý)
 
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil; // datetime, có thể null (sử dụng LocalDateTime)
@@ -48,7 +48,7 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(Integer cusId, String name, String phoneNumber, String email, Integer point, String address, String password, String username, LocalDate dateOfBirth, String img, Integer failedAttempts, LocalDateTime lockedUntil) {
+    public Customer(int cusId, String name, String phoneNumber, String email, int point, String address, String password, String username, LocalDate dateOfBirth, String img, int failedAttempts, LocalDateTime lockedUntil) {
         this.cusId = cusId;
         this.name = name;
         this.phoneNumber = phoneNumber;
