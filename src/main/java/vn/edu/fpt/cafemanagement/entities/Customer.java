@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cus_id", nullable = false)
+    @Column(name = "cus_id")
     private int cusId;
 
     @Column(name = "name", nullable = false, length = 100)
@@ -22,33 +24,48 @@ public class Customer {
     private String email;
 
     @Column(name = "point")
-    private int point;
+    private Integer point;
 
-    @Column(name = "address", length = 255)
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "username", nullable = false, length = 100, unique = true)
-    private String username; // nvarchar(100), có thể cần thêm ràng buộc unique
+    @Column(name = "username", nullable = false, length = 100)
+    private String username;
 
     @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth; // date, có thể null
+    private LocalDate dateOfBirth;
 
-    @Column(name = "img", length = 255)
-    private String img; // nvarchar(255), có thể null (thường lưu đường dẫn ảnh)
+    @Column(name = "img")
+    private String img;
 
     @Column(name = "failed_attempts", nullable = false)
-    private int failedAttempts = 0; // int, not null (Đặt giá trị mặc định là 0 là hợp lý)
+    private int failedAttempts;
 
     @Column(name = "locked_until")
-    private LocalDateTime lockedUntil; // datetime, có thể null (sử dụng LocalDateTime)
+    private LocalDateTime lockedUntil;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Feedback> feedbacks;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Order> orders;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<PointHistory> pointHistories;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<TableBooking> tableBookings;
 
     public Customer() {
     }
 
-    public Customer(int cusId, String name, String phoneNumber, String email, int point, String address, String password, String username, LocalDate dateOfBirth, String img, int failedAttempts, LocalDateTime lockedUntil) {
+    public Customer(int cusId, String name, String phoneNumber, String email, int point, String address, String password
+            , String username, LocalDate dateOfBirth, String img, int failedAttempts, LocalDateTime lockedUntil,
+                    List<Feedback> feedbacks, List<Order> orders, List<PointHistory> pointHistories,
+                    List<TableBooking> tableBookings) {
         this.cusId = cusId;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -61,13 +78,17 @@ public class Customer {
         this.img = img;
         this.failedAttempts = failedAttempts;
         this.lockedUntil = lockedUntil;
+        this.feedbacks = feedbacks;
+        this.orders = orders;
+        this.pointHistories = pointHistories;
+        this.tableBookings = tableBookings;
     }
 
-    public Integer getCusId() {
+    public int getCusId() {
         return cusId;
     }
 
-    public void setCusId(Integer cusId) {
+    public void setCusId(int cusId) {
         this.cusId = cusId;
     }
 
@@ -95,11 +116,11 @@ public class Customer {
         this.email = email;
     }
 
-    public Integer getPoint() {
+    public int getPoint() {
         return point;
     }
 
-    public void setPoint(Integer point) {
+    public void setPoint(int point) {
         this.point = point;
     }
 
@@ -143,11 +164,11 @@ public class Customer {
         this.img = img;
     }
 
-    public Integer getFailedAttempts() {
+    public int getFailedAttempts() {
         return failedAttempts;
     }
 
-    public void setFailedAttempts(Integer failedAttempts) {
+    public void setFailedAttempts(int failedAttempts) {
         this.failedAttempts = failedAttempts;
     }
 
@@ -157,5 +178,37 @@ public class Customer {
 
     public void setLockedUntil(LocalDateTime lockedUntil) {
         this.lockedUntil = lockedUntil;
+    }
+
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public List<PointHistory> getPointHistories() {
+        return pointHistories;
+    }
+
+    public void setPointHistories(List<PointHistory> pointHistories) {
+        this.pointHistories = pointHistories;
+    }
+
+    public List<TableBooking> getTableBookings() {
+        return tableBookings;
+    }
+
+    public void setTableBookings(List<TableBooking> tableBookings) {
+        this.tableBookings = tableBookings;
     }
 }

@@ -4,45 +4,63 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Shift {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Giả định shift_id là IDENTITY (tự tăng) trong SQL Server
-    @Column(name = "shift_id", nullable = false)
-    private Integer shiftId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "shift_id")
+    private int shiftId;
 
     @Column(name = "shift_date", nullable = false)
-    private LocalDate shiftDate; // Sử dụng LocalDate cho kiểu date
+    private LocalDate shiftDate;
 
-    @Column(name = "shift_period")
-    private String shiftPeriod; // Kiểu varchar(20)
+    @Column(name = "shift_period", length = 20)
+    private String shiftPeriod;
 
-    // Khóa ngoại (Foreign Key) role_id.
-    // Giả định bạn có một Entity tên là Role
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "role_id")
-//    private Role role; // Sử dụng Role Entity để biểu diễn quan hệ
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // Sử dụng LocalDateTime cho kiểu datetime2(7)
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // Sử dụng LocalDateTime cho kiểu datetime2(7)
+    private LocalDateTime updatedAt;
 
-    // Constructors, Getters và Setters (Không bắt buộc phải có trong câu trả lời này, nhưng cần thiết trong thực tế)
+    @ManyToMany
+    @JoinTable(
+            name = "Shift_Role",
+            joinColumns = @JoinColumn(name = "shift_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> shiftRoles;
 
-    // Ví dụ về constructor mặc định
+    @ManyToMany(mappedBy = "shiftAssignments")
+    private List<Manager>  managers;
+
     public Shift() {
     }
 
-    // Ví dụ về getters và setters
+    public Shift(int shiftId, LocalDate shiftDate, String shiftPeriod, Role role, LocalDateTime createdAt,
+                 LocalDateTime updatedAt, List<Role> shiftRoles, List<Manager> managers) {
+        this.shiftId = shiftId;
+        this.shiftDate = shiftDate;
+        this.shiftPeriod = shiftPeriod;
+        this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.shiftRoles = shiftRoles;
+        this.managers = managers;
+    }
 
-    public Integer getShiftId() {
+    public int getShiftId() {
         return shiftId;
     }
 
-    public void setShiftId(Integer shiftId) {
+    public void setShiftId(int shiftId) {
         this.shiftId = shiftId;
     }
 
@@ -61,14 +79,14 @@ public class Shift {
     public void setShiftPeriod(String shiftPeriod) {
         this.shiftPeriod = shiftPeriod;
     }
-//
-//    public Role getRole() {
-//        return role;
-//    }
-//
-//    public void setRole(Role role) {
-//        this.role = role;
-//    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -86,7 +104,19 @@ public class Shift {
         this.updatedAt = updatedAt;
     }
 
-    // Ghi chú: Cần phải tạo Entity Role.java nếu chưa có.
+    public List<Role> getShiftRoles() {
+        return shiftRoles;
+    }
+
+    public void setShiftRoles(List<Role> shiftRoles) {
+        this.shiftRoles = shiftRoles;
+    }
+
+    public List<Manager> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<Manager> managers) {
+        this.managers = managers;
+    }
 }
-
-
