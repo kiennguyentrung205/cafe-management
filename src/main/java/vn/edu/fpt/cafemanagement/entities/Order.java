@@ -35,7 +35,7 @@ public class Order {
     private int pointsUsed;
 
     @ManyToOne
-    @JoinColumn(name = "cus_id", nullable = false)
+    @JoinColumn(name = "voucher_id", nullable = false)
     private Voucher voucher;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
