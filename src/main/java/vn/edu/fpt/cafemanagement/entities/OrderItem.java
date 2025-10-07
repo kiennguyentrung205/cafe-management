@@ -5,32 +5,21 @@ import jakarta.persistence.*;
 
 @Entity
 public class OrderItem {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderitem_id")
     private int orderItemId;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @Column(name = "quantity")
+    private int orderId;
+    private int productId;
     private int quantity;
-
-    @Column(name = "note")
     private String note;
 
     public OrderItem() {
     }
 
-    public OrderItem(int orderItemId, Order order, Product product, int quantity, String note) {
+    public OrderItem(int orderItemId, int orderId, int productId, int quantity, String note) {
         this.orderItemId = orderItemId;
-        this.order = order;
-        this.product = product;
+        this.orderId = orderId;
+        this.productId = productId;
         this.quantity = quantity;
         this.note = note;
     }
@@ -43,20 +32,20 @@ public class OrderItem {
         this.orderItemId = orderItemId;
     }
 
-    public Order getOrder() {
-        return order;
+    public int getOrderId() {
+        return orderId;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
     }
 
-    public Product getProduct() {
-        return product;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 
     public int getQuantity() {
