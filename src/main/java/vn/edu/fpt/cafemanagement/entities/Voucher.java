@@ -1,25 +1,54 @@
 package vn.edu.fpt.cafemanagement.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Voucher {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "voucher_id")
     private int voucherId;
+
+    @Column(name = "voucher_name", nullable = false, length = 100)
     private String voucherName;
-    private Date startDate;
-    private Date endDate;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+
+    @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    @Column(name = "discount_type", length = 20)
     private String discountType;
-    private Double discountValue;
-    private Double minOrderValue;
+
+    @Column(name = "discount_value", nullable = false)
+    private double discountValue;
+
+    @Column(name = "min_order_value", nullable = false)
+    private double minOrderValue;
+
+    @Column(name = "code", nullable = false, length = 50)
     private String code;
+
+    @Column(name = "is_active")
     private boolean isActive;
 
-    public Voucher(int voucherId, String voucherName, Date startDate, Date endDate, int quantity, String discountType, Double discountValue, Double minOrderValue, String code, boolean isActive) {
+    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL)
+    private List<Order> orders;
+
+    public Voucher() {
+    }
+
+    public Voucher(int voucherId, String voucherName, LocalDate startDate, LocalDate endDate, int quantity,
+                   String discountType, double discountValue, double minOrderValue, String code,
+                   boolean isActive, List<Order> orders) {
         this.voucherId = voucherId;
         this.voucherName = voucherName;
         this.startDate = startDate;
@@ -30,9 +59,7 @@ public class Voucher {
         this.minOrderValue = minOrderValue;
         this.code = code;
         this.isActive = isActive;
-    }
-
-    public Voucher() {
+        this.orders = orders;
     }
 
     public int getVoucherId() {
@@ -51,19 +78,19 @@ public class Voucher {
         this.voucherName = voucherName;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
@@ -83,19 +110,19 @@ public class Voucher {
         this.discountType = discountType;
     }
 
-    public Double getDiscountValue() {
+    public double getDiscountValue() {
         return discountValue;
     }
 
-    public void setDiscountValue(Double discountValue) {
+    public void setDiscountValue(double discountValue) {
         this.discountValue = discountValue;
     }
 
-    public Double getMinOrderValue() {
+    public double getMinOrderValue() {
         return minOrderValue;
     }
 
-    public void setMinOrderValue(Double minOrderValue) {
+    public void setMinOrderValue(double minOrderValue) {
         this.minOrderValue = minOrderValue;
     }
 
@@ -113,5 +140,13 @@ public class Voucher {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }
