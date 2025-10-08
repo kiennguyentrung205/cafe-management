@@ -1,4 +1,4 @@
-package vn.edu.fpt.cafemanagement.security.config;
+package vn.edu.fpt.cafemanagement.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package vn.edu.fpt.cafemanagement.security.services;
+package vn.edu.fpt.cafemanagement.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
-import vn.edu.fpt.cafemanagement.security.models.CustomUserDetails;
+import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

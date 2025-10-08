@@ -1,10 +1,8 @@
-package vn.edu.fpt.cafemanagement.security.models;
+package vn.edu.fpt.cafemanagement.entities;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import vn.edu.fpt.cafemanagement.entities.Customer;
-import vn.edu.fpt.cafemanagement.entities.Manager;
 
 import java.util.Collection;
 import java.util.List;
