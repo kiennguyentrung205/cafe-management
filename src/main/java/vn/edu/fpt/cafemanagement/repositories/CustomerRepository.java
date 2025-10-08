@@ -2,11 +2,12 @@ package vn.edu.fpt.cafemanagement.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import vn.edu.fpt.cafemanagement.entities.Manager;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 
 import java.util.Optional;
 
 @Repository
-public interface ManagerRepository extends JpaRepository<Manager, Integer> {
-    Optional<Manager> findByUsername(String name);
+public interface CustomerRepository extends JpaRepository<Customer, Integer>
+{
+    Optional<Customer> findByUsername(String name);
 }

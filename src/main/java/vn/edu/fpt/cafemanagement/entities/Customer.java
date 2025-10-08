@@ -24,7 +24,7 @@ public class Customer {
     private String email;
 
     @Column(name = "point")
-    private int point;
+    private Integer point;
 
     @Column(name = "address", nullable = false)
     private String address;
