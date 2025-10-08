@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home | Welcome</title>
+</head>
+<body>
+<h1 th:inline="text">Welcome [[${manager.name}]] to our website!</h1>
+
+<!--<p th:if="${user.role}">Your role is: <span th:text="${user.role}">Administrator</span></p>-->
+
+<p>We hope you enjoy your experience.</p>
+</body>
+</html>
