@@ -35,15 +35,11 @@ public class OrderController {
 
     @GetMapping("/create")
     public String showCreateOrderForm(Model model) {
-        List<Product> list = productService.getActiveProducts();
-        System.out.println(">>> Product count: " + list.size());
-        for (Product p : list) {
-            System.out.println(">>> " + p.getProId() + " | " + p.getProName() + " | " + p.getPrice() + " | " + p.getImg());
-        }
-
+        List<Product> listProduct = productService.getActiveProducts();
+        List<Voucher> listVoucher = voucherService.getActiveVouchers();
         model.addAttribute("title", "Create In-Store Order");
-        model.addAttribute("productList", list);
-        model.addAttribute("voucherList", voucherService.getActiveVouchers());
+        model.addAttribute("productList", listProduct);
+        model.addAttribute("voucherList", listVoucher);
         model.addAttribute("customer", null);
         return "order/create";
     }
