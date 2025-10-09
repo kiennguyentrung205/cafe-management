@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,13 +35,18 @@ public class OrderController {
     }
 
     @GetMapping("/create")
-    public String showCreateOrderForm(Model model) {
-        List<Product> listProduct = productService.getActiveProducts();
-        List<Voucher> listVoucher = voucherService.getActiveVouchers();
+    public String showCreateOrderForm(@RequestParam(defaultValue = "1") int page,
+                                      Model model) {
+        int size = 6; //mỗi trang 6 sản phẩm
+        Page<Product> productPage = productService.getActiveProductsPaged(page, size);
+
         model.addAttribute("title", "Create In-Store Order");
-        model.addAttribute("productList", listProduct);
-        model.addAttribute("voucherList", listVoucher);
+        model.addAttribute("productList", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("voucherList", voucherService.getActiveVouchers());
         model.addAttribute("customer", null);
+
         return "order/create";
     }
 
@@ -135,8 +141,15 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public String listOrders(Model model) {
-        model.addAttribute("orders", orderService.getAllOrders());
+    public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
+        int pageSize = 6;
+        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+
         return "order/list";
     }
+
 }

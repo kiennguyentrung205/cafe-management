@@ -1,5 +1,9 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
@@ -29,5 +33,10 @@ public class OrderService {
 
     public void deleteOrder(int id) {
         orderRepository.deleteById(id);
+    }
+
+    public Page<Order> getPagedOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "createdAt"));
+        return orderRepository.findAll(pageable);
     }
 }
