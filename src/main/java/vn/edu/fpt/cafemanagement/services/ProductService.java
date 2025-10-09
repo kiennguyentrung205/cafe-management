@@ -40,7 +40,7 @@ public class ProductService {
     }
 
     public Product getProductById(int productId) {
-        return productRepository.findById(productId).get();
+        return productRepository.findById(productId).orElse(null);
     }
 
 

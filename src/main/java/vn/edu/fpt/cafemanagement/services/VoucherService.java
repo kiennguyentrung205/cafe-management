@@ -9,10 +9,16 @@ import java.util.List;
 @Service
 public class VoucherService {
     private VoucherRepository voucherRepository;
+
     public VoucherService(VoucherRepository voucherRepository) {
         this.voucherRepository = voucherRepository;
     }
-    public List<Voucher> findAllByVoucherId(int voucherId) {
-        return voucherRepository.findAllByVoucherId(voucherId);
+
+    public Voucher getVoucherById(int id) {
+        return voucherRepository.findById(id).orElse(null);
+    }
+
+    public List<Voucher> getActiveVouchers() {
+        return voucherRepository.findByIsActiveTrue();
     }
 }

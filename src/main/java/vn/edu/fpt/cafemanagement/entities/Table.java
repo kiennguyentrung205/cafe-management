@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@jakarta.persistence.Table(name = "[table]")
 public class Table {
 
     @Id
