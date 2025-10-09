@@ -48,7 +48,7 @@ public class ProductService {
 
     public Page<Product> getActiveProductsPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return productRepository.findByActiveTrue(pageable);
+        return productRepository.findByIsActiveTrue(pageable);
     }
 
 }
