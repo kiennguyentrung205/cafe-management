@@ -37,7 +37,7 @@ public class Order {
     private int pointsUsed;
 
     @ManyToOne
-    @JoinColumn(name = "voucher_id", nullable = false)
+    @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
     private Voucher voucher;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
