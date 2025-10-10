@@ -279,13 +279,14 @@
 
                 <!-- Pagination -->
                 <div class="pagination">
-                    <a th:href="@{/order/view(page=1)}">&lt;&lt;</a>
+                    <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
                     <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-                       th:href="@{/order/view(page=${i})}"
+                       th:href="@{/order/create(page=${i})}"
                        th:text="${i}"
                        th:classappend="${i == currentPage} ? 'active' : ''"></a>
-                    <a th:href="@{/order/view(page=${totalPages})}">&gt;&gt;</a>
+                    <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
                 </div>
+
 
             </div>
 

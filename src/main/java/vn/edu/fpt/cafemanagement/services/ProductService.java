@@ -4,19 +4,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Product;
+import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 import vn.edu.fpt.cafemanagement.repositories.ProductRepository;
 
 import java.util.List;
 
 @Service
 public class ProductService {
-    private ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
+    // ---------------- BASIC CRUD ----------------
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
@@ -33,13 +39,13 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    // ---------------- ACTIVE PRODUCTS ----------------
     public List<Product> getActiveProducts() {
         return productRepository.findByIsActiveTrue();
     }
 
     public List<Product> getProductsByCategory(int categoryId) {
         return productRepository.findByIsActiveTrueAndCategoryCateId(categoryId);
-
     }
 
     public Product getProductById(int productId) {
@@ -51,4 +57,26 @@ public class ProductService {
         return productRepository.findByIsActiveTrue(pageable);
     }
 
+    // ---------------- ORDER LOGIC ----------------
+    /**
+     * Tính tổng phụ (subtotal) của danh sách sản phẩm
+     * Dựa trên giá * số lượng
+     */
+    public double calculateSubtotal(List<Integer> productIds, List<Integer> quantities) {
+        double subtotal = 0;
+        for (int i = 0; i < productIds.size(); i++) {
+            Product product = getProductById(productIds.get(i));
+            if (product != null) {
+                subtotal += product.getPrice() * quantities.get(i);
+            }
+        }
+        return subtotal;
+    }
+
+    //Cập nhật tổng giá của đơn hàng
+    public void saveOrderItems(Order order, List<Integer> productIds, List<Integer> quantities) {
+        double subtotal = calculateSubtotal(productIds, quantities);
+        order.setTotalPrice(subtotal);
+        orderRepository.save(order);
+    }
 }

@@ -21,4 +21,8 @@ public class VoucherService {
     public List<Voucher> getActiveVouchers() {
         return voucherRepository.findByIsActiveTrue();
     }
+
+    public Voucher saveVoucher(Voucher voucher) {
+        return voucherRepository.save(voucher);
+    }
 }
