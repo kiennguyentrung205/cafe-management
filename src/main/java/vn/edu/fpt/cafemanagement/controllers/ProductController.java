@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -41,30 +42,35 @@ public class ProductController {
         Category category = categoryService.getCategoryById(categoryId);
 
         model.addAttribute("category", category);
-        return "product/list";
+        return "redirect:/product/list";
 
     }
 
-    @RequestMapping(value = "/details/{id}")
-    public String productDetails(@PathVariable("id") int pro_id, Model model) {
-        model.addAttribute("product", productService.getProductsByCategory(pro_id));
-
-        return "product/details";
-    }
-
-
-    //    @RequestMapping(value = "/list")
-//    public String list(Model model) {
-//        model.addAttribute("title", "Product List");
-//        model.addAttribute("productList", productService.getActiveProducts());
-//        model.addAttribute("viewType", "all");
-//        model.addAttribute("categoryList", categoryService.getCategories());
-//        return "product/list";
-//    }
     @GetMapping(value = "/list")
-    public String showList(Model model) {
+    public String showList(
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            Model model
+    ) {
         model.addAttribute("title", "Product List");
-        model.addAttribute("productList", productService.getActiveProducts());
+
+        // 1. Logic Lọc Sản phẩm
+        List<Product> products;
+        if (categoryId != null && categoryId > 0) {
+            // Nếu có ID, gọi phương thức Service để lọc theo Category ID
+            products = productService.getProductsByCategory(categoryId);
+        } else {
+            // Mặc định: Lấy tất cả sản phẩm đang hoạt động
+            products = productService.getActiveProducts();
+        }
+
+        model.addAttribute("productList", products);
+
+        // 2. Thêm Category List để hiển thị ô chọn
+        model.addAttribute("categoryList", categoryService.getCategories());
+
+        // 3. Thêm ID đã chọn vào Model để Thymeleaf có thể giữ trạng thái
+        model.addAttribute("selectedCategoryId", categoryId);
+
         return "product/list";
     }
 
@@ -174,7 +180,7 @@ public class ProductController {
         System.out.println("Id la:" + proId);
         productService.deleteSortProduct(productService.getProductById(proId));
         System.out.println("ten laf " + productService.getProductById(proId).getProName());
-
+        ;
         return "redirect:/product/list";
     }
 }
