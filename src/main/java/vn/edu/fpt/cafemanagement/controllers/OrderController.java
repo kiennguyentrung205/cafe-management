@@ -133,13 +133,15 @@ public class OrderController {
         }
 
         // --- Trừ điểm đổi thưởng ---
-        totalPrice -= pointsUsed;
+        double discountValue = pointsUsed * 2000;
+        totalPrice -= discountValue;
         if (totalPrice < 0) totalPrice = 0;
         order.setTotalPrice(totalPrice);
         order.setOrderItems(orderItems);
 
         // --- Cập nhật điểm khách hàng ---
-        int newPoint = customer.getPoint() - pointsUsed + (int) (totalPrice / 1000); // 1 điểm / 1000 VND
+        int earnedPoints = (int) (totalPrice / 50000);
+        int newPoint = customer.getPoint() - pointsUsed + earnedPoints;
         customer.setPoint(newPoint);
         customerService.saveCustomer(customer);
 
