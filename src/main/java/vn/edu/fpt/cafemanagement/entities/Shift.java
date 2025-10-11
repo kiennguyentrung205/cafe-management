@@ -20,9 +20,9 @@ public class Shift {
     @Column(name = "shift_period", length = 20)
     private String shiftPeriod;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+//    @ManyToOne
+//    @JoinColumn(name = "role_id", nullable = false)
+//    private Role role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -49,7 +49,7 @@ public class Shift {
         this.shiftId = shiftId;
         this.shiftDate = shiftDate;
         this.shiftPeriod = shiftPeriod;
-        this.role = role;
+//        this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.shiftRoles = shiftRoles;
@@ -80,13 +80,13 @@ public class Shift {
         this.shiftPeriod = shiftPeriod;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+//    public Role getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(Role role) {
+//        this.role = role;
+//    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
