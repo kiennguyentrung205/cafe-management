@@ -1,0 +1,67 @@
+<html>
+<head th:replace="fragment/frag :: head">
+    <title>Staff Dashboard</title>
+</head>
+<body class="bg-light">
+<div th:replace="fragment/frag :: navbar"></div>
+
+<div class="container mt-4">
+    <!-- Title -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Staff List</h2>
+        <a th:href="@{/dashboard/staff/new}" class="btn btn-success">+ Add New Staff</a>
+    </div>
+
+    <!-- Search Bar -->
+    <form class="d-flex mb-3" role="search" th:action="@{/dashboard/staff}" method="get">
+        <input class="form-control me-2" type="search" name="keyword"
+               placeholder="Search by name, email or role..." aria-label="Search">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    <!-- Staff Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th class="text-center">Photo</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Is Active</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="staff : ${staffs}">
+                    <td class="text-center">
+                        <img th:src="${staff.img}" alt="No image" class="img-thumbnail" width="80" height="80">
+                    </td>
+                    <td th:text="${staff.managerId}">1</td>
+                    <td><a th:text="${staff.name}" class="fw-bold text-decoration-none">Nguyen Van A</a></td>
+                    <td th:text="${staff.email}">abc@gmail.com</td>
+                    <td th:text="${staff.phoneNumber}">0123456789</td>
+                    <td th:text="${staff.role != null ? staff.role.roleName : 'Unknown'}"></td>
+                    <td th:text="${staff.isActive ? 'Online' : 'Offline'}"></td>
+                    <td class="text-center">
+                        <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}" class="btn btn-outline-secondary">Detail</a>
+                        <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}" class="btn btn-sm btn-warning">Edit</a>
+                        <a th:href="@{/dashboard/staff/delete/{id}(id=${staff.managerId})}"
+                           class="btn btn-sm btn-danger">Delete</a>
+
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragment/frag :: footer"></div>
+</body>
+</html>
+```

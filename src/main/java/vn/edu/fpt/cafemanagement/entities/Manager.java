@@ -38,11 +38,8 @@ public class Manager implements UserDetails {
     @Column(name = "username", nullable = false, length = 100)
     private String username;
 
-//    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
-//    private List<Role> roles;
-
     @ManyToOne
-    @JoinColumn(name = "role_id")  // cột khóa ngoại nằm ở bảng Manager
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @Column(name = "date_of_birth")
