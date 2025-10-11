@@ -9,7 +9,7 @@ public class PointHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "point_history_id")
+    @Column(name = "pointhistory_id")
     private int pointHistoryId;
 
     @ManyToOne
