@@ -31,8 +31,9 @@ public class Manager {
     @Column(name = "username", nullable = false, length = 100)
     private String username;
 
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
-    private List<Role> roles;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -58,7 +59,7 @@ public class Manager {
     }
 
     public Manager(int managerId, String name, String phoneNumber, String email, String address, String password,
-                   String username, List<Role> roles, LocalDate dateOfBirth, String img, boolean isActive,
+                   String username, Role role, LocalDate dateOfBirth, String img, boolean isActive,
                    List<Order> orders, List<Shift> shiftAssignments) {
         this.managerId = managerId;
         this.name = name;
@@ -67,7 +68,7 @@ public class Manager {
         this.address = address;
         this.password = password;
         this.username = username;
-        this.roles = roles;
+        this.role = role;
         this.dateOfBirth = dateOfBirth;
         this.img = img;
         this.isActive = isActive;
@@ -131,12 +132,12 @@ public class Manager {
         this.username = username;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public LocalDate getDateOfBirth() {

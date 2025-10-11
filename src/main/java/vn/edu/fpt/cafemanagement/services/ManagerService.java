@@ -1,7 +1,9 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Manager;
+import vn.edu.fpt.cafemanagement.entities.Role;
 import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 
 import java.util.List;
@@ -15,19 +17,29 @@ public class ManagerService {
         this.managerRepository = managerRepository;
     }
 
-    public List<Manager> getAllManagers() {
+    public List<Manager> getList() {
         return managerRepository.findAll();
     }
 
-    public Optional<Manager> getManagerById(int id) {
-        return managerRepository.findById(id);
+    public Manager findById(int artistId) {
+        return managerRepository.findById(artistId).orElse(null);
     }
 
-    public Manager saveManager(Manager manager) {
-        return managerRepository.save(manager);
+    @Transactional
+    public Manager createStaff(Manager staff) {
+        return managerRepository.save(staff);
+    }
+    @Transactional
+    //Create, Update
+    public Manager save(Manager staff) {
+        return managerRepository.save(staff);
     }
 
-    public void deleteManager(int id) {
+    @Transactional
+    public void deleteById(int id) {
         managerRepository.deleteById(id);
     }
+
+
+
 }

@@ -6,4 +6,5 @@ import vn.edu.fpt.cafemanagement.entities.Manager;
 
 @Repository
 public interface ManagerRepository extends JpaRepository<Manager, Integer> {
+
 }
