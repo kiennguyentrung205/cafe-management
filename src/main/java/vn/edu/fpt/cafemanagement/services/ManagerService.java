@@ -23,6 +23,10 @@ public class ManagerService {
         return managerRepository.findById(id);
     }
 
+    public Manager findByUsername(String username) {
+        return managerRepository.findByUsername(username).orElse(null);
+    }
+
     public Manager saveManager(Manager manager) {
         return managerRepository.save(manager);
     }

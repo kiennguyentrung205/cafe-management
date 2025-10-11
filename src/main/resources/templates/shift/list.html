@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Quản Lý Ca Làm Việc - Bootstrap</title>
+
+     <style>
+        body {
+            background-color: #f8f9fa; /* Tương đương với Bootstrap bg-light/bg-body-secondary */
+            line-height: 1.6;
+        }
+
+        .container-xxl {
+            /* Giữ lại max-width cho container lớn */
+            max-width: 1400px;
+        }
+
+        /* Tùy chỉnh màu sắc và hình dạng ô ca */
+        .shift-assignment {
+            display: inline-block;
+            padding: .3rem .75rem; /* Tương đương py-1 px-3 */
+            border-radius: 1rem; /* Tương đương rounded-pill */
+            font-weight: 500;
+            color: white;
+            font-size: 0.8125rem; /* font-size nhỏ hơn */
+        }
+
+        /* Ánh xạ màu sắc từ CSS cũ sang Bootstrap color names */
+        .waiter { background-color: #3498db; } /* Blue */
+        .barista { background-color: #2ecc71; } /* Green */
+        .cashier { background-color: #f1c40f; color: #333; } /* Yellow, cần màu chữ đen */
+
+        /* Lịch làm việc */
+        .schedule-table th, .schedule-table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .shift-time {
+            font-weight: bold;
+            background-color: #f9f9f9;
+            border-right: 1px solid #e0e0e0;
+            width: 80px; /* Thu hẹp cột Ca */
+        }
+
+        .role-name {
+            font-weight: 500;
+            color: #667;
+            width: 120px;
+            text-align: left !important;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .shift-cell {
+            cursor: pointer;
+            height: 50px;
+            transition: background-color 0.2s;
+        }
+
+        .shift-cell:hover {
+            background-color: #e9eff7; /* Màu hover nhẹ hơn */
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container container-xxl mt-4 p-0 shadow-lg rounded-3">
+    <header class="p-3 bg-primary text-white d-flex justify-content-between align-items-center rounded-top-3">
+        <h1 class="h3 mb-0">Lịch Làm Việc</h1>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-light nav-button">Tuần Trước</button>
+            <span class="fw-bold">01/06/2025 - 07/06/2025</span>
+            <button class="btn btn-outline-light nav-button">Tuần Tới</button>
+        </div>
+    </header>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover schedule-table mb-0">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">Ca</th>
+                <th scope="col">Vị trí</th>
+                <th scope="col">Thứ 2 (01/06)</th>
+                <th scope="col">Thứ 3 (02/06)</th>
+                <th scope="col">Thứ 4 (03/06)</th>
+                <th scope="col">Thứ 5 (04/06)</th>
+                <th scope="col">Thứ 6 (05/06)</th>
+                <th scope="col">Thứ 7 (06/06)</th>
+                <th scope="col">Chủ Nhật (07/06)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td rowspan="3" class="shift-time">Sáng</td>
+                <td class="role-name">Phục vụ</td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="01/06"><span class="shift-assignment waiter">An</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="02/06"><span class="shift-assignment waiter">An</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Phục vụ" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Pha chế</td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="01/06"><span class="shift-assignment barista">Bình</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="02/06"><span class="shift-assignment barista">Bình</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Pha chế" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Thu ngân</td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="01/06"><span class="shift-assignment cashier">Chi</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="02/06"><span class="shift-assignment cashier">Chi</span></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Sáng" data-role="Thu ngân" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td rowspan="3" class="shift-time">Chiều</td>
+                <td class="role-name">Phục vụ</td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="01/06"><span class="shift-assignment waiter">An</span></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="02/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="04/06"><span class="shift-assignment waiter">Dũng</span></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Phục vụ" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Pha chế</td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="01/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="02/06"><span class="shift-assignment barista">Bình</span></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="06/06"><span class="shift-assignment barista">Em</span></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Pha chế" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Thu ngân</td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="01/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="02/06"><span class="shift-assignment cashier">Chi</span></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Chiều" data-role="Thu ngân" data-date="07/06"><span class="shift-assignment cashier">Giang</span></td>
+            </tr>
+            <tr>
+                <td rowspan="3" class="shift-time">Tối</td>
+                <td class="role-name">Phục vụ</td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="01/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="02/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="03/06"><span class="shift-assignment waiter">Dũng</span></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Phục vụ" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Pha chế</td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="01/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="02/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="05/06"><span class="shift-assignment barista">Em</span></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Pha chế" data-date="07/06"></td>
+            </tr>
+            <tr>
+                <td class="role-name">Thu ngân</td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="01/06"><span class="shift-assignment cashier">Giang</span></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="02/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="03/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="04/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="05/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="06/06"></td>
+                <td class="shift-cell" data-shift="Tối" data-role="Thu ngân" data-date="07/06"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="shiftModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Chỉnh sửa Ca làm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="shiftForm">
+                    <div class="mb-3">
+                        <label for="employeeSelect" class="form-label">Chọn nhân viên:</label>
+                        <select id="employeeSelect" class="form-select">
+                            <option value="">-- Trống --</option>
+                            <option value="An">An (Phục vụ)</option>
+                            <option value="Bình">Bình (Pha chế)</option>
+                            <option value="Chi">Chi (Thu ngân)</option>
+                            <option value="Dũng">Dũng (Phục vụ)</option>
+                            <option value="Em">Em (Pha chế)</option>
+                            <option value="Giang">Giang (Thu ngân)</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-danger btn-delete">Xóa ca</button>
+                        <button type="submit" class="btn btn-primary btn-save">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        // Khởi tạo Bootstrap Modal-->
+<!--        const shiftModal = new bootstrap.Modal(document.getElementById('shiftModal'));-->
+<!--        const cells = document.querySelectorAll('.shift-cell');-->
+<!--        const modalTitle = document.getElementById('modalTitle');-->
+<!--        const employeeSelect = document.getElementById('employeeSelect');-->
+<!--        const shiftForm = document.getElementById('shiftForm');-->
+<!--        const deleteBtn = document.querySelector('.btn-delete');-->
+<!--        let activeCell = null;-->
+
+<!--        // Hàm để tìm vai trò (role) của nhân viên đã chọn-->
+<!--        const getEmployeeRoleClass = (employeeName) => {-->
+<!--            const option = employeeSelect.querySelector(`option[value="${employeeName}"]`);-->
+<!--            if (!option) return '';-->
+<!--            const roleText = option.textContent.match(/\((.*?)\)/); // Lấy nội dung trong dấu ngoặc đơn-->
+<!--            const role = roleText ? roleText[1] : '';-->
+
+<!--            if (role === 'Phục vụ') return 'waiter';-->
+<!--            if (role === 'Pha chế') return 'barista';-->
+<!--            if (role === 'Thu ngân') return 'cashier';-->
+<!--            return '';-->
+<!--        }-->
+
+<!--        // Open modal when a cell is clicked-->
+<!--        cells.forEach(cell => {-->
+<!--            cell.addEventListener('click', function() {-->
+<!--                activeCell = this; // Store the clicked cell-->
+<!--                const shift = this.dataset.shift;-->
+<!--                const role = this.dataset.role;-->
+<!--                const date = this.dataset.date;-->
+<!--                modalTitle.textContent = `Ca ${shift} - ${role} (${date})`;-->
+
+<!--                // Set current employee in dropdown-->
+<!--                const currentAssignment = this.querySelector('.shift-assignment');-->
+<!--                if(currentAssignment) {-->
+<!--                    employeeSelect.value = currentAssignment.textContent;-->
+<!--                } else {-->
+<!--                    employeeSelect.value = "";-->
+<!--                }-->
+
+<!--                shiftModal.show(); // Hiển thị Modal Bootstrap-->
+<!--            });-->
+<!--        });-->
+
+<!--        // Handle form submission (Lưu thay đổi)-->
+<!--        shiftForm.addEventListener('submit', function(e) {-->
+<!--            e.preventDefault();-->
+<!--            const selectedEmployee = employeeSelect.value;-->
+<!--            const role = activeCell.dataset.role;-->
+
+<!--            // Kiểm tra xem nhân viên được chọn có đúng vai trò của ô ca hay không (Tùy chọn)-->
+<!--            const employeeRoleClass = getEmployeeRoleClass(selectedEmployee);-->
+<!--            let isValidAssignment = true;-->
+<!--            if (selectedEmployee && role === 'Phục vụ' && employeeRoleClass !== 'waiter') isValidAssignment = false;-->
+<!--            if (selectedEmployee && role === 'Pha chế' && employeeRoleClass !== 'barista') isValidAssignment = false;-->
+<!--            if (selectedEmployee && role === 'Thu ngân' && employeeRoleClass !== 'cashier') isValidAssignment = false;-->
+
+<!--            if (!isValidAssignment) {-->
+<!--                alert(`Không thể xếp nhân viên ${selectedEmployee} vào vị trí ${role}. Vui lòng chọn nhân viên có vai trò phù hợp.`);-->
+<!--                return;-->
+<!--            }-->
+
+<!--            // Clear current content-->
+<!--            activeCell.innerHTML = '';-->
+
+<!--            if (selectedEmployee) {-->
+<!--                const newAssignment = document.createElement('span');-->
+<!--                newAssignment.textContent = selectedEmployee;-->
+<!--                newAssignment.classList.add('shift-assignment');-->
+
+<!--                // Thêm class màu sắc-->
+<!--                newAssignment.classList.add(employeeRoleClass);-->
+
+<!--                activeCell.appendChild(newAssignment);-->
+<!--            }-->
+
+<!--            shiftModal.hide();-->
+<!--        });-->
+
+<!--        // Handle delete button (Xóa ca)-->
+<!--        deleteBtn.addEventListener('click', function() {-->
+<!--            if (activeCell) {-->
+<!--                activeCell.innerHTML = '';-->
+<!--            }-->
+<!--            shiftModal.hide();-->
+<!--        });-->
+
+<!--        // Đặt lại form khi modal đóng (Tùy chọn)-->
+<!--        document.getElementById('shiftModal').addEventListener('hidden.bs.modal', function () {-->
+<!--            activeCell = null;-->
+<!--            shiftForm.reset();-->
+<!--        })-->
+<!--    });-->
+<!--</script>-->
+</body>
+</html>

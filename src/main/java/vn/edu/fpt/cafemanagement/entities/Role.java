@@ -15,12 +15,11 @@ public class Role {
     @Column(name = "role_name", nullable = false, length = 50)
     private String roleName;
 
-    @ManyToOne
-    @JoinColumn(name = "manager_id", nullable = false)
-    private Manager manager;
-
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<Shift> shifts;
+    private List<Manager> manager;
+
+//    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+//    private List<Shift> shifts;
 
     @ManyToMany(mappedBy = "shiftRoles")
     private List<Shift> shiftsRoles;
@@ -28,11 +27,11 @@ public class Role {
     public Role() {
     }
 
-    public Role(int roleId, String roleName, Manager manager, List<Shift> shifts, List<Shift> shiftsRoles) {
+    public Role(int roleId, String roleName, List<Manager> manager, List<Shift> shifts, List<Shift> shiftsRoles) {
         this.roleId = roleId;
         this.roleName = roleName;
         this.manager = manager;
-        this.shifts = shifts;
+//        this.shifts = shifts;
         this.shiftsRoles = shiftsRoles;
     }
 
@@ -52,21 +51,21 @@ public class Role {
         this.roleName = roleName;
     }
 
-    public Manager getManager() {
+    public List<Manager> getManager() {
         return manager;
     }
 
-    public void setManager(Manager manager) {
+    public void setManager(List<Manager> manager) {
         this.manager = manager;
     }
 
-    public List<Shift> getShifts() {
-        return shifts;
-    }
-
-    public void setShifts(List<Shift> shifts) {
-        this.shifts = shifts;
-    }
+//    public List<Shift> getShifts() {
+//        return shifts;
+//    }
+//
+//    public void setShifts(List<Shift> shifts) {
+//        this.shifts = shifts;
+//    }
 
     public List<Shift> getShiftsRoles() {
         return shiftsRoles;

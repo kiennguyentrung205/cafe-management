@@ -15,4 +15,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByIsActiveTrueAndCategoryCateId(Integer categoryId);
 
     Page<Product> findByIsActiveTrue(Pageable pageable);
+    List<Product> findByIsActiveTrueAndCategoryIsActiveTrue();
 }
