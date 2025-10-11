@@ -13,10 +13,10 @@ public class MvcConfig implements WebMvcConfigurer {
         // 2. Tới thư mục tuyệt đối trên ổ đĩa là D:/SWP/Project/uploads/
         // LƯU Ý: Phải có dấu / ở cuối đường dẫn (Ví dụ: "file:///D:/SWP/Project/uploads/")
 
-        String imagePath = "file:///D:/FA25/HSF/img/";
+        String imagePath = "file:///D:/SWP/Project/uploads/";
         // Đảm bảo đường dẫn này kết thúc bằng dấu "/"
 
-        registry.addResourceHandler("/img/**")
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(imagePath);
     }
 }

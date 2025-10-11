@@ -18,6 +18,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+
     public void saveProduct(Product product) {
         productRepository.save(product);
     }
@@ -31,7 +32,7 @@ public class ProductService {
     }
 
     public List<Product> getActiveProducts() {
-        return productRepository.findByIsActiveTrue();
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue();
     }
 
     public List<Product> getProductsByCategory(int categoryId) {
@@ -44,4 +45,8 @@ public class ProductService {
     }
 
 
+    public void deleteSortProduct(Product product) {
+        product.setActive(false);
+        productRepository.save(product);
+    }
 }
