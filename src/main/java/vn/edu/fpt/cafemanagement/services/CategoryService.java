@@ -17,7 +17,7 @@ public class CategoryService {
     }
 
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        return categoryRepository.findByIsActiveTrue();
     }
 
     public Category getCategoryById(Integer categoryId) {
