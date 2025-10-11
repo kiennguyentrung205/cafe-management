@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Order History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 30px;
+        }
+
+        .nav-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .nav-tab.active {
+            color: #333;
+            border-bottom-color: #5cb85c;
+            font-weight: 500;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-link {
+            color: #5cb85c;
+            text-decoration: none;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            padding: 0 30px 30px;
+            margin: 0 30px 30px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) auto auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-input, .filter-select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            color: #666;
+        }
+
+        .filter-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .btn-clear {
+            background-color: transparent;
+            color: #999;
+        }
+
+        .btn-search {
+            background-color: #5cb85c;
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            padding: 0 30px 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 10px;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 25px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        .id-cell {
+            color: #5cb85c;
+            font-weight: 500;
+        }
+
+        .date-cell {
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-submitted {
+            background-color: #d4e7f7;
+            color: #4a90c7;
+        }
+
+        .status-invoiced {
+            background-color: #d4e7f7;
+            color: #4a90c7;
+        }
+
+        .status-time {
+            display: block;
+            font-size: 11px;
+            margin-top: 5px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .btn-view {
+            background-color: transparent;
+            color: #666;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .btn-reorder {
+            background-color: #5cb85c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab">Home</div>
+            <div class="nav-tab active">Table booking history</div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Table booking history</h1>
+        </div>
+
+    <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">From Date</label>
+                    <select class="filter-select">
+                        <option>Select Date</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">To Date</label>
+                    <select class="filter-select">
+                        <option>Select Date</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select">
+                        <option>Please select...</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Reference</label>
+                    <input class="filter-input" placeholder="#" type="text">
+                </div>
+                <button class="btn btn-clear">CLEAR</button>
+                <button class="btn btn-search">SEARCH</button>
+            </div>
+        </div>
+
+    <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Table ID</th>
+                    <th>Customer Name</th>
+                    <th>Phone Number</th>
+                    <th>Booking Status</th>
+                    <th>Date and Time</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="x : ${tableBooking}">
+                    <td class="id-cell" th:text="${x.table.tableId}">${x.table.tableId}</td>
+                    <td class="id-cell" th:text="${x.customer.name}">${x.customer.name}</td>
+                    <td class="id-cell" th:text="${x.customer.phoneNumber}">${x.customer.phoneNumber}</td>
+                    <td class="date-cell" th:text="${x.status}">${x.status}</td>
+                    <td class="date-cell" th:text="${x.bookingTime}">${x.bookingTime}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view">VIEW</button>
+                            <button class="btn-reorder">RE-ORDER</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    // Add click handlers for buttons
+    document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function () {
+            alert('View order details');
+        });
+    });
+
+    document.querySelectorAll('.btn-reorder').forEach(btn => {
+        btn.addEventListener('click', function () {
+            alert('Re-order confirmed');
+        });
+    });
+
+    document.querySelector('.btn-clear').addEventListener('click', function () {
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.selectedIndex = 0;
+        });
+        document.querySelector('.filter-input').value = '';
+    });
+
+    document.querySelector('.btn-search').addEventListener('click', function () {
+        alert('Search functionality would filter the orders');
+    });
+</script>
+</body>
+</html>

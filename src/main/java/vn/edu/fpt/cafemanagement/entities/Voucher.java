@@ -139,7 +139,7 @@ public class Voucher {
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.isActive = active;
     }
 
     public List<Order> getOrders() {

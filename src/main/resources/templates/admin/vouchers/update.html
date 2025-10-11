@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<h1>Edit Voucher</h1>
+<form method="post" th:action="@{/admin/vouchers/save}" th:object="${voucher}">
+    <input type="hidden" th:field="*{voucherId}">
+    <label>Voucher Code</label>
+    <input type="text" th:field="*{code}" placeholder="Enter voucher code" required>
+    <br>
+    <br>
+    <label>Voucher Name</label>
+    <input type="text" th:field="*{voucherName}" placeholder="Enter voucher name" required>
+    <br>
+    <br>
+    <label>Start Date</label>
+    <input type="date" th:field="*{startDate}" required>
+    <label>End Date</label>
+    <input type="date" th:field="*{endDate}" required>
+    <br>
+    <br>
+    <label>Quantity</label>
+    <input type="text" placeholder="Enter quantity" th:field="*{quantity}">
+    <br>
+    <br>
+    <label>Discount Type</label>
+    <select th:field="*{discountType}">
+        <option value="percent">percent</option>
+        <option value="amount">amount</option>
+    </select>
+    <br>
+    <br>
+    <label>Discount Value</label>
+    <input type="text" placeholder="Enter discount value" th:field="*{discountValue}">
+    <br>
+    <br>
+    <label>Minimum Order Value</label>
+    <input type="text" placeholder="Enter minimum order value" th:field="*{minOrderValue}">
+    <br>
+    <br>
+    <button type="submit">Save</button>
+    <a th:href="@{/admin/vouchers/list}">Cancel</a>
+</form>
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

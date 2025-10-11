@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 

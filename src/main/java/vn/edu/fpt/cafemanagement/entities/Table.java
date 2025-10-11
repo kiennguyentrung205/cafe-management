@@ -2,9 +2,11 @@ package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
 
+
 import java.util.List;
 
 @Entity
+@jakarta.persistence.Table(name = "[Table]")
 public class Table {
 
     @Id
