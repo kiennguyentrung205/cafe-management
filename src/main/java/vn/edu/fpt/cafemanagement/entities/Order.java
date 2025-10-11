@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "[Order]", schema = "dbo")
+@Table(name = "[Order]")
 public class Order {
 
     @Id
