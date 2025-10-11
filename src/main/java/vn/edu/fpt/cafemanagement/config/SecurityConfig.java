@@ -17,24 +17,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    // Nghĩa là filterChain sẽ được Spring tạo ra và dùng để cấu hình bảo mật.
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/", "/login**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers( "/login**", "/assets/**", "/register", "/home")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
-
                 )
 
                 .formLogin(form -> form.loginPage("/login")
-                        .loginProcessingUrl("/login")  // POST /login -> Spring tự xử lý
+                        .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/home", true)
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2.loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
-                ).logout(logout -> logout.logoutSuccessUrl("/home").permitAll()
+                        .defaultSuccessUrl("/home", true))
+
+                .logout(logout ->logout
+                        .logoutUrl("/logout")
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .logoutSuccessUrl("/login?logout=success")
+                        .permitAll()
                 );
 
         return http.build();
