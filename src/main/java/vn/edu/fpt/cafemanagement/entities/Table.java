@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@jakarta.persistence.Table(name = "[Table]", schema = "dbo")
 public class Table {
 
     @Id

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Customer Profile</h1>
+    <div>Name: <span th:text="${customer.name}"></span></div>
+    <div>Point: <span th:text="${customer.point}"></span></div>
+    <div>Date of birth: <span th:text="${customer.dateOfBirth}"></span></div>
+    <div>Phone number: <span th:text="${customer.phoneNumber}"></span></div>
+    <div>Email: <span th:text="${customer.email}"></span></div>
+    <a th:href="@{/customer/profile/pointhistory/{id}(id=*{id})}" type="button" class="btn btn-warning">Point History</a>
+    <a th:href="@{/customer/profile/edit/{id}(id=*{id})}" type="button" class="btn btn-warning">Edit profile</a>
+</div>
+</body>
+</html>
