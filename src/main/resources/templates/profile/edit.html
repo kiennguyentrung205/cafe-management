@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <form method="post" action="/customer/profile/edit" enctype="multipart/form-data">
+    <h1>Edit Profile</h1>
+    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <p>
+        <input type="hidden" th:value="${customer.cusId}" name="cusId">
+    </p>
+    <p>
+        <img th:src="@{'/img/' + ${customer.img}}" alt="Avatar" width="80" style="border-radius: 50%; object-fit: cover;"/>
+        <label for="imgFile">Change avatar:</label>
+        <input type="file" id="imgFile" name="imgFile" accept="image/*">
+    </p>
+    <p>
+        <label>Name: </label>
+        <input type="text" th:value="${customer.name}" name="name">
+    </p>
+    <p>
+        <label>Phone number: </label>
+        <input type="text" th:value="${customer.phoneNumber}" name="phoneNumber">
+    </p>
+    <p>
+        <label>Email: </label>
+        <input type="text" th:value="${customer.email}" name="email">
+    </p>
+    <p>
+        <label>Point: </label>
+        <input type="text" th:value="${customer.point}" name="point" readonly>
+    </p>
+    <p>
+        <label>Date of birth: </label>
+        <input type="text" th:value="${customer.dateOfBirth}" name="dateOfBirth" readonly>
+    </p>
+    <p>
+        <button type="submit" class="btn btn-primary">Edit</button>
+        <button type="reset" class="btn btn-dark">Cancel</button>
+    </p>
+    </form>
+</div>
+</body>
+</html>
