@@ -34,12 +34,21 @@ public class ManagerService {
     public Manager save(Manager staff) {
         return managerRepository.save(staff);
     }
+    public Manager findByUsername(String username) {
+        return managerRepository.findByUsername(username).orElse(null);
+    }
+
+    public Manager saveManager(Manager manager) {
+        return managerRepository.save(manager);
+    }
 
     @Transactional
     public void deleteById(int id) {
         managerRepository.deleteById(id);
     }
 
-
+    public Manager getDefaultManager() {
+        return managerRepository.findAll().isEmpty() ? null : managerRepository.findAll().get(0);
+    }
 
 }

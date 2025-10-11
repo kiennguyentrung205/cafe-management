@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List Vouchers</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <a type="button" class="btn btn-success" th:href="@{/admin/vouchers/create}">Create</a>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">N.O</th>
+            <th scope="col">Name</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${voucher.active}" th:each="voucher, iterStat : ${vouchers}" th:object="${voucher}">
+            <!--            selection standard expression-->
+            <th th:text="${iterStat.count}" scope="row"></th>
+            <td th:text="*{voucherName}"></td>
+            <td>
+                <button type="button" class="btn btn-outline-secondary"
+                        th:onclick="openDetailPopup([[${voucher.voucherId}]], [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.minOrderValue}]], [[${voucher.discountValue}]], [[${voucher.discountType}]], [[${voucher.quantity}]], [[${voucher.startDate}]], [[${voucher.endDate}]], [[${voucher.discountType}]])">
+                    Details
+                </button>
+                <!--                <a th:href="@{/admin/{id}(id=*{voucherId})}" type="button" class="btn btn-outline-secondary">Details</a>-->
+                <a th:href="@{/admin/vouchers/edit/{id}(id=*{voucherId})}" type="button"
+                   class="btn btn-primary">Edit</a>
+                |
+                <button type="button" class="btn btn-danger"
+                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]])">
+                    Delete
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Voucher popup -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Voucher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Voucher Code:</strong> <span id="voucherCode"></span></p>
+                <p><strong>Voucher Name:</strong> <span id="voucherName"></span></p>
+                <div class="alert alert-danger mt-3" role="alert">
+                    Are you sure you want to delete this voucher? This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form th:action="@{/admin/vouchers/delete}" method="post">
+                    <input type="hidden" name="voucherId" id="deleteVoucherId">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Detail Voucher popup -->
+<div class="modal fade" id="detail" tabindex="-1" aria-labelledby="detailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="detailLabel">Voucher Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Voucher Code:</strong> <span id="detailCode"></span></p>
+                <p><strong>Voucher Name:</strong> <span id="detailName"></span></p>
+                <p><strong>Min Order Value:</strong> <span id="detailMin"></span></p>
+                <p><strong>Discount Value:</strong> <span id="detailValue"></span></p>
+                <p><strong>Discount Type:</strong> <span id="detailType"></span></p>
+                <p><strong>Quantity:</strong> <span id="detailQuantity"></span></p>
+                <p><strong>Start Date:</strong> <span id="detailStart"></span></p>
+                <p><strong>End Date:</strong> <span id="detailEnd"></span></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--JS of DeletePopup-->
+<script>
+    function openDeletePopup(id, code, name) {
+        document.getElementById("voucherCode").textContent = code;
+        document.getElementById("voucherName").textContent = name;
+        document.getElementById("deleteVoucherId").value = id;
+
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+</script>
+
+<!--JS of DetailPopup-->
+<script>
+    function openDetailPopup(id, code, name, minOrderValue, discountValue, discountType, quantity, startDate, endDate) {
+        document.getElementById("detailCode").textContent = code;
+        document.getElementById("detailName").textContent = name;
+        document.getElementById("detailMin").textContent = minOrderValue;
+        document.getElementById("detailValue").textContent = discountValue;
+        document.getElementById("detailType").textContent = discountType;
+        document.getElementById("detailQuantity").textContent = quantity;
+        document.getElementById("detailStart").textContent = startDate;
+        document.getElementById("detailEnd").textContent = endDate;
+
+        const modal = new bootstrap.Modal(document.getElementById('detail'));
+        modal.show();
+    }
+</script>
+
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
