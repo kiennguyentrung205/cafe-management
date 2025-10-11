@@ -18,7 +18,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Customer findByPhoneNumber(String phoneNumber);
 
     @Query(
-            value = "SELECT pointhistory_id, type_of_change, change_time, amount, cus_id, order_id " +
+            value = "SELECT point_history_id, type_of_change, change_time, amount, cus_id, order_id " +
                     "FROM dbo.PointHistory " +
                     "WHERE cus_id = :cusId " +
                     "ORDER BY change_time DESC",

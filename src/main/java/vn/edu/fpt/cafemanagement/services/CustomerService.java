@@ -102,7 +102,7 @@ public class CustomerService {
 
             if (imgFile != null && !imgFile.isEmpty()) {
                 try {
-                    String uploadDir = "D:/FA25/HSF/img/";
+                    String uploadDir = "D:/SWP/Project/uploads/";
                     String fileName = imgFile.getOriginalFilename();
 
                     // Lưu file vào thư mục uploads

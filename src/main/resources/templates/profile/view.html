@@ -9,7 +9,7 @@
 <div class="container">
     <h1>Customer Profile</h1>
     <p>
-        <img th:src="@{'/img/' + ${customer.img}}" alt="Avatar" width="80" height="80"
+        <img th:src="@{'/uploads/' + ${customer.img}}" alt="Avatar" width="80" height="80"
              style="border-radius: 50%; object-fit: cover;"/>
     </p>
     <div>Name: <span th:text="${customer.name}"></span></div>
