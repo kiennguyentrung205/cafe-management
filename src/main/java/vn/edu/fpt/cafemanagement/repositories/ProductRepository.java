@@ -14,5 +14,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findByIsActiveTrueAndCategoryCateId(Integer categoryId);
 
-    Page<Product> findByIsActiveTrue(Pageable pageable);    //sửa tên hàm cho đúng với tên biến bên entity
+    Page<Product> findByIsActiveTrue(Pageable pageable);
 }
