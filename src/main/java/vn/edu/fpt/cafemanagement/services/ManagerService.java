@@ -34,4 +34,9 @@ public class ManagerService {
     public void deleteManager(int id) {
         managerRepository.deleteById(id);
     }
+
+    public Manager getDefaultManager() {
+        return managerRepository.findAll().isEmpty() ? null : managerRepository.findAll().get(0);
+    }
+
 }

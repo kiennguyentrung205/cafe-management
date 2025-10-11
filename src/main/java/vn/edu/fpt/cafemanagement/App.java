@@ -4,6 +4,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import vn.edu.fpt.cafemanagement.entities.Product;
+import vn.edu.fpt.cafemanagement.services.ProductService;
 import vn.edu.fpt.cafemanagement.entities.Shift;
 import vn.edu.fpt.cafemanagement.entities.Table;
 import vn.edu.fpt.cafemanagement.entities.Voucher;

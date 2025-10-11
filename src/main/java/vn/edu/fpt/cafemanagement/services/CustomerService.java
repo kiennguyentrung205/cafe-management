@@ -3,6 +3,10 @@ package vn.edu.fpt.cafemanagement.services;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
+
+import java.util.List;
+
+
 import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -16,7 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 
 
 @Service
@@ -39,7 +42,7 @@ public class CustomerService {
     public Customer findByUsername(String username) {
         return customerRepository.findByUsername(username).orElse(null);
     }
-
+  
     public Customer createCustomer(Customer customer) throws Exception {
         String username = customer.getUsername();
         String phoneNumber = customer.getPhoneNumber();
@@ -133,5 +136,18 @@ public class CustomerService {
             }
         }
     }
+  
+  public Customer getCustomerByPhone(String phoneNumber) {
+        return customerRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    public void saveCustomer(Customer customer) {
+        customerRepository.save(customer);
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+  
 }
 
