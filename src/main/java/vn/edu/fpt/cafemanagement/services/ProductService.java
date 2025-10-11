@@ -22,7 +22,6 @@ public class ProductService {
         this.orderRepository = orderRepository;
     }
 
-    // ---------------- BASIC CRUD ----------------
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
@@ -39,7 +38,6 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    // ---------------- ACTIVE PRODUCTS ----------------
     public List<Product> getActiveProducts() {
         return productRepository.findByIsActiveTrue();
     }

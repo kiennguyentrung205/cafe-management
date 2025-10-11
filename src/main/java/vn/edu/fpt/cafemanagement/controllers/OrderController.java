@@ -16,12 +16,12 @@ import java.util.Optional;
 @RequestMapping("/order")
 public class OrderController {
 
-    private final ProductService productService;
-    private final OrderService orderService;
-    private final VoucherService voucherService;
-    private final CustomerService customerService;
-    private final ManagerService managerService;
-    private final PointHistoryService pointHistoryService;
+    private ProductService productService;
+    private OrderService orderService;
+    private VoucherService voucherService;
+    private CustomerService customerService;
+    private ManagerService managerService;
+    private PointHistoryService pointHistoryService;
 
     public OrderController(ProductService productService,
                            OrderService orderService,
