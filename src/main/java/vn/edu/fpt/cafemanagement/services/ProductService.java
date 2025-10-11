@@ -36,7 +36,7 @@ public class ProductService {
     }
 
     public List<Product> getProductsByCategory(int categoryId) {
-        return productRepository.findByIsActiveTrueAndCategoryCateId(categoryId);
+        return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
 
     }
 

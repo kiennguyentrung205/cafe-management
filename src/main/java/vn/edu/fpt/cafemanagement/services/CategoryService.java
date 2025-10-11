@@ -2,6 +2,7 @@ package vn.edu.fpt.cafemanagement.services;
 
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Category;
+import vn.edu.fpt.cafemanagement.entities.Product;
 import vn.edu.fpt.cafemanagement.repositories.CategoryRepository;
 
 import java.util.List;
@@ -27,5 +28,9 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    public void deleteSortCategory(Category category) {
+        category.setActive(false);
+        categoryRepository.save(category);
+    }
 
 }

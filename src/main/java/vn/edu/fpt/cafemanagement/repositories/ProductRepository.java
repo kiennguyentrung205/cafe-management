@@ -2,6 +2,7 @@ package vn.edu.fpt.cafemanagement.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.cafemanagement.entities.Category;
 import vn.edu.fpt.cafemanagement.entities.Product;
 
 import java.util.List;
@@ -13,4 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByIsActiveTrueAndCategoryCateId(Integer categoryId);
 
     List<Product> findByIsActiveTrueAndCategoryIsActiveTrue();
-}
+
+    public List<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
+
+  }

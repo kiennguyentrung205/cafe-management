@@ -31,20 +31,7 @@ public class ProductController {
 
 //
 
-    @RequestMapping(value = "/list/category/{id}")
-    public String listByCategory(@PathVariable("id") int categoryId, Model model) {
-        model.addAttribute("title", "Products by Category");
-        model.addAttribute("productList", productService.getProductsByCategory(categoryId));
-        model.addAttribute("viewType", "category");
-        model.addAttribute("categoryList", categoryService.getCategories());
-        model.addAttribute("categoryId", categoryId); // lưu category hiện tại
 
-        Category category = categoryService.getCategoryById(categoryId);
-
-        model.addAttribute("category", category);
-        return "redirect:/product/list";
-
-    }
 
     @GetMapping(value = "/list")
     public String showList(
@@ -177,10 +164,8 @@ public class ProductController {
 
     @PostMapping(value = "/delete/{id}")
     public String deleteProduct(@PathVariable("id") int proId) {
-        System.out.println("Id la:" + proId);
+
         productService.deleteSortProduct(productService.getProductById(proId));
-        System.out.println("ten laf " + productService.getProductById(proId).getProName());
-        ;
         return "redirect:/product/list";
     }
 }
