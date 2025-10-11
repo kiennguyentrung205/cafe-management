@@ -105,11 +105,9 @@ public class CustomerService {
                     String uploadDir = "D:/SWP/Project/uploads/";
                     String fileName = imgFile.getOriginalFilename();
 
-                    // Lưu file vào thư mục uploads
                     Path filePath = Paths.get(uploadDir + fileName);
                     Files.copy(imgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                    // Cập nhật tên ảnh trong DB
                     existingCustomer.setImg(fileName);
                 } catch (IOException e) {
                     throw new IllegalArgumentException("Lỗi khi tải ảnh lên!");
