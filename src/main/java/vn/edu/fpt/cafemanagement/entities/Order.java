@@ -1,11 +1,13 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "[Order]")
 public class Order {
 
     @Id
@@ -35,7 +37,7 @@ public class Order {
     private int pointsUsed;
 
     @ManyToOne
-    @JoinColumn(name = "voucher_id", nullable = false)
+    @JoinColumn(name = "voucher_id")
     private Voucher voucher;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
