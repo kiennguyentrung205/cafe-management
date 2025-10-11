@@ -13,6 +13,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Customer getCustomerByCusId(int cusId);
 
     Optional<Customer> findByUsername(String name);
+    Optional<Customer> findByEmail(String email);
+
+    Customer findByPhoneNumber(String phoneNumber);
 
     @Query(
             value = "SELECT pointhistory_id, type_of_change, change_time, amount, cus_id, order_id " +
