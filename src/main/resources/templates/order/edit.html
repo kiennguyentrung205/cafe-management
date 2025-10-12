@@ -14,7 +14,6 @@
             height: 100vh;
         }
 
-        /* === SIDEBAR === */
         .sidebar {
             width: 120px;
             background-color: #ffffff;
@@ -62,15 +61,10 @@
             margin-bottom: 20px;
         }
 
-        /* === MAIN CONTENT === */
         .main-content {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
-        }
-
-        h2 {
-            margin-bottom: 20px;
         }
 
         table {
@@ -121,14 +115,9 @@
             color: white;
         }
 
-        .status-completed {
-            color: green;
-            font-weight: bold;
-        }
-
-        .status-inprogress {
-            color: orange;
-            font-weight: bold;
+        .form-control-sm {
+            width: 180px;
+            margin: auto;
         }
     </style>
 </head>
@@ -158,41 +147,55 @@
         <tr>
             <th>Order#</th>
             <th>Status</th>
-            <th>Role ID</th>
+            <th>Note</th>
+            <th>Role</th>
             <th>Updated At</th>
         </tr>
         </thead>
 
         <tbody>
         <tr th:each="order : ${orders}">
-            <td th:text="${order.orderId}"></td>
-            <td>
-                <span th:text="${order.status}" th:classappend="${order.status == 'Completed'} ? 'status-completed' : 'status-inprogress'"></span>
-            </td>
-            <td th:text="${order.roleId}"></td>
-            <td th:text="${#dates.format(order.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+            <form th:action="@{/order/updateStatus}" method="post" class="align-middle">
+                <td th:text="${order.orderId}"></td>
+
+                <td>
+                    <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                    <select name="status" class="form-select form-select-sm me-2">
+                        <option value="Pending" th:selected="${order.status == 'Pending'}">Pending</option>
+                        <option value="In Progress" th:selected="${order.status == 'In Progress'}">In Progress</option>
+                        <option value="Completed" th:selected="${order.status == 'Completed'}">Completed</option>
+                        <option value="Cancelled" th:selected="${order.status == 'Cancelled'}">Cancelled</option>
+                    </select>
+                </td>
+
+                <td th:text="${order.orderItems != null && !order.orderItems.isEmpty()
+            ? order.orderItems[0].note : '-'}"></td>
+
+                <td th:text="${currentUser != null && currentUser.role != null
+            ? currentUser.role.roleName : 'N/A'}"></td>
+
+                <td>
+                    <input type="datetime-local"
+                           th:value="${#dates.format(order.updatedAt, 'yyyy-MM-dd''T''HH:mm')}" />
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
+                </td>
+            </form>
         </tr>
         </tbody>
     </table>
 
     <!-- Pagination -->
     <div class="pagination">
-        <a th:href="@{/order/view(page=1)}">&lt;&lt;</a>
+        <a th:href="@{/order/edit(page=1)}">&lt;&lt;</a>
         <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-           th:href="@{/order/view(page=${i})}"
+           th:href="@{/order/edit(page=${i})}"
            th:text="${i}"
-           th:classappend="${i == currentPage} ? 'active' : ''"></a>
-        <a th:href="@{/order/view(page=${totalPages})}">&gt;&gt;</a>
+           th:classappend="${i == currentPage ? 'active' : ''}">
+        </a>
+        <a th:href="@{/order/edit(page=${totalPages})}">&gt;&gt;</a>
     </div>
 
 </div>
-
-<script>
-    // Function to close the popup (if needed in the future)
-    function closePopup() {
-        document.getElementById('order-details-popup').style.display = 'none';
-    }
-</script>
 
 </body>
 </html>

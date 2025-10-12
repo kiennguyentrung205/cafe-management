@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -202,6 +203,7 @@ public class OrderController {
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("customerList", customerService.getAllCustomers());
         return "order/list";
     }
 
@@ -216,25 +218,25 @@ public class OrderController {
         return "order/create";
     }
 
-    @GetMapping("/products")
-    public String getProducts(
-            @RequestParam(value = "categoryId", required = false) Integer categoryId,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            Model model) {
+    @GetMapping("/edit")
+    public String showEditOrderPage(
+            @RequestParam(defaultValue = "1") int page,
+            Model model,
+            HttpSession session) { // 👈 thêm HttpSession để lấy user đang login
 
         int pageSize = 9;
-        Page<Product> productPage;
+        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
 
-        if (categoryId != null && categoryId > 0)
-            productPage = productService.getProductsByCategoryPaged(categoryId, PageRequest.of(page - 1, pageSize));
-        else
-            productPage = productService.getActiveProductsPaged(PageRequest.of(page - 1, pageSize));
+        // ✅ Lấy người đăng nhập hiện tại (Barista chẳng hạn)
+        Manager currentUser = (Manager) session.getAttribute("loggedInUser");
+        model.addAttribute("currentUser", currentUser);
 
-        model.addAttribute("productList", productPage.getContent());
+        model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        return "order/_productGrid :: productGrid";
-    }
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("title", "Edit Order");
 
+        return "order/edit";
+    }
 
 }

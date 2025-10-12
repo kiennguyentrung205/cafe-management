@@ -142,15 +142,44 @@
         .pagination a:hover { background-color: #0056b3; color: white; }
 
         /* Order panel */
-        .order-panel h3 { margin-bottom: 10px; font-size: 18px; }
-        .order-list { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 8px 0; max-height: 400px; overflow-y: auto; }
-        .order-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; }
-        .order-item img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; margin-right: 8px; }
+        .order-panel h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .order-list {
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0; max-height: 400px;
+            overflow-y: auto;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .order-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+            margin-right: 8px;
+        }
 
-        .voucher, .customer-info { margin-top: 12px; }
-        .redeem { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+        .voucher, .customer-info {
+            margin-top: 12px;
+        }
+        .redeem {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 5px;
+        }
 
-        .place-container { display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        .place-container {
+            display: flex; justify-content: center; align-items: center; margin-top: 10px;
+        }
         .place-btn {
             background-color: #ff0000;
             color: #fff;
@@ -171,11 +200,23 @@
 
 <!-- Sidebar -->
 <div class="sidebar">
-    <a href="/dashboard" class="menu-item active"><i class="bi bi-house-door"></i><span>Dashboard</span></a>
-    <a href="/sales" class="menu-item"><i class="bi bi-bar-chart-line"></i><span>Sales Amount</span></a>
-    <a href="/order-list" class="menu-item"><i class="bi bi-list-ul"></i><span>Order List</span></a>
+    <a href="/order/create" class="menu-item active">
+        <i class="bi bi-house-door"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="/sales" class="menu-item">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>Sales Amount</span>
+    </a>
+    <a href="/order/list" class="menu-item">
+        <i class="bi bi-list-ul"></i>
+        <span>Order List</span>
+    </a>
     <div class="sidebar-bottom">
-        <a href="/logout" class="menu-item logout"><i class="bi bi-box-arrow-right"></i><span>Log Out</span></a>
+        <a href="/logout" class="menu-item logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Log Out</span>
+        </a>
     </div>
 </div>
 
@@ -213,7 +254,7 @@
                     <div th:each="product : ${productList}" class="product-card">
                         <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
                         <p class="product-name" th:text="${product.proName}"></p>
-                        <p class="product-price"><b th:text="${product.price + ' VND'}"></b></p>
+                        <p class="product-price"><b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b></p>
                     </div>
                 </div>
 
@@ -255,12 +296,19 @@
 
                     <div class="redeem">
                         <label>Redeem Points:</label>
-                        <button type="button" onclick="changePoint(-5)">-</button>
-                        <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
-                               th:attr="data-max=${customer != null ? customer.point : 0}"
-                               style="width:60px;text-align:center;">
-                        <button type="button" onclick="changePoint(5)">+</button>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <button type="button" class="btn btn-danger btn-sm fw-bold"
+                                    style="width:32px;height:32px;"
+                                    onclick="changePoint(-5)">−</button>
+                            <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
+                                   th:attr="data-max=${customer != null ? customer.point : 0}"
+                                   style="width:60px;text-align:center;font-weight:600;">
+                            <button type="button" class="btn btn-success btn-sm fw-bold"
+                                    style="width:32px;height:32px;"
+                                    onclick="changePoint(5)">+</button>
+                        </div>
                     </div>
+
                 </div>
 
                 <hr/>
@@ -305,8 +353,12 @@
                     </div>
                     <div style="text-align:right;">
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
-                            <button type="button" class="btn-minus" style="border:none;background:none;font-weight:bold;">−</button>
-                            <span class="item-qty">1</span>x
+<button type="button" class="btn-minus"
+    style="border:1px solid #aaa; background-color:#e9ecef;
+           border-radius:5px; width:28px; height:28px;
+           font-weight:bold; line-height:1;">
+    −
+</button>                            <span class="item-qty">1</span>x
                             <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
                         </div>
                         <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>

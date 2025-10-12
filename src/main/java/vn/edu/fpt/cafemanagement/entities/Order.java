@@ -36,6 +36,9 @@ public class Order {
     @Column(name = "points_used")
     private int pointsUsed;
 
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
     @ManyToOne
     @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
     private Voucher voucher;
@@ -51,7 +54,7 @@ public class Order {
 
     public Order(int orderId, Customer customer, Manager manager, String status, double totalPrice,
                  LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories) {
+                 List<PointHistory> pointHistories,  LocalDateTime updatedAt) {
         this.orderId = orderId;
         this.customer = customer;
         this.manager = manager;
@@ -62,6 +65,7 @@ public class Order {
         this.voucher = voucher;
         this.orderItems = orderItems;
         this.pointHistories = pointHistories;
+        this.updatedAt = updatedAt;
     }
 
     public int getOrderId() {
@@ -142,5 +146,13 @@ public class Order {
 
     public void setPointHistories(List<PointHistory> pointHistories) {
         this.pointHistories = pointHistories;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
