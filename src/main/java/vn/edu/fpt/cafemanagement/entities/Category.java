@@ -15,16 +15,26 @@ public class Category {
     @Column(name = "cate_name", nullable = false, length = 100)
     private String cateName;
 
+    boolean isActive;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;
 
     public Category() {
     }
 
-    public Category(int cateId, String cateName, List<Product> products) {
+    public Category(int cateId, String cateName, boolean isActive, List<Product> products) {
         this.cateId = cateId;
         this.cateName = cateName;
+        this.isActive = isActive;
         this.products = products;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public int getCateId() {

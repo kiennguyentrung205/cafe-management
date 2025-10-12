@@ -1,6 +1,7 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 
 import java.util.List;
 
