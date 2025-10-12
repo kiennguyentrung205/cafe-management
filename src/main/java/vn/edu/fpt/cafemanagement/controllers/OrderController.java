@@ -239,4 +239,38 @@ public class OrderController {
         return "order/edit";
     }
 
+    @PostMapping("/updateStatus")
+    @Transactional
+    public String updateOrderStatus(
+            @RequestParam("orderId") int orderId,
+            @RequestParam("status") String status,
+            @RequestParam(value = "updatedAt", required = false) String updatedAtStr,
+            HttpSession session) {
+
+        //Lấy order từ DB
+        Optional<Order> optionalOrder = orderService.getOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            return "redirect:/order/edit?error=OrderNotFound";
+        }
+
+        Order order = optionalOrder.get();
+        order.setStatus(status);
+
+        //Cập nhật thời gian chỉnh sửa
+        if (updatedAtStr != null && !updatedAtStr.isEmpty()) {
+            order.setUpdatedAt(LocalDateTime.parse(updatedAtStr));
+        } else {
+            order.setUpdatedAt(LocalDateTime.now());
+        }
+
+        //Nếu trạng thái là Completed hoặc Cancelled → soft delete
+        if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
+            order.setDeleted(true);
+        } else {
+            order.setDeleted(false);
+        }
+
+        orderService.saveOrder(order);
+        return "redirect:/order/edit";
+    }
 }
