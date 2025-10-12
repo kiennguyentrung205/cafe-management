@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Create In-Store Order</title>
@@ -43,46 +43,20 @@
         }
 
         .menu-item i { font-size: 18px; margin-bottom: 5px; }
+        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
+        .menu-item.active { background-color: #ff4d4d; color: white; }
 
-        .menu-item:hover {
-            background-color: #ff4d4d;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .menu-item.active {
-            background-color: #ff4d4d;
-            color: white;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            margin-bottom: 20px;
-        }
-
-        .menu-item.logout {
-            background-color: #f0f0f0;
-        }
-
-        .menu-item.logout:hover {
-            background-color: #ff4d4d;
-            color: white;
-        }
+        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
 
         /* Main layout */
-        .main-container {
-            flex: 1;
-            padding: 15px 25px;
-            overflow-y: auto;
-        }
-
+        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
         h2 { margin-bottom: 10px; font-size: 22px; }
 
         .container {
             display: grid;
-            grid-template-columns: 1.6fr 1fr;
-            gap: 15px;
-            max-width: 1200px;
+            grid-template-columns: 2fr 1.2fr; /* tăng tỉ lệ hai panel */
+            gap: 25px;
+            max-width: 2000px; /* tăng tổng chiều rộng */
             margin: 0 auto;
         }
 
@@ -94,24 +68,33 @@
         }
 
         .menu-header { display: flex; justify-content: space-between; align-items: center; }
+
+        .categories select {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 14px;
+            width: 180px;
+        }
+
+        .categories button {
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .categories button:hover { background-color: #e60000; }
+
         .search-bar input {
             padding: 5px 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             width: 150px;
         }
-
-        .categories button {
-            border: none;
-            background-color: #ddd;
-            padding: 5px 12px;
-            margin-right: 6px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .categories button:hover { background-color: #bbb; }
 
         .menu-grid {
             display: grid;
@@ -123,7 +106,7 @@
         .product-card {
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 8px;
+            padding: 5px;
             text-align: center;
             cursor: pointer;
             font-size: 14px;
@@ -131,7 +114,7 @@
 
         .product-card img {
             width: 100%;
-            height: 80px;
+            height: 140px;
             object-fit: cover;
             border-radius: 6px;
         }
@@ -155,52 +138,19 @@
             font-size: 13px;
         }
 
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .pagination a:hover {
-            background-color: #0056b3;
-            color: white;
-        }
+        .pagination a.active { background-color: #007bff; color: white; }
+        .pagination a:hover { background-color: #0056b3; color: white; }
 
         /* Order panel */
         .order-panel h3 { margin-bottom: 10px; font-size: 18px; }
-
-        .order-list {
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            padding: 8px 0;
-            max-height: 180px;
-            overflow-y: auto;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .order-item img {
-            width: 35px; height: 35px;
-            border-radius: 4px; object-fit: cover; margin-right: 8px;
-        }
+        .order-list { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 8px 0; max-height: 400px; overflow-y: auto; }
+        .order-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; }
+        .order-item img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; margin-right: 8px; }
 
         .voucher, .customer-info { margin-top: 12px; }
-        .redeem {
-            display: flex; align-items: center; gap: 8px; margin-top: 5px;
-        }
+        .redeem { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 
-        .place-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-        }
-
+        .place-container { display: flex; justify-content: center; align-items: center; margin-top: 10px; }
         .place-btn {
             background-color: #ff0000;
             color: #fff;
@@ -214,38 +164,22 @@
             transition: 0.2s ease-in-out;
         }
 
-        .place-btn:hover {
-            background-color: #e60000;
-            transform: scale(1.05);
-        }
+        .place-btn:hover { background-color: #e60000; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
 <!-- Sidebar -->
 <div class="sidebar">
-    <a href="/dashboard" class="menu-item active">
-        <i class="bi bi-house-door"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="/sales" class="menu-item">
-        <i class="bi bi-bar-chart-line"></i>
-        <span>Sales Amount</span>
-    </a>
-    <a href="/order/order-list" class="menu-item">
-        <i class="bi bi-list-ul"></i>
-        <span>Order List</span>
-    </a>
-
+    <a href="/dashboard" class="menu-item active"><i class="bi bi-house-door"></i><span>Dashboard</span></a>
+    <a href="/sales" class="menu-item"><i class="bi bi-bar-chart-line"></i><span>Sales Amount</span></a>
+    <a href="/order-list" class="menu-item"><i class="bi bi-list-ul"></i><span>Order List</span></a>
     <div class="sidebar-bottom">
-        <a href="/logout" class="menu-item logout">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Log Out</span>
-        </a>
+        <a href="/logout" class="menu-item logout"><i class="bi bi-box-arrow-right"></i><span>Log Out</span></a>
     </div>
 </div>
 
-<!-- Main Page Content -->
+<!-- Main Content -->
 <div class="main-container">
     <h2>Create In-Store Order</h2>
 
@@ -257,23 +191,29 @@
                 <div class="menu-header">
                     <div class="categories">
                         <h3 style="font-size:17px;">Menu Category</h3>
-                        <button type="button">Coffee</button>
-                        <button type="button">Tea</button>
-                        <button type="button">Latte</button>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="categorySelect" name="categoryId" class="form-select">
+                                <option value="0">-- All Categories --</option>
+                                <option th:each="category : ${categoryList}"
+                                        th:value="${category.cateId}"
+                                        th:text="${category.cateName}"
+                                        th:selected="${category.cateId == selectedCategoryId}">
+                                </option>
+                            </select>
+                            <button type="button" onclick="filterCategory()">Filter</button>
+                        </div>
                     </div>
                     <div class="search-bar">
-                        <input type="text" placeholder="Search..." />
+                        <input type="text" placeholder="Search...">
                     </div>
                 </div>
 
-                <!-- Menu Grid -->
+                <!-- Product Grid -->
                 <div class="menu-grid">
-                    <div th:each="p : ${productList}" class="product-card">
-                        <img th:src="${p.img}" th:alt="${p.proName}">
-                        <p th:text="${p.proName}"></p>
-                        <p><b th:text="${p.price} + ' VND'"></b></p>
-                        <input type="checkbox" name="productIds" th:value="${p.proId}" />
-                        <input type="number" name="quantities" min="1" value="1" style="width:45px;">
+                    <div th:each="product : ${productList}" class="product-card">
+                        <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
+                        <p class="product-name" th:text="${product.proName}"></p>
+                        <p class="product-price"><b th:text="${product.price + ' VND'}"></b></p>
                     </div>
                 </div>
 
@@ -286,20 +226,12 @@
                        th:classappend="${i == currentPage} ? 'active' : ''"></a>
                     <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
                 </div>
-
-
             </div>
 
             <!-- RIGHT PANEL -->
             <div class="order-panel">
                 <h3>Order Menu</h3>
-                <div class="order-list">
-                    <div th:each="p : ${productList}" class="order-item" th:if="${p.selected}">
-                        <img th:src="${p.img}" th:alt="${p.proName}">
-                        <span th:text="${p.proName}"></span>
-                        <span th:text="${p.price} + ' VND'"></span>
-                    </div>
-                </div>
+                <div class="order-list"></div>
 
                 <div class="voucher">
                     <label>Voucher:</label>
@@ -311,7 +243,11 @@
 
                 <div class="customer-info">
                     <label>Phone Number:</label>
-                    <input type="text" name="customerPhone" placeholder="0123456789" required>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" name="customerPhone" placeholder="0123456789"
+                               th:value="${customerPhone}">
+                        <button type="submit" name="action" value="check" class="btn btn-secondary btn-sm">Check</button>
+                    </div>
 
                     <h4 style="font-size:16px;">Customer Info</h4>
                     <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
@@ -320,8 +256,7 @@
                     <div class="redeem">
                         <label>Redeem Points:</label>
                         <button type="button" onclick="changePoint(-5)">-</button>
-                        <input type="number" name="pointsUsed" id="pointsUsed"
-                               value="0" min="0" step="5" readonly
+                        <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
                                th:attr="data-max=${customer != null ? customer.point : 0}"
                                style="width:60px;text-align:center;">
                         <button type="button" onclick="changePoint(5)">+</button>
@@ -330,7 +265,7 @@
 
                 <hr/>
                 <div class="place-container">
-                    <button type="submit" class="place-btn">
+                    <button type="submit" class="place-btn" name="action" value="create">
                         <span style="font-size: 16px; font-weight: 600;">Place</span><br>
                         <span style="font-size: 13px;">(<span id="totalPrice">0</span> VND)</span>
                     </button>
@@ -342,6 +277,74 @@
 
 <script src="/assets/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.querySelectorAll(".product-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const name = card.querySelector(".product-name").textContent.trim();
+            const priceText = card.querySelector(".product-price").textContent.trim();
+            const price = parseFloat(priceText.replace(/[^\d.]/g, "")); // cho phép dấu thập phân
+            const img = card.querySelector("img").src;
+
+            const orderList = document.querySelector(".order-list");
+
+            // Tìm sản phẩm trùng
+            let existingItem = Array.from(orderList.querySelectorAll(".order-item"))
+                .find(item => item.querySelector(".item-name").textContent.trim() === name);
+
+            if (existingItem) {
+                const qtySpan = existingItem.querySelector(".item-qty");
+                let qty = parseInt(qtySpan.textContent);
+                qty++;
+                qtySpan.textContent = qty;
+            } else {
+                const item = document.createElement("div");
+                item.classList.add("order-item");
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <img src="${img}" alt="${name}">
+                        <span class="item-name">${name}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
+                            <button type="button" class="btn-minus" style="border:none;background:none;font-weight:bold;">−</button>
+                            <span class="item-qty">1</span>x
+                            <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
+                        </div>
+                        <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
+                    </div>
+                `;
+                orderList.appendChild(item);
+
+                // Thêm sự kiện cho nút trừ
+                const minusBtn = item.querySelector(".btn-minus");
+                minusBtn.addEventListener("click", () => {
+                    let qty = parseInt(item.querySelector(".item-qty").textContent);
+                    qty--;
+                    if (qty <= 0) {
+                        item.remove();
+                    } else {
+                        item.querySelector(".item-qty").textContent = qty;
+                    }
+                    updateTotal();
+                });
+            }
+
+            updateTotal();
+        });
+    });
+
+    // Cập nhật tổng tiền
+    function updateTotal() {
+        const orderItems = document.querySelectorAll(".order-item");
+        let total = 0;
+        orderItems.forEach(item => {
+            const qty = parseInt(item.querySelector(".item-qty").textContent);
+            const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
+            total += qty * price;
+        });
+        document.getElementById("totalPrice").textContent = total.toLocaleString();
+    }
+
+    // Tăng/giảm điểm đổi thưởng
     function changePoint(delta) {
         const input = document.getElementById('pointsUsed');
         const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
@@ -351,6 +354,11 @@
         if (current > maxPoint) current = maxPoint;
         current = Math.floor(current / 5) * 5;
         input.value = current;
+    }
+
+    function filterCategory() {
+        const selected = document.getElementById("categorySelect").value;
+        window.location.href = `/order/create?categoryId=${selected}`;
     }
 </script>
 </body>

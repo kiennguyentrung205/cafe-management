@@ -20,4 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     public List<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
 
-  }
+    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrue(Pageable pageable);
+
+    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
+
+}

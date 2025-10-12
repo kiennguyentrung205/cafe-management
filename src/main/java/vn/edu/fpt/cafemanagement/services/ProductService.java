@@ -51,9 +51,8 @@ public class ProductService {
         return productRepository.findById(productId).orElse(null);
     }
 
-    public Page<Product> getActiveProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return productRepository.findByIsActiveTrue(pageable);
+    public Page<Product> getActiveProductsPaged(Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
     }
 
     // ---------------- ORDER LOGIC ----------------
@@ -83,5 +82,17 @@ public class ProductService {
         product.setActive(false);
         productRepository.save(product);
     }
-  
+
+    /**
+     * Lấy danh sách sản phẩm đang hoạt động (isActive=true)
+     * theo category (nếu categoryId = 0 thì lấy tất cả),
+     * có phân trang.
+     */
+    public Page<Product> getProductsByCategoryPaged(Integer categoryId, Pageable pageable) {
+        if (categoryId == null || categoryId == 0) {
+            return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
+        } else {
+            return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
+        }
+    }
 }
