@@ -29,7 +29,7 @@ public class Customer implements UserDetails {
     @Column(name = "point")
     private Integer point;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
     @Column(name = "password", nullable = false)
