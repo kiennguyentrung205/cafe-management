@@ -9,11 +9,12 @@
 <body>
 <header th:fragment="header">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
+        <div class="container-fluid ">
             <a class="navbar-brand" th:href="@{/home}">CafeWebsite</a>
 
             <!-- nút toggle khi màn hình nhỏ -->
-            <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler"
                     data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -25,25 +26,34 @@
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/table/list}">Table</a>
+                    <li class="nav-item dropdown">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Table</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/booking/view-history}">My Bookings</a></li>
+                        </ul>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/table/booking/view-history}">Table Booking History</a>
+                        <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/login}">Login</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/login}">Login</a>
+                        <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/register}">Register</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/register}">Register</a>
+                        <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/register}">Register</a>
                     </li>
 
                     <li class="nav-item" sec:authorize="hasRole('admin')">
                         <a class="nav-link" th:href="@{/invoice}">Invoice</a>
                     </li>
+
+
                 </ul>
             </div>
         </div>
