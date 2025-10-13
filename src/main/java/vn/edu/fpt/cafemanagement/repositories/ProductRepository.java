@@ -8,6 +8,7 @@ import vn.edu.fpt.cafemanagement.entities.Category;
 import vn.edu.fpt.cafemanagement.entities.Product;
 
 import java.util.List;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
@@ -16,8 +17,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByIsActiveTrueAndCategoryCateId(Integer categoryId);
 
     Page<Product> findByIsActiveTrue(Pageable pageable);
+
     List<Product> findByIsActiveTrueAndCategoryIsActiveTrue();
 
-    public List<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
+    List<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
 
-  }
+    List<Product> findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
+
+    List<Product> findByIsActiveFalse();
+}

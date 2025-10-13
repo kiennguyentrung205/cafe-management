@@ -47,6 +47,10 @@ public class ProductService {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
     }
 
+    public List<Product> getNonActiveProductsByCategory(int categoryId) {
+        return productRepository.findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
+    }
+
     public Product getProductById(int productId) {
         return productRepository.findById(productId).orElse(null);
     }
@@ -56,7 +60,12 @@ public class ProductService {
         return productRepository.findByIsActiveTrue(pageable);
     }
 
+    public List<Product> getNonActiveqProducts() {
+        return productRepository.findByIsActiveFalse();
+    }
+
     // ---------------- ORDER LOGIC ----------------
+
     /**
      * Tính tổng phụ (subtotal) của danh sách sản phẩm
      * Dựa trên giá * số lượng
@@ -83,5 +92,5 @@ public class ProductService {
         product.setActive(false);
         productRepository.save(product);
     }
-  
+
 }

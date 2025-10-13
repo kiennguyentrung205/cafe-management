@@ -72,12 +72,10 @@
 
 <div class="container mt-4">
     <h1 class="mb-4" th:text="${title}">Danh sách sản phẩm</h1>
-    <a class="btn btn-success mb-4" th:href="@{/product/create}">+ Create new product</a>
-
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <form th:action="@{/product/list}" method="get">
+            <form th:action="@{/product/deleted-list}" method="get">
                 <label for="category-filter" class="form-label">Filter by Category:</label>
                 <div class="input-group">
 
@@ -113,8 +111,7 @@
                 <div class="card-body">
                     <h5 class="product-name" th:text="*{proName}">Tên Sản Phẩm</h5>
 
-                    <p class="product-price mb-2"
-                       th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></p>
+                    <p class="product-price mb-2" th:text="*{price}"> VND</p>
 
                     <div class="product-info">
                         <p><strong>Category:</strong> <span th:text="*{category.cateName}"></span></p>
@@ -128,15 +125,6 @@
 
                 <div class="card-footer-actions">
                     <a class="btn btn-sm btn-primary" th:href="@{/product/edit/{id}(id=*{proId})}">Edit</a>
-
-                    <form th:action="@{/product/delete/{id}(id=*{proId})}" method="post"
-                          style="display:inline; margin-left: 10px;">
-                        <button class="btn btn-sm btn-danger"
-                                type="submit"
-                                onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này không?')">
-                            Delete
-                        </button>
-                    </form>
                 </div>
 
             </div>

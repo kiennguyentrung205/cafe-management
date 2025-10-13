@@ -24,6 +24,13 @@ public class CategoryController {
         return "category/list";
     }
 
+    @GetMapping(value = "/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("title", "Create Category");
+        model.addAttribute("category", new Category());
+        return "/category/create";
+    }
+
     @GetMapping(value = "/edit/{id}")
     public String showEditForm(@PathVariable("id") int id, Model model) {
         model.addAttribute("title", "Edit Category");
@@ -32,8 +39,15 @@ public class CategoryController {
         return "category/edit";
     }
 
+    @GetMapping(value = "/deleted-list")
+    public String viewDeletedCategories(Model model) {
+        model.addAttribute("title", "Category List");
+        model.addAttribute("categoryList", categoryService.getNonActiveCategories());
+        return "category/deleted-list";
+    }
+
     @PostMapping(value = "/edit")
-    public String showEditForm(@ModelAttribute("category") Category category) {
+    public String editCategory(@ModelAttribute("category") Category category) {
         categoryService.saveCategory(category);
         return "redirect:/category/list";
     }
@@ -41,6 +55,13 @@ public class CategoryController {
     @PostMapping(value = "/delete/{id}")
     public String deleteCategory(@PathVariable("id") int id, Model model) {
         categoryService.deleteSortCategory(categoryService.getCategoryById(id));
+        return "redirect:/category/list";
+    }
+
+    @PostMapping(value = "/create")
+    public String createCategory(@ModelAttribute("category") Category category) {
+        category.setActive(true);
+        categoryService.saveCategory(category);
         return "redirect:/category/list";
     }
 }

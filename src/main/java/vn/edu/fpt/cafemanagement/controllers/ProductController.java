@@ -32,7 +32,6 @@ public class ProductController {
 //
 
 
-
     @GetMapping(value = "/list")
     public String showList(
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
@@ -158,6 +157,7 @@ public class ProductController {
 
         // BƯỚC 2: Lưu Product (đã có tên ảnh mới hoặc cũ) vào Database
         product.setStatus("Available");
+        product.setActive(true);
         productService.saveProduct(product);
         return "redirect:/product/list";
     }
@@ -167,5 +167,33 @@ public class ProductController {
 
         productService.deleteSortProduct(productService.getProductById(proId));
         return "redirect:/product/list";
+    }
+
+    @GetMapping(value = "/deleted-list")
+    public String viewDeletedProductList(
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            Model model
+    ) {
+        model.addAttribute("title", "Product List");
+
+        // 1. Logic Lọc Sản phẩm
+        List<Product> products;
+        if (categoryId != null && categoryId > 0) {
+            // Nếu có ID, gọi phương thức Service để lọc theo Category ID
+            products = productService.getNonActiveProductsByCategory(categoryId);
+        } else {
+
+            products = productService.getNonActiveqProducts();
+        }
+
+        model.addAttribute("productList", products);
+
+        // 2. Thêm Category List để hiển thị ô chọn
+        model.addAttribute("categoryList", categoryService.getCategories());
+
+        // 3. Thêm ID đã chọn vào Model để Thymeleaf có thể giữ trạng thái
+        model.addAttribute("selectedCategoryId", categoryId);
+
+        return "product/deleted-list";
     }
 }
