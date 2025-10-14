@@ -78,4 +78,8 @@ public class TableBooking {
     public void setBookingTime(LocalDateTime bookingTime) {
         this.bookingTime = bookingTime;
     }
+
+    public String tosString(){
+        return String.format("%d %s %s %s %s", table.getTableId(), customer.getName(), customer.getPhoneNumber(), status, bookingTime);
+    }
 }

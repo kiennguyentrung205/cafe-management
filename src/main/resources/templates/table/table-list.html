@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Bàn</title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .table-card {
+            border-radius: 15px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        .table-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .empty-state {
+            margin-top: 5rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .card-body {
+            min-height: 316px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <h1 class="text-center mb-5">Table List</h1>
+    <div class="row g-4" th:if="${!tables.isEmpty()}">
+        <div class="col-md-6 col-lg-4 col-xl-3" th:each="table : ${tables}">
+            <div class="card table-card text-center selectable-card"
+                 th:classappend="${table.status == 'available' ? 'border-success' : 'border-warning'}">
+                <div class="card-body p-4">
+                    <div class="card-icon"
+                         th:classappend="${table.status == 'available' ? 'text-success' : 'text-warning'}">
+                        <i class="fa-solid fa-chair"></i>
+                    </div>
+
+                    <h5 class="card-title mb-2" th:text="'Table ' + ${table.tableId}">Bàn 01</h5>
+
+                    <th:block th:switch="${table.status}">
+                            <span class="badge rounded-pill bg-success-subtle border border-success-subtle text-success-emphasis mb-3"
+                                  th:case="'available'">Available</span>
+                        <span class="badge rounded-pill bg-warning-subtle border border-warning-subtle text-warning-emphasis mb-3"
+                              th:case="'unavailable'">Unavailable</span>
+                    </th:block>
+
+                    <p class="card-text text-muted mb-3">
+                        <i class="fas fa-users"></i>
+                        <span>Capacity: 4 people</span></p>
+
+
+                    <div th:if="${table.status == 'available'}">
+                        <a th:href="@{/table/booking/new(table-id=${table.tableId})}" class="btn btn-primary">Book now</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center empty-state" th:if="${tables.isEmpty()}">
+        <i class="fa-regular fa-folder-open"></i>
+        <h3>No table info</h3>
+    </div>
+
+    <div class="text-center my-5">
+        <!--            <a class="btn btn-success btn-lg" type="submit" th:href="@{/table/booking/new}">Order table</a>-->
+        <button class="btn btn-success btn-lg" type="submit">Order table</button>
+    </div>
+</div>
+
+
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

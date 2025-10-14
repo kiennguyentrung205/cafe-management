@@ -1,22 +1,31 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Product;
+import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 import vn.edu.fpt.cafemanagement.repositories.ProductRepository;
 
 import java.util.List;
 
 @Service
 public class ProductService {
-    private ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
 
     public void saveProduct(Product product) {
         productRepository.save(product);
@@ -31,17 +40,59 @@ public class ProductService {
     }
 
     public List<Product> getActiveProducts() {
-        return productRepository.findByIsActiveTrue();
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue();
     }
 
     public List<Product> getProductsByCategory(int categoryId) {
-        return productRepository.findByIsActiveTrueAndCategoryCateId(categoryId);
-
+        return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
     }
 
     public Product getProductById(int productId) {
-        return productRepository.findById(productId).get();
+        return productRepository.findById(productId).orElse(null);
     }
 
+    public Page<Product> getActiveProductsPaged(Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
+    }
 
+    // ---------------- ORDER LOGIC ----------------
+    /**
+     * Tính tổng phụ (subtotal) của danh sách sản phẩm
+     * Dựa trên giá * số lượng
+     */
+    public double calculateSubtotal(List<Integer> productIds, List<Integer> quantities) {
+        double subtotal = 0;
+        for (int i = 0; i < productIds.size(); i++) {
+            Product product = getProductById(productIds.get(i));
+            if (product != null) {
+                subtotal += product.getPrice() * quantities.get(i);
+            }
+        }
+        return subtotal;
+    }
+
+    //Cập nhật tổng giá của đơn hàng
+    public void saveOrderItems(Order order, List<Integer> productIds, List<Integer> quantities) {
+        double subtotal = calculateSubtotal(productIds, quantities);
+        order.setTotalPrice(subtotal);
+        orderRepository.save(order);
+    }
+
+    public void deleteSortProduct(Product product) {
+        product.setActive(false);
+        productRepository.save(product);
+    }
+
+    /**
+     * Lấy danh sách sản phẩm đang hoạt động (isActive=true)
+     * theo category (nếu categoryId = 0 thì lấy tất cả),
+     * có phân trang.
+     */
+    public Page<Product> getProductsByCategoryPaged(Integer categoryId, Pageable pageable) {
+        if (categoryId == null || categoryId == 0) {
+            return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
+        } else {
+            return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
+        }
+    }
 }
