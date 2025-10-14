@@ -60,10 +60,13 @@ public class ProductService {
         return productRepository.findByIsActiveTrue(pageable);
     }
 
-    public List<Product> getNonActiveqProducts() {
+    public List<Product> getNonActiveProducts() {
         return productRepository.findByIsActiveFalse();
     }
 
+    public List<Product> getSearchProducts(String searchText) {
+        return productRepository.findSearchProductsByAllCriteria(searchText);
+    }
     // ---------------- ORDER LOGIC ----------------
 
     /**

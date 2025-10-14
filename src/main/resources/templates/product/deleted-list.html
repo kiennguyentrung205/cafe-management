@@ -116,7 +116,8 @@
                 <div class="card-body">
                     <h5 class="product-name" th:text="*{proName}">Tên Sản Phẩm</h5>
 
-                    <p class="product-price mb-2" th:text="*{price}"> VND</p>
+                    <p class="product-price mb-2"
+                       th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></p>
 
                     <div class="product-info">
                         <p><strong>Category:</strong> <span th:text="*{category.cateName}"></span></p>

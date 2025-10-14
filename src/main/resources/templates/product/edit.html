@@ -57,6 +57,7 @@
                             <input type="hidden" th:field="*{img}" id="imgField"/>
                         </div>
 
+
                         <div class="mb-3">
                             <label for="price" class="form-label">Price (VND):</label>
                             <input type="number" id="price" th:field="*{price}" min="1000"
@@ -90,6 +91,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label for="statusSelect" class="form-label">Status:</label>
+                                <input type="hidden" name="active" value="false"/>
                                 <select id="statusSelect" th:field="*{status}" class="form-select">
                                     <option value="Available">Available</option>
                                     <option value="Unavailable">Unavailable</option>
