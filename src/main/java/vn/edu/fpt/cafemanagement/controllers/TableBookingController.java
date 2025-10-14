@@ -66,6 +66,8 @@ public class TableBookingController {
         tableBooking.setCustomer(loggedCustomer);
 
         tableBookingService.save(tableBooking);
+        tableService.updateStatus(tableBooking.getTable().getTableId(), "unavailable");
+
         return "redirect:/table/list?book-success";
     }
 }

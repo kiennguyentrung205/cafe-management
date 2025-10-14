@@ -252,15 +252,15 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+
+
 </head>
 <body>
-    <div class="container">
-    <!-- Navigation -->
-        <div class="nav-tabs">
-            <div class="nav-tab">Home</div>
-            <div class="nav-tab active">Table booking history</div>
-        </div>
+<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: header"></header>
 
+    <div class="container">
         <!-- Header -->
         <div class="header">
             <h1>Table booking history</h1>
@@ -318,8 +318,8 @@
                     <td class="date-cell" th:text="${x.bookingTime}">${x.bookingTime}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-view">VIEW</button>
-                            <button class="btn-reorder">RE-ORDER</button>
+                            <a th:href="@{#}" class="btn btn-reorder">Cancel</a>
+<!--                            <button class="btn-reorder">Cancel</button>-->
                         </div>
                     </td>
                 </tr>
@@ -336,11 +336,11 @@
         });
     });
 
-    document.querySelectorAll('.btn-reorder').forEach(btn => {
-        btn.addEventListener('click', function () {
-            alert('Re-order confirmed');
-        });
-    });
+    // document.querySelectorAll('.btn-reorder').forEach(btn => {
+    //     btn.addEventListener('click', function () {
+    //         alert('Re-order confirmed');
+    //     });
+    // });
 
     document.querySelector('.btn-clear').addEventListener('click', function () {
         document.querySelectorAll('.filter-select').forEach(select => {

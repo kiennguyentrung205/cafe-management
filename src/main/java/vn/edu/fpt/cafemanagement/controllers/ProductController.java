@@ -28,11 +28,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-
-//
-
-
-
     @GetMapping(value = "/list")
     public String showList(
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
