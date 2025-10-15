@@ -3,6 +3,7 @@ package vn.edu.fpt.cafemanagement.controllers;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -43,26 +44,34 @@ public class OrderController {
         this.pointHistoryService = pointHistoryService;
     }
 
-    // ----------------------- [GET: Hiển thị form tạo order] -----------------------
+    // ----------------------- [GET: Hiển thị form tạo order + tìm kiếm + phân trang] -----------------------
     @GetMapping("/create")
     public String showCreateOrderForm(
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
 
-        int pageSize = 9;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
 
-        // --- Lọc sản phẩm theo Category ---
-        if (categoryId != null && categoryId > 0) {
-            productPage = productService.getProductsByCategoryPaged(categoryId, PageRequest.of(page - 1, pageSize));
-        } else {
-            productPage = productService.getActiveProductsPaged(PageRequest.of(page - 1, pageSize));
+        // --- Ưu tiên tìm kiếm trước ---
+        if (query != null && !query.trim().isEmpty()) {
+            productPage = productService.searchActiveProducts(query.trim(), pageable);
+        }
+        // --- Nếu có category ---
+        else if (categoryId != null && categoryId > 0) {
+            productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
+        }
+        // --- Ngược lại lấy tất cả ---
+        else {
+            productPage = productService.getActiveProductsPaged(pageable);
         }
 
-        // --- Gửi dữ liệu sang View ---
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
+        model.addAttribute("query", query != null ? query : "");
         model.addAttribute("productList", productPage.getContent());
         model.addAttribute("voucherList", voucherService.getActiveVouchers());
         model.addAttribute("customer", null);
@@ -85,7 +94,6 @@ public class OrderController {
             @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
             Model model) {
 
-        // --- Kiểm tra nếu chỉ nhấn "Check" ---
         if ("check".equals(action)) {
             Customer customer = customerService.getCustomerByPhone(customerPhone);
             if (customer == null)
@@ -95,13 +103,11 @@ public class OrderController {
             return reloadCreatePage(model);
         }
 
-        // --- Kiểm tra danh sách sản phẩm ---
         if (productIds == null || productIds.isEmpty()) {
             model.addAttribute("error", "No products selected!");
             return reloadCreatePage(model);
         }
 
-        // --- Kiểm tra khách hàng ---
         Customer customer = customerService.getCustomerByPhone(customerPhone);
         if (customer == null) {
             model.addAttribute("error", "Customer not found!");
@@ -113,14 +119,12 @@ public class OrderController {
             return reloadCreatePage(model);
         }
 
-        // --- Kiểm tra manager ---
         Manager manager = managerService.getDefaultManager();
         if (manager == null) {
             model.addAttribute("error", "No manager available!");
             return reloadCreatePage(model);
         }
 
-        // --- Tạo Order ---
         Order order = new Order();
         order.setCustomer(customer);
         order.setManager(manager);
@@ -128,7 +132,6 @@ public class OrderController {
         order.setStatus("Pending");
         order.setPointsUsed(pointsUsed);
 
-        // --- Áp dụng voucher ---
         Voucher voucher = null;
         Integer voucherIdValue = voucherId.orElse(0);
         if (voucherIdValue != 0) {
@@ -142,7 +145,6 @@ public class OrderController {
             voucherService.saveVoucher(voucher);
         }
 
-        // --- Tính tổng giá ---
         double totalPrice = 0;
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
@@ -156,7 +158,6 @@ public class OrderController {
             totalPrice += product.getPrice() * qty;
         }
 
-        // --- Áp dụng giảm giá từ voucher ---
         if (voucher != null) {
             if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType()))
                 totalPrice -= totalPrice * (voucher.getDiscountValue() / 100.0);
@@ -164,18 +165,15 @@ public class OrderController {
                 totalPrice -= voucher.getDiscountValue();
         }
 
-        // --- Giảm theo điểm thưởng ---
         totalPrice -= pointsUsed * 2000;
         if (totalPrice < 0) totalPrice = 0;
         order.setTotalPrice(totalPrice);
         order.setOrderItems(orderItems);
 
-        // --- Cập nhật điểm khách hàng ---
         int earnedPoints = (int) (totalPrice / 50000);
         customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
         customerService.saveCustomer(customer);
 
-        // --- Lưu lịch sử điểm ---
         if (pointsUsed > 0) {
             PointHistory ph = new PointHistory();
             ph.setCustomer(customer);
@@ -186,7 +184,6 @@ public class OrderController {
             pointHistoryService.saveHistory(ph);
         }
 
-        // --- Lưu Order ---
         orderService.saveOrder(order);
 
         model.addAttribute("success", "Order created successfully!");
@@ -222,12 +219,11 @@ public class OrderController {
     public String showEditOrderPage(
             @RequestParam(defaultValue = "1") int page,
             Model model,
-            HttpSession session) { // 👈 thêm HttpSession để lấy user đang login
+            HttpSession session) {
 
         int pageSize = 9;
         Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
 
-        // ✅ Lấy người đăng nhập hiện tại (Barista chẳng hạn)
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
         model.addAttribute("currentUser", currentUser);
 
@@ -247,7 +243,6 @@ public class OrderController {
             @RequestParam(value = "updatedAt", required = false) String updatedAtStr,
             HttpSession session) {
 
-        //Lấy order từ DB
         Optional<Order> optionalOrder = orderService.getOrderById(orderId);
         if (optionalOrder.isEmpty()) {
             return "redirect:/order/edit?error=OrderNotFound";
@@ -256,14 +251,12 @@ public class OrderController {
         Order order = optionalOrder.get();
         order.setStatus(status);
 
-        //Cập nhật thời gian chỉnh sửa
         if (updatedAtStr != null && !updatedAtStr.isEmpty()) {
             order.setUpdatedAt(LocalDateTime.parse(updatedAtStr));
         } else {
             order.setUpdatedAt(LocalDateTime.now());
         }
 
-        //Nếu trạng thái là Completed hoặc Cancelled → soft delete
         if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
             order.setDeleted(true);
         } else {

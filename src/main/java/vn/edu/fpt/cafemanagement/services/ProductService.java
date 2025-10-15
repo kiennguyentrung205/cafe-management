@@ -95,4 +95,8 @@ public class ProductService {
             return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
         }
     }
+
+    public Page<Product> searchActiveProducts(String keyword, Pageable pageable) {
+        return productRepository.findByProNameContainingIgnoreCaseAndIsActiveTrue(keyword, pageable);
+    }
 }

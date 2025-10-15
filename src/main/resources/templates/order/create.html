@@ -1,417 +1,577 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create In-Store Order</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 120px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 25px;
-            gap: 10px;
-        }
-
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #333;
-            background-color: #f5f5f5;
-            padding: 10px 0;
-            width: 100px;
-            border-radius: 15px;
-            font-size: 12px;
-            transition: 0.25s;
-            text-align: center;
-        }
-
-        .menu-item i { font-size: 18px; margin-bottom: 5px; }
-        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
-        .menu-item.active { background-color: #ff4d4d; color: white; }
-
-        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
-
-        /* Main layout */
-        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
-        h2 { margin-bottom: 10px; font-size: 22px; }
-
-        .container {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr; /* tăng tỉ lệ hai panel */
-            gap: 25px;
-            max-width: 2000px; /* tăng tổng chiều rộng */
-            margin: 0 auto;
-        }
-
-        .menu-panel, .order-panel {
-            background: #fff;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 0 6px rgba(0,0,0,0.1);
-        }
-
-        .menu-header { display: flex; justify-content: space-between; align-items: center; }
-
-        .categories select {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px;
-            font-size: 14px;
-            width: 180px;
-        }
-
-        .categories button {
-            border: none;
-            background-color: #ff4d4d;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .categories button:hover { background-color: #e60000; }
-
-        .search-bar input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 150px;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 5px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .product-card img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .product-card:hover { background-color: #f0f0f0; }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .pagination a {
-            color: #007bff;
-            padding: 5px 10px;
-            margin: 0 3px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .pagination a.active { background-color: #007bff; color: white; }
-        .pagination a:hover { background-color: #0056b3; color: white; }
-
-        /* Order panel */
-        .order-panel h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        .order-list {
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            padding: 8px 0; max-height: 400px;
-            overflow-y: auto;
-        }
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        .order-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            object-fit: cover;
-            margin-right: 8px;
-        }
-
-        .voucher, .customer-info {
-            margin-top: 12px;
-        }
-        .redeem {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 5px;
-        }
-
-        .place-container {
-            display: flex; justify-content: center; align-items: center; margin-top: 10px;
-        }
-        .place-btn {
-            background-color: #ff0000;
-            color: #fff;
-            padding: 10px 30px;
-            border-radius: 10px;
-            font-size: 15px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: 0.2s ease-in-out;
-        }
-
-        .place-btn:hover { background-color: #e60000; transform: scale(1.05); }
-    </style>
-</head>
-<body>
-
-<!-- Sidebar -->
-<div class="sidebar">
-    <a href="/order/create" class="menu-item active">
-        <i class="bi bi-house-door"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="/sales" class="menu-item">
-        <i class="bi bi-bar-chart-line"></i>
-        <span>Sales Amount</span>
-    </a>
-    <a href="/order/list" class="menu-item">
-        <i class="bi bi-list-ul"></i>
-        <span>Order List</span>
-    </a>
-    <div class="sidebar-bottom">
-        <a href="/logout" class="menu-item logout">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Log Out</span>
-        </a>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="main-container">
-    <h2>Create In-Store Order</h2>
-
-    <form th:action="@{/order/create}" method="post">
-        <div class="container">
-
-            <!-- LEFT PANEL -->
-            <div class="menu-panel">
-                <div class="menu-header">
-                    <div class="categories">
-                        <h3 style="font-size:17px;">Menu Category</h3>
-                        <div class="d-flex align-items-center gap-2">
-                            <select id="categorySelect" name="categoryId" class="form-select">
-                                <option value="0">-- All Categories --</option>
-                                <option th:each="category : ${categoryList}"
-                                        th:value="${category.cateId}"
-                                        th:text="${category.cateName}"
-                                        th:selected="${category.cateId == selectedCategoryId}">
-                                </option>
-                            </select>
-                            <button type="button" onclick="filterCategory()">Filter</button>
-                        </div>
-                    </div>
-                    <div class="search-bar">
-                        <input type="text" placeholder="Search...">
-                    </div>
-                </div>
-
-                <!-- Product Grid -->
-                <div class="menu-grid">
-                    <div th:each="product : ${productList}" class="product-card">
-                        <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
-                        <p class="product-name" th:text="${product.proName}"></p>
-                        <p class="product-price"><b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b></p>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination">
-                    <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
-                    <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-                       th:href="@{/order/create(page=${i})}"
-                       th:text="${i}"
-                       th:classappend="${i == currentPage} ? 'active' : ''"></a>
-                    <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
-                </div>
-            </div>
-
-            <!-- RIGHT PANEL -->
-            <div class="order-panel">
-                <h3>Order Menu</h3>
-                <div class="order-list"></div>
-
-                <div class="voucher">
-                    <label>Voucher:</label>
-                    <select name="voucherId">
-                        <option value="">None</option>
-                        <option th:each="v : ${voucherList}" th:value="${v.voucherId}" th:text="${v.voucherName}"></option>
-                    </select>
-                </div>
-
-                <div class="customer-info">
-                    <label>Phone Number:</label>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <input type="text" name="customerPhone" placeholder="0123456789"
-                               th:value="${customerPhone}">
-                        <button type="submit" name="action" value="check" class="btn btn-secondary btn-sm">Check</button>
-                    </div>
-
-                    <h4 style="font-size:16px;">Customer Info</h4>
-                    <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
-                    <p>Point: <span th:text="${customer != null ? customer.point : 0}"></span></p>
-
-                    <div class="redeem">
-                        <label>Redeem Points:</label>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <button type="button" class="btn btn-danger btn-sm fw-bold"
-                                    style="width:32px;height:32px;"
-                                    onclick="changePoint(-5)">−</button>
-                            <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
-                                   th:attr="data-max=${customer != null ? customer.point : 0}"
-                                   style="width:60px;text-align:center;font-weight:600;">
-                            <button type="button" class="btn btn-success btn-sm fw-bold"
-                                    style="width:32px;height:32px;"
-                                    onclick="changePoint(5)">+</button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <hr/>
-                <div class="place-container">
-                    <button type="submit" class="place-btn" name="action" value="create">
-                        <span style="font-size: 16px; font-weight: 600;">Place</span><br>
-                        <span style="font-size: 13px;">(<span id="totalPrice">0</span> VND)</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-<script src="/assets/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.querySelectorAll(".product-card").forEach(card => {
-        card.addEventListener("click", () => {
-            const name = card.querySelector(".product-name").textContent.trim();
-            const priceText = card.querySelector(".product-price").textContent.trim();
-            const price = parseFloat(priceText.replace(/[^\d.]/g, "")); // cho phép dấu thập phân
-            const img = card.querySelector("img").src;
-
-            const orderList = document.querySelector(".order-list");
-
-            // Tìm sản phẩm trùng
-            let existingItem = Array.from(orderList.querySelectorAll(".order-item"))
-                .find(item => item.querySelector(".item-name").textContent.trim() === name);
-
-            if (existingItem) {
-                const qtySpan = existingItem.querySelector(".item-qty");
-                let qty = parseInt(qtySpan.textContent);
-                qty++;
-                qtySpan.textContent = qty;
-            } else {
-                const item = document.createElement("div");
-                item.classList.add("order-item");
-                item.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <img src="${img}" alt="${name}">
-                        <span class="item-name">${name}</span>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
-<button type="button" class="btn-minus"
-    style="border:1px solid #aaa; background-color:#e9ecef;
-           border-radius:5px; width:28px; height:28px;
-           font-weight:bold; line-height:1;">
-    −
-</button>                            <span class="item-qty">1</span>x
-                            <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
-                        </div>
-                        <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
-                    </div>
-                `;
-                orderList.appendChild(item);
-
-                // Thêm sự kiện cho nút trừ
-                const minusBtn = item.querySelector(".btn-minus");
-                minusBtn.addEventListener("click", () => {
-                    let qty = parseInt(item.querySelector(".item-qty").textContent);
-                    qty--;
-                    if (qty <= 0) {
-                        item.remove();
-                    } else {
-                        item.querySelector(".item-qty").textContent = qty;
-                    }
-                    updateTotal();
-                });
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create In-Store Order</title>
+        <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+        <style>
+            body {
+                font-family: "Segoe UI", sans-serif;
+                background-color: #f8f9fa;
+                margin: 0;
+                display: flex;
+                height: 100vh;
+                overflow: hidden;
             }
 
-            updateTotal();
+            /* Sidebar */
+            .sidebar {
+                width: 120px;
+                background-color: #ffffff;
+                border-right: 1px solid #ddd;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 25px;
+                gap: 10px;
+            }
+
+            .menu-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-decoration: none;
+                color: #333;
+                background-color: #f5f5f5;
+                padding: 10px 0;
+                width: 100px;
+                border-radius: 15px;
+                font-size: 12px;
+                transition: 0.25s;
+                text-align: center;
+            }
+
+            .menu-item i { font-size: 18px; margin-bottom: 5px; }
+            .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
+            .menu-item.active { background-color: #ff4d4d; color: white; }
+
+            .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
+
+            /* Main layout */
+            .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
+            h2 { margin-bottom: 10px; font-size: 22px; }
+
+            .container {
+                display: grid;
+                grid-template-columns: 2fr 1.2fr; /* tăng tỉ lệ hai panel */
+                gap: 25px;
+                max-width: 2000px; /* tăng tổng chiều rộng */
+                margin: 0 auto;
+            }
+
+            .menu-panel, .order-panel {
+                background: #fff;
+                border-radius: 10px;
+                padding: 15px;
+                box-shadow: 0 0 6px rgba(0,0,0,0.1);
+            }
+
+            .menu-header { display: flex; justify-content: space-between; align-items: center; }
+
+            .categories select {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+                width: 180px;
+            }
+
+            .categories button {
+                border: none;
+                background-color: #ff4d4d;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
+            .categories button:hover { background-color: #e60000; }
+
+            .search-bar input {
+                padding: 5px 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                width: 150px;
+            }
+
+            .menu-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .product-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 5px;
+                text-align: center;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
+            .product-card img {
+                width: 100%;
+                height: 100px;  /*chỉnh sửa kích thước ảnh, đợi có đủ description mới làm đc*/
+                object-fit: cover;
+                border-radius: 6px;
+            }
+
+            .product-card:hover { background-color: #f0f0f0; }
+
+            /* Pagination */
+            .pagination {
+                display: flex;
+                justify-content: center;
+                margin-top: 15px;
+            }
+
+            .pagination a {
+                color: #007bff;
+                padding: 5px 10px;
+                margin: 0 3px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                text-decoration: none;
+                font-size: 13px;
+            }
+
+            .pagination a.active { background-color: #007bff; color: white; }
+            .pagination a:hover { background-color: #0056b3; color: white; }
+
+            /* Order panel */
+            .order-panel h3 {
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+            .order-list {
+                border-top: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+                padding: 8px 0;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            .order-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+            .order-item img {
+                width: 50px;
+                height: 50px;
+                border-radius: 4px;
+                object-fit: cover;
+                margin-right: 8px;
+            }
+
+            .voucher, .customer-info {
+                margin-top: 12px;
+            }
+            .redeem {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-top: 5px;
+            }
+
+            .place-container {
+                display: flex; justify-content: center; align-items: center; margin-top: 10px;
+            }
+            .place-btn {
+                background-color: #ff4d4d;
+                color: #fff;
+                padding: 10px 30px;
+                border-radius: 10px;
+                font-size: 15px;
+                text-align: center;
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                transition: 0.2s ease-in-out;
+            }
+
+            .place-btn:hover { background-color: #e60000; transform: scale(1.05); }
+        </style>
+    </head>
+    <body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="/order/create" class="menu-item active">
+            <i class="bi bi-house-door"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/sales" class="menu-item">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Sales Amount</span>
+        </a>
+        <a href="/order/list" class="menu-item">
+            <i class="bi bi-list-ul"></i>
+            <span>Order List</span>
+        </a>
+        <div class="sidebar-bottom">
+            <a href="/logout" class="menu-item logout">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <h2>Create In-Store Order</h2>
+
+        <form th:action="@{/order/create}" method="post">
+            <div class="container">
+
+                <!-- LEFT PANEL -->
+                <div class="menu-panel">
+                    <div class="menu-header">
+                        <div class="categories">
+                            <h3 style="font-size:17px;">Menu Category</h3>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div id="categoryCheckboxes" class="d-flex gap-3 flex-wrap">
+                                    <div th:each="category : ${categoryList}" class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="checkbox"
+                                                   name="categoryId"
+                                                   th:value="${category.cateId}"
+                                                   class="form-check-input category-checkbox"
+                                                   th:checked="${category.cateId == selectedCategoryId}"
+                                                   onchange="handleCategorySelect(this)">
+                                            <span th:text="${category.cateName}"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" placeholder="Search...">
+                        </div>
+                    </div>
+
+                    <!-- Product Grid -->
+                    <div class="menu-grid">
+                        <div th:each="product : ${productList}" class="product-card">
+                            <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
+                            <p class="product-name fw-semibold" th:text="${product.proName}"></p>
+                            <p class="product-desc text-muted"
+                               th:text="${#strings.abbreviate(product.description, 50)}"></p>
+                            <p class="product-price mb-0">
+                                <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
+                        <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                           th:href="@{/order/create(page=${i})}"
+                           th:text="${i}"
+                           th:classappend="${i == currentPage} ? 'active' : ''"></a>
+                        <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL -->
+                <div class="order-panel">
+                    <h3>Order Menu</h3>
+                    <div class="order-list"></div>
+
+                    <div class="voucher">
+                        <label>Voucher:</label>
+                        <select name="voucherId">
+                            <option value="">None</option>
+                            <option th:each="v : ${voucherList}" th:value="${v.voucherId}" th:text="${v.voucherName}"></option>
+                        </select>
+                    </div>
+
+                    <div class="customer-info">
+                        <label>Phone Number:</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" name="customerPhone" placeholder="0123456789"
+                                   th:value="${customerPhone}">
+                            <button type="submit" name="action" value="check" class="btn btn-secondary btn-sm">Check</button>
+                        </div>
+
+                        <h4 style="font-size:16px;">Customer Info</h4>
+                        <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
+                        <p>Point: <span th:text="${customer != null ? customer.point : 0}"></span></p>
+
+                        <div class="redeem">
+                            <label>Redeem Points:</label>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <button type="button" class="btn btn-danger btn-sm fw-bold"
+                                        style="width:32px;height:32px;"
+                                        onclick="changePoint(-5)">−</button>
+                                <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
+                                       th:attr="data-max=${customer != null ? customer.point : 0}"
+                                       style="width:60px;text-align:center;font-weight:600;">
+                                <button type="button" class="btn btn-success btn-sm fw-bold"
+                                        style="width:32px;height:32px;"
+                                        onclick="changePoint(5)">+</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr/>
+                    <div class="place-container">
+                        <button type="submit" class="place-btn" name="action" value="create">
+                            <span style="font-size: 16px; font-weight: 600;">Place</span><br>
+                            <span style="font-size: 13px;">(<span id="totalPrice">0</span> VND)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /* ========== Gắn sự kiện cho product cards ========== */
+        function attachProductCardListeners() {
+            document.querySelectorAll(".product-card").forEach(card => {
+                card.replaceWith(card.cloneNode(true));
+            });
+
+            document.querySelectorAll(".product-card").forEach(card => {
+                card.addEventListener("click", () => {
+                    const name = card.querySelector(".product-name").textContent.trim();
+                    const priceText = card.querySelector(".product-price").textContent.trim();
+                    const price = parseFloat(priceText.replace(/[^\d.]/g, ""));
+                    const img = card.querySelector("img").src;
+
+                    const orderList = document.querySelector(".order-list");
+
+                    let existingItem = Array.from(orderList.querySelectorAll(".order-item"))
+                        .find(item => item.querySelector(".item-name").textContent.trim() === name);
+
+                    if (existingItem) {
+                        const qtySpan = existingItem.querySelector(".item-qty");
+                        let qty = parseInt(qtySpan.textContent);
+                        qty++;
+                        qtySpan.textContent = qty;
+                    } else {
+                        const item = document.createElement("div");
+                        item.classList.add("order-item");
+                        item.innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <img src="${img}" alt="${name}">
+                    <span class="item-name">${name}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
+                        <button type="button" class="btn-minus"
+                            style="border:1px solid #aaa; background-color:#e9ecef;
+                                   border-radius:5px; width:28px; height:28px;
+                                   font-weight:bold; line-height:1;">−</button>
+                        <span class="item-qty">1</span>x
+                        <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
+                    </div>
+                    <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
+                </div>
+            `;
+                        orderList.appendChild(item);
+
+                        const minusBtn = item.querySelector(".btn-minus");
+                        minusBtn.addEventListener("click", () => {
+                            let qty = parseInt(item.querySelector(".item-qty").textContent);
+                            qty--;
+                            if (qty <= 0) {
+                                item.remove();
+                            } else {
+                                item.querySelector(".item-qty").textContent = qty;
+                            }
+                            updateTotal();
+                        });
+                    }
+
+                    updateTotal();
+                });
+            });
+        }
+
+        /* ========== Tính tổng tiền ========== */
+        function updateTotal() {
+            const orderItems = document.querySelectorAll(".order-item");
+            let total = 0;
+            orderItems.forEach(item => {
+                const qty = parseInt(item.querySelector(".item-qty").textContent);
+                const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
+                total += qty * price;
+            });
+            document.getElementById("totalPrice").textContent = total.toLocaleString();
+        }
+
+        /* ========== Điểm thưởng ========== */
+        function changePoint(delta) {
+            const input = document.getElementById('pointsUsed');
+            const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
+            let current = parseInt(input.value) || 0;
+            current += delta;
+            if (current < 0) current = 0;
+            if (current > maxPoint) current = maxPoint;
+            current = Math.floor(current / 5) * 5;
+            input.value = current;
+        }
+
+        /* ========== AJAX load lại menu + phân trang ========== */
+        function fetchAndReplace(url, categoryId) {
+            fetch(url, { credentials: 'same-origin' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newGrid = doc.querySelector('.menu-grid');
+                    const newPagination = doc.querySelector('.pagination');
+
+                    const curGrid = document.querySelector('.menu-grid');
+                    const curPag = document.querySelector('.pagination');
+
+                    if (curGrid && newGrid) curGrid.innerHTML = newGrid.innerHTML;
+                    if (curPag && newPagination) curPag.innerHTML = newPagination.innerHTML;
+
+                    selectedCategoryId = categoryId ? String(categoryId) : null;
+                    document.querySelectorAll('.category-checkbox').forEach(cb => {
+                        cb.checked = selectedCategoryId === cb.value;
+                    });
+
+                    attachProductCardListeners();
+                    rebindLiveSearch(); // <— thêm vào đây
+
+                    history.pushState(null, '', url);
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    window.location.href = url;
+                });
+        }
+
+        /* ========== Chọn danh mục (checkbox click) ========== */
+        let selectedCategoryId = null;
+
+        function handleCategorySelect(checkbox) {
+            const allCheckboxes = document.querySelectorAll('.category-checkbox');
+            if (checkbox.checked) {
+                allCheckboxes.forEach(cb => { if (cb !== checkbox) cb.checked = false; });
+                selectedCategoryId = checkbox.value;
+                fetchAndReplace(`/order/create?categoryId=${selectedCategoryId}&page=1`, selectedCategoryId);
+            } else {
+                selectedCategoryId = null;
+                fetchAndReplace(`/order/create?page=1`, null);
+            }
+        }
+
+        /* ========== Live Search (lọc sản phẩm khi gõ) ========== */
+        function rebindLiveSearch() {
+            const searchInput = document.querySelector('.search-bar input');
+            if (!searchInput) return;
+
+            searchInput.removeEventListener('input', searchInput._handler || (() => {}));
+
+            const handler = debounce(function() {
+                const query = this.value.trim();
+                let url = '/order/create?page=1';
+                if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
+                if (query) url += `&query=${encodeURIComponent(query)}`;
+
+                fetchAndReplace(url, selectedCategoryId);
+            }, 300);
+
+            searchInput._handler = handler;
+            searchInput.addEventListener('input', handler);
+        }
+
+        // Debounce để tránh fetch liên tục khi gõ nhanh
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        /* ========== Phân trang bằng AJAX ========== */
+        document.addEventListener('click', function(e) {
+            const a = e.target.closest('.pagination a');
+            if (!a) return;
+            e.preventDefault();
+            const href = a.getAttribute('href');
+            fetchAndReplace(href, selectedCategoryId);
         });
-    });
 
-    // Cập nhật tổng tiền
-    function updateTotal() {
-        const orderItems = document.querySelectorAll(".order-item");
-        let total = 0;
-        orderItems.forEach(item => {
-            const qty = parseInt(item.querySelector(".item-qty").textContent);
-            const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
-            total += qty * price;
+        /* ========== Khởi tạo khi DOM sẵn sàng ========== */
+        document.addEventListener('DOMContentLoaded', () => {
+            attachProductCardListeners();
+            rebindLiveSearch();
+
+            document.querySelectorAll('.category-checkbox').forEach(cb => {
+                cb.removeEventListener('change', cb._handler || (()=>{}));
+                const handler = function() { handleCategorySelect(this); };
+                cb._handler = handler;
+                cb.addEventListener('change', handler);
+            });
+
+            window.addEventListener('popstate', function() {
+                fetchAndReplace(location.href, null);
+            });
         });
-        document.getElementById("totalPrice").textContent = total.toLocaleString();
-    }
 
-    // Tăng/giảm điểm đổi thưởng
-    function changePoint(delta) {
-        const input = document.getElementById('pointsUsed');
-        const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
-        let current = parseInt(input.value) || 0;
-        current += delta;
-        if (current < 0) current = 0;
-        if (current > maxPoint) current = maxPoint;
-        current = Math.floor(current / 5) * 5;
-        input.value = current;
-    }
+        /* ========== Kiểm tra SĐT khách hàng (AJAX) ========== */
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+            const checkBtn = form.querySelector('button[name="action"][value="check"]');
+            const phoneInput = form.querySelector('input[name="customerPhone"]');
 
-    function filterCategory() {
-        const selected = document.getElementById("categorySelect").value;
-        window.location.href = `/order/create?categoryId=${selected}`;
-    }
-</script>
-</body>
-</html>
+            checkBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const phone = phoneInput.value.trim();
+                if (!phone) {
+                    alert('Please enter a phone number');
+                    return;
+                }
+
+                const url = `/order/create?action=check&customerPhone=${encodeURIComponent(phone)}`;
+                fetch(url, { credentials: 'same-origin' })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network error');
+                        return res.text();
+                    })
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newCustomerInfo = doc.querySelector('.customer-info');
+                        const curCustomerInfo = document.querySelector('.customer-info');
+                        if (curCustomerInfo && newCustomerInfo) {
+                            curCustomerInfo.innerHTML = newCustomerInfo.innerHTML;
+                        }
+                        rebindPointButtons();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Failed to load customer info.');
+                    });
+            });
+        });
+
+        /* ========== Gắn lại sự kiện cộng/trừ điểm ========== */
+        function rebindPointButtons() {
+            document.querySelectorAll('.btn-danger, .btn-success').forEach(btn => {
+                const delta = btn.classList.contains('btn-danger') ? -5 : 5;
+                btn.addEventListener('click', () => changePoint(delta));
+            });
+        }
+    </script>
+
+    </body>
+    </html>
