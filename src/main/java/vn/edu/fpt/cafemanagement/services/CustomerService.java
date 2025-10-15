@@ -3,18 +3,10 @@ package vn.edu.fpt.cafemanagement.services;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
-
 import java.util.List;
-
-
-import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
-import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 public class CustomerService {
     ManagerService managerService;
     CustomerRepository customerRepository;
+
     public CustomerService(CustomerRepository customerRepository, ManagerService managerService) {
         this.customerRepository = customerRepository;
         this.managerService = managerService;
@@ -42,7 +35,7 @@ public class CustomerService {
     public Customer findByUsername(String username) {
         return customerRepository.findByUsername(username).orElse(null);
     }
-  
+
     public Customer createCustomer(Customer customer) throws Exception {
         String username = customer.getUsername();
         String phoneNumber = customer.getPhoneNumber();
@@ -72,26 +65,24 @@ public class CustomerService {
     }
 
 
-
-
-    public Customer getCustomerById (int cusId) {
+    public Customer getCustomerById(int cusId) {
         return customerRepository.getCustomerByCusId(cusId);
     }
 
-    public List<PointHistory> getPointHistoryByCustomerId (int cusId) {
+    public List<PointHistory> getPointHistoryByCustomerId(int cusId) {
         return customerRepository.getPointHistoryByCustomerId(cusId);
     }
 
-    public void updateCustomer (Customer customer, MultipartFile imgFile) {
+    public void updateCustomer(Customer customer, MultipartFile imgFile) {
         Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElse(null);
         if (existingCustomer != null) {
-            if(!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
+            if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
                 if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
                     throw new IllegalArgumentException("Email đã tồn tại, vui lòng dùng email khác!");
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
-            if(!existingCustomer.getPhoneNumber().equalsIgnoreCase(customer.getPhoneNumber())) {
+            if (!existingCustomer.getPhoneNumber().equalsIgnoreCase(customer.getPhoneNumber())) {
                 if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
                     throw new IllegalArgumentException("So dien thoai đã tồn tại, vui lòng dùng so dien thoai khác!");
                 }
@@ -123,6 +114,10 @@ public class CustomerService {
         if (customer != null) {
             if (BCrypt.checkpw(currentPassword, customer.getPassword())) {
                 if (newPassword.equals(confirmPassword)) {
+                    String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+                    if (!newPassword.matches(passwordPattern)) {
+                        throw new IllegalArgumentException("Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+                    }
                     String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
                     customer.setPassword(hashedPassword);
                     customerRepository.save(customer);
@@ -134,8 +129,8 @@ public class CustomerService {
             }
         }
     }
-  
-  public Customer getCustomerByPhone(String phoneNumber) {
+
+    public Customer getCustomerByPhone(String phoneNumber) {
         return customerRepository.findByPhoneNumber(phoneNumber);
     }
 
@@ -146,6 +141,5 @@ public class CustomerService {
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
-  
 }
 
