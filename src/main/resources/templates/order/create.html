@@ -200,26 +200,8 @@
     <body>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="/order/create" class="menu-item active">
-            <i class="bi bi-house-door"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="/sales" class="menu-item">
-            <i class="bi bi-bar-chart-line"></i>
-            <span>Sales Amount</span>
-        </a>
-        <a href="/order/list" class="menu-item">
-            <i class="bi bi-list-ul"></i>
-            <span>Order List</span>
-        </a>
-        <div class="sidebar-bottom">
-            <a href="/logout" class="menu-item logout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Log Out</span>
-            </a>
-        </div>
-    </div>
+    <div th:replace="fragment/frag :: order-sidebar('create')"></div>
+
 
     <!-- Main Content -->
     <div class="main-container">
@@ -229,54 +211,8 @@
             <div class="container">
 
                 <!-- LEFT PANEL -->
-                <div class="menu-panel">
-                    <div class="menu-header">
-                        <div class="categories">
-                            <h3 style="font-size:17px;">Menu Category</h3>
-                            <div class="d-flex align-items-center gap-3 flex-wrap">
-                                <div id="categoryCheckboxes" class="d-flex gap-3 flex-wrap">
-                                    <div th:each="category : ${categoryList}" class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="checkbox"
-                                                   name="categoryId"
-                                                   th:value="${category.cateId}"
-                                                   class="form-check-input category-checkbox"
-                                                   th:checked="${category.cateId == selectedCategoryId}"
-                                                   onchange="handleCategorySelect(this)">
-                                            <span th:text="${category.cateName}"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="search-bar">
-                            <input type="text" placeholder="Search...">
-                        </div>
-                    </div>
+                <div th:replace="fragment/frag :: menu-panel"></div>
 
-                    <!-- Product Grid -->
-                    <div class="menu-grid">
-                        <div th:each="product : ${productList}" class="product-card">
-                            <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
-                            <p class="product-name fw-semibold" th:text="${product.proName}"></p>
-                            <p class="product-desc text-muted"
-                               th:text="${#strings.abbreviate(product.description, 50)}"></p>
-                            <p class="product-price mb-0">
-                                <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="pagination">
-                        <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
-                        <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-                           th:href="@{/order/create(page=${i})}"
-                           th:text="${i}"
-                           th:classappend="${i == currentPage} ? 'active' : ''"></a>
-                        <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
-                    </div>
-                </div>
 
                 <!-- RIGHT PANEL -->
                 <div class="order-panel">

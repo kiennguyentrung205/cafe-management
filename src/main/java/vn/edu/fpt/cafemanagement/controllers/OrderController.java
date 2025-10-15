@@ -56,15 +56,18 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
 
-        // --- Ưu tiên tìm kiếm trước ---
-        if (query != null && !query.trim().isEmpty()) {
+        if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
+            // tìm theo cả tên + category
+            productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
+        }
+        else if (query != null && !query.trim().isEmpty()) {
+            // chỉ tìm theo tên
             productPage = productService.searchActiveProducts(query.trim(), pageable);
         }
-        // --- Nếu có category ---
         else if (categoryId != null && categoryId > 0) {
+            // chỉ lọc theo category
             productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
         }
-        // --- Ngược lại lấy tất cả ---
         else {
             productPage = productService.getActiveProductsPaged(pageable);
         }
@@ -258,9 +261,9 @@ public class OrderController {
         }
 
         if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
-            order.setDeleted(true);
+            order.setActive(true);
         } else {
-            order.setDeleted(false);
+            order.setActive(false);
         }
 
         orderService.saveOrder(order);

@@ -39,8 +39,8 @@ public class Order {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
@@ -57,7 +57,7 @@ public class Order {
 
     public Order(int orderId, Customer customer, Manager manager, String status, double totalPrice,
                  LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories,  LocalDateTime updatedAt,  boolean isDeleted) {
+                 List<PointHistory> pointHistories,  LocalDateTime updatedAt,  boolean isActive) {
         this.orderId = orderId;
         this.customer = customer;
         this.manager = manager;
@@ -69,7 +69,7 @@ public class Order {
         this.orderItems = orderItems;
         this.pointHistories = pointHistories;
         this.updatedAt = updatedAt;
-        this.isDeleted = isDeleted;
+        this.isActive = isActive;
     }
 
     public int getOrderId() {
@@ -160,11 +160,11 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

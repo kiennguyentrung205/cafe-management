@@ -99,4 +99,8 @@ public class ProductService {
     public Page<Product> searchActiveProducts(String keyword, Pageable pageable) {
         return productRepository.findByProNameContainingIgnoreCaseAndIsActiveTrue(keyword, pageable);
     }
+
+    public Page<Product> searchActiveProductsByCategory(Integer categoryId, String keyword, Pageable pageable) {
+        return productRepository.findByCategoryAndNameContainingIgnoreCaseAndActiveTrue(categoryId, keyword, pageable);
+    }
 }

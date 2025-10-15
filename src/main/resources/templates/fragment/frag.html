@@ -11,6 +11,135 @@
     </nav>
 </div>
 
+<!-- Sidebar Fragment cho Order-->
+<div th:fragment="order-sidebar(activePage)">
+    <style>
+        .sidebar {
+            width: 120px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            gap: 10px;
+            height: 100vh;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 10px 0;
+            width: 100px;
+            border-radius: 15px;
+            font-size: 12px;
+            transition: 0.25s;
+            text-align: center;
+        }
+
+        .menu-item i { font-size: 18px; margin-bottom: 5px; }
+        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
+        .menu-item.active { background-color: #ff4d4d; color: white; }
+
+        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
+
+        /* Main layout */
+        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
+        h2 { margin-bottom: 10px; font-size: 22px; }
+        .menu-item.logout {
+            color: #dc3545;
+        }
+
+        .menu-item.logout:hover {
+            color:white;
+        }
+
+    </style>
+    <div class="sidebar">
+        <a href="/order/create" class="menu-item"
+           th:classappend="${activePage == 'create'} ? ' active'">
+            <i class="bi bi-house-door"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/sales" class="menu-item"
+           th:classappend="${activePage == 'sales'} ? ' active'">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Sales Amount</span>
+        </a>
+
+        <a href="/order/list" class="menu-item"
+           th:classappend="${activePage == 'list'} ? ' active'">
+            <i class="bi bi-list-ul"></i>
+            <span>Order List</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="/logout" class="menu-item logout">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Fragment -->
+<div th:fragment="menu-panel">
+    <div class="menu-panel">
+        <div class="menu-header">
+            <div class="categories">
+                <h3 style="font-size:17px;">Menu Category</h3>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div id="categoryCheckboxes" class="d-flex gap-3 flex-wrap">
+                        <div th:each="category : ${categoryList}" class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox"
+                                       name="categoryId"
+                                       th:value="${category.cateId}"
+                                       class="form-check-input category-checkbox"
+                                       th:checked="${category.cateId == selectedCategoryId}"
+                                       onchange="handleCategorySelect(this)">
+                                <span th:text="${category.cateName}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="menu-grid">
+            <div th:each="product : ${productList}" class="product-card">
+                <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
+                <p class="product-name fw-semibold" th:text="${product.proName}"></p>
+                <p class="product-desc text-muted"
+                   th:text="${#strings.abbreviate(product.description, 50)}"></p>
+                <p class="product-price mb-0">
+                    <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
+                </p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
+            <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+               th:href="@{/order/create(page=${i})}"
+               th:text="${i}"
+               th:classappend="${i == currentPage} ? 'active' : ''"></a>
+            <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
+        </div>
+    </div>
+</div>
+
 <div th:fragment="footer">
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
 </div>

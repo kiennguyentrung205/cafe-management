@@ -14,6 +14,6 @@ public interface  OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findByCustomerCusId(int cusId);
 
-    @Query("SELECT o FROM Order o WHERE o.isDeleted = false ORDER BY o.createdAt DESC")
+    @Query("SELECT o FROM Order o WHERE o.isActive = false ORDER BY o.createdAt DESC")
     Page<Order> findActiveOrders(Pageable pageable);
 }
