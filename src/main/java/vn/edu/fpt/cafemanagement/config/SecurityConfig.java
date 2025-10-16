@@ -43,10 +43,6 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(oidcUserService)
                         )
-                        .successHandler((req, res, auth) -> {
-                            System.out.println("OAuth2 login success: " + auth.getPrincipal());
-                            res.sendRedirect("/home");
-                        })
                         .defaultSuccessUrl("/home", true))
 
                 .logout(logout ->logout
