@@ -7,7 +7,6 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Cafe Management</a>
             </div>
-        </div>
     </nav>
 </div>
 
@@ -50,15 +49,6 @@
             text-align: center;
         }
 
-        .menu-item i { font-size: 18px; margin-bottom: 5px; }
-        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
-        .menu-item.active { background-color: #ff4d4d; color: white; }
-
-        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
-
-        /* Main layout */
-        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
-        h2 { margin-bottom: 10px; font-size: 22px; }
         .menu-item.logout {
             color: #dc3545;
         }
@@ -66,6 +56,46 @@
         .menu-item.logout:hover {
             color:white;
         }
+        .menu-item i { font-size: 18px; margin-bottom: 5px; }
+        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
+        .menu-item.active { background-color: #ff4d4d; color: white; }
+
+        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
+
+    </style>
+    <div class="sidebar">
+        <a href="/order/create" class="menu-item"
+           th:classappend="${activePage == 'create'} ? ' active'">
+            <i class="bi bi-house-door"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/sales" class="menu-item"
+           th:classappend="${activePage == 'sales'} ? ' active'">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Sales Amount</span>
+        </a>
+
+        <a href="/order/list" class="menu-item"
+           th:classappend="${activePage == 'list'} ? ' active'">
+            <i class="bi bi-list-ul"></i>
+            <span>Order List</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="/logout" class="menu-item logout">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Fragment -->
+<div th:fragment="menu-panel">
+    <style>
+        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
+        h2 { margin-bottom: 10px; font-size: 22px; }
 
         /* Pagination */
 
@@ -119,39 +149,7 @@
             object-fit: cover;
             border-radius: 6px;
         }
-
-
     </style>
-    <div class="sidebar">
-        <a href="/order/create" class="menu-item"
-           th:classappend="${activePage == 'create'} ? ' active'">
-            <i class="bi bi-house-door"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <a href="/sales" class="menu-item"
-           th:classappend="${activePage == 'sales'} ? ' active'">
-            <i class="bi bi-bar-chart-line"></i>
-            <span>Sales Amount</span>
-        </a>
-
-        <a href="/order/list" class="menu-item"
-           th:classappend="${activePage == 'list'} ? ' active'">
-            <i class="bi bi-list-ul"></i>
-            <span>Order List</span>
-        </a>
-
-        <div class="sidebar-bottom">
-            <a href="/logout" class="menu-item logout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Log Out</span>
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- Menu Fragment -->
-<div th:fragment="menu-panel">
     <div class="menu-panel">
         <div class="menu-header">
             <div class="categories">
