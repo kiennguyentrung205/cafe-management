@@ -26,8 +26,8 @@ public class Customer implements UserDetails {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Column(name = "point")
-    private Integer point;
+    @Column(name = "point", nullable = false)
+    private Integer point = 0;
 
     @Column(name = "address")
     private String address;
