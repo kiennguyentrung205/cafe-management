@@ -19,37 +19,46 @@ public class PasswordService {
         this.mailSender = mailSender;
     }
 
-    // Gửi mã OTP qua email
     public void sendOtpToEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại!"));
+        customerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Email does not exist!"));
 
         String otp = otpService.generateOtp(email);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("Mã đặt lại mật khẩu (hiệu lực 15 phút)");
-        message.setText("Mã OTP của bạn là: " + otp + "\n\nMã này sẽ hết hạn sau 15 phút.");
+        message.setSubject("Password reset code (valid for 15 minutes)");
+        message.setText("Your OTP code is: " + otp + "\n\nThis code will expire in 15 minutes.");
 
         mailSender.send(message);
     }
 
     public void resetPassword(String email, String otp, String newPassword, String confirmPassword) {
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("The new password cannot be empty.");
+        }
+        if (confirmPassword == null || confirmPassword.isEmpty()) {
+            throw new IllegalArgumentException("The confirm password cannot be empty.");
+        }
+        if (otp == null || otp.isEmpty()) {
+            throw new IllegalArgumentException("The otp cannot be empty.");
+        }
         if (!newPassword.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Mật khẩu không khớp!");
+            throw new IllegalArgumentException("Password does not match!");
         }
 
         String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
         if (!newPassword.matches(passwordPattern)) {
-            throw new IllegalArgumentException("Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+            throw new IllegalArgumentException("Password must be at least 8 characters long and include uppercase letters, " +
+                    "lowercase letters, numbers, and special characters!\n");
         }
 
         if (!otpService.validateOtp(email, otp)) {
-            throw new IllegalArgumentException("Mã OTP không đúng hoặc đã hết hạn!");
+            throw new IllegalArgumentException("The OTP code is incorrect or has expired!");
         }
 
         Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new RuntimeException("Customer not found!"));
         customer.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         customerRepository.save(customer);
     }
