@@ -19,4 +19,10 @@ public class TableService {
     public Table findById(int id){
         return tableRepository.findById(id).orElse(null);
     }
+
+    public Table updateStatus(int id,String status){
+        Table table = tableRepository.findById(id).orElse(null);
+        table.setStatus(status);
+        return tableRepository.save(table);
+    }
 }

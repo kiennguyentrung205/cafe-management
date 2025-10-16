@@ -20,10 +20,6 @@ public class Shift {
     @Column(name = "shift_period", length = 20)
     private String shiftPeriod;
 
-//    @ManyToOne
-//    @JoinColumn(name = "role_id", nullable = false)
-//    private Role role;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
