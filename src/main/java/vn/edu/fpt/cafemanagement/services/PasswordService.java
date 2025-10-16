@@ -28,7 +28,7 @@ public class PasswordService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Password reset code (valid for 15 minutes)");
-        message.setText("Your OTP code is: " + otp + "\n\nThis code will expire in 15 minutes.");
+        message.setText("Your OTP code is: " + otp + "\n\nThis code will expire in 15 minutes!");
 
         mailSender.send(message);
     }
