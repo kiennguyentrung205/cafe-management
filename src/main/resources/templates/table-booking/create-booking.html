@@ -44,13 +44,24 @@
                                    th:field="*{customer.phoneNumber}" type="tel">
                         </div>
 
-                        <div class="row mb-3">
-                            <label class="form-label" for="bookingDateTime">Chọn ngày & giờ đặt</label>
-                            <input class="form-control" id="bookingDateTime"
-                                   required
-                                   th:field="*{bookingTime}"
-                                   type="datetime-local">
+                        <div class="mb-3">
+                            <label class="form-label" for="bookingDate">Booking Date</label>
+                            <input class="form-control" id="bookingDate"
+                                   readonly
+                                   th:value="${#temporals.format(now, 'yyyy-MM-dd')}"
+                                   type="date">
                         </div>
+
+
+                        <div class="mb-3">
+                            <label class="form-label" for="bookingTime">Choose booking time</label>
+                            <input class="form-control" id="bookingTime"
+                                   required
+                                   type="time">
+                        </div>
+
+                        <input id="bookingDateTime" name="bookingTime" th:field="*{bookingTime}" type="hidden">
+
 
                         <div class="mb-4">
                             <label class="form-label" for="notes"><i class="fas fa-pencil-alt"></i>Ghi chú (tùy
@@ -70,6 +81,90 @@
         </div>
     </div>
 </div>
+
+<!-- Error Modal -->
+<div aria-hidden="true" aria-labelledby="errorModalLabel" class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <span th:text="${errorMessage}">Lỗi không xác định!</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Error Modal -->
+<div aria-hidden="true" aria-labelledby="successModalLabel" class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <span th:text="${successMessage}">ok</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script  th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const hasError = /*[[${errorMessage != null}]]*/ false;
+        if (hasError) {
+            const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+            modal.show();
+        }
+    });
+</script>
+
+<script  th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const hasSuccess = /*[[${successMessage != null}]]*/ false;
+        if (hasSuccess) {
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+        }
+    });
+</script>
+
+
+<script>
+    document.getElementById('bookingTime').addEventListener('change', function () {
+        const time = this.value; // ví dụ: "14:30"
+        const today = new Date();
+
+        // Lấy ngày hiện tại (YYYY-MM-DD)
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        // Ghép lại thành định dạng datetime-local hợp lệ
+        const dateTimeLocal = `${yyyy}-${mm}-${dd}T${time}`;
+
+        // Gán vào input hidden (để form gửi về server)
+        document.getElementById('bookingDateTime').value = dateTimeLocal;
+    });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
