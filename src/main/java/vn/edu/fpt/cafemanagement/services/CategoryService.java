@@ -20,6 +20,10 @@ public class CategoryService {
         return categoryRepository.findByIsActiveTrue();
     }
 
+    public List<Category> getNonActiveCategories() {
+        return categoryRepository.findByIsActiveFalse();
+    }
+
     public Category getCategoryById(Integer categoryId) {
         return categoryRepository.findById(categoryId).get();
     }

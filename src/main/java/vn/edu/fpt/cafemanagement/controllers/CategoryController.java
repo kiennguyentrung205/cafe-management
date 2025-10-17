@@ -17,11 +17,20 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    private static final String VIETNAMESE_NAME_PATTERN = "^[\\p{L}\\s]+$";
+
     @GetMapping(value = "/list")
     public String showCategoryList(Model model) {
 
         model.addAttribute("CategoryList", categoryService.getCategories());
         return "category/list";
+    }
+
+    @GetMapping(value = "/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("title", "Create Category");
+        model.addAttribute("category", new Category());
+        return "/category/create";
     }
 
     @GetMapping(value = "/edit/{id}")
@@ -32,8 +41,32 @@ public class CategoryController {
         return "category/edit";
     }
 
+    @GetMapping(value = "/deleted-list")
+    public String viewDeletedCategories(Model model) {
+        model.addAttribute("title", "Category List");
+        model.addAttribute("categoryList", categoryService.getNonActiveCategories());
+        return "category/deleted-list";
+    }
+
     @PostMapping(value = "/edit")
-    public String showEditForm(@ModelAttribute("category") Category category) {
+    public String editCategory(@ModelAttribute("category") Category category, Model model) {
+        boolean hasError = false;
+
+        // Validation Name
+        String proName = category.getCateName();
+        if (proName == null || proName.trim().isEmpty()) {
+            model.addAttribute("nameError", "Category name cant be empty");
+            hasError = true;
+        } else if (!proName.matches(VIETNAMESE_NAME_PATTERN)) {
+            model.addAttribute("nameError", "Name just can contain letters!");
+            hasError = true;
+        }
+        if (hasError) {
+            // Đảm bảo truyền lại danh sách category nếu có lỗi
+            // model.addAttribute("categoryList", categoryService.findAll());
+            model.addAttribute("categoryList", categoryService.getCategories());
+            return "/category/edit";
+        }
         categoryService.saveCategory(category);
         return "redirect:/category/list";
     }
@@ -41,6 +74,30 @@ public class CategoryController {
     @PostMapping(value = "/delete/{id}")
     public String deleteCategory(@PathVariable("id") int id, Model model) {
         categoryService.deleteSortCategory(categoryService.getCategoryById(id));
+        return "redirect:/category/list";
+    }
+
+    @PostMapping(value = "/create")
+    public String createCategory(@ModelAttribute("category") Category category, Model model) {
+        boolean hasError = false;
+
+        // Validation Name
+        String proName = category.getCateName();
+        if (proName == null || proName.trim().isEmpty()) {
+            model.addAttribute("nameError", "Category name cant be empty");
+            hasError = true;
+        } else if (!proName.matches(VIETNAMESE_NAME_PATTERN)) {
+            model.addAttribute("nameError", "Name just can contain letters!");
+            hasError = true;
+        }
+        if (hasError) {
+            // Đảm bảo truyền lại danh sách category nếu có lỗi
+            // model.addAttribute("categoryList", categoryService.findAll());
+            model.addAttribute("categoryList", categoryService.getCategories());
+            return "/category/create";
+        }
+        category.setActive(true);
+        categoryService.saveCategory(category);
         return "redirect:/category/list";
     }
 }

@@ -47,8 +47,21 @@ public class ProductService {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
     }
 
+    public Page<Product> getProductsByCategory(int categoryId, Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
+    }
+
+    public List<Product> getNonActiveProductsByCategory(int categoryId) {
+        return productRepository.findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
+    }
+
     public Product getProductById(int productId) {
         return productRepository.findById(productId).orElse(null);
+    }
+
+    public Page<Product> getAllProductsPaged(Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
+
     }
 
     public Page<Product> getActiveProductsPaged(int page, int size) {
@@ -56,7 +69,20 @@ public class ProductService {
         return productRepository.findByIsActiveTrue(pageable);
     }
 
+    public List<Product> getNonActiveProducts() {
+        return productRepository.findByIsActiveFalse();
+    }
+
+    public List<Product> getSearchProducts(String searchText) {
+        return productRepository.findSearchProductsByAllCriteria(searchText);
+    }
+
+    public Page<Product> getSearchProducts(String searchText, Pageable pageable){
+        return productRepository.findSearchProductsByAllCriteria(searchText, pageable);
+    }
+
     // ---------------- ORDER LOGIC ----------------
+
     /**
      * Tính tổng phụ (subtotal) của danh sách sản phẩm
      * Dựa trên giá * số lượng
@@ -83,5 +109,5 @@ public class ProductService {
         product.setActive(false);
         productRepository.save(product);
     }
-  
+
 }

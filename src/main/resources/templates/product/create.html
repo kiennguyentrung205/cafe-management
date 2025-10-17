@@ -3,64 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <style>
+        .image-preview {
+            max-width: 150px;
+            height: auto;
+            border: 1px solid #ddd;
+            padding: 4px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-<h1 th:text="${title}"></h1>
-<form th:action="@{/product/create}" method="post" th:object="${product}" enctype="multipart/form-data">
-    <input type="hidden" th:field="*{proId}"/>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0" th:text="${title}">Product Form</h1>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/product/create}" method="post" th:object="${product}"
+                          enctype="multipart/form-data">
+                        <input type="hidden" th:field="*{proId}"/>
 
-    <p>
-        <label>Name: </label>
-        <input type="text" th:field="*{proName}" required/>
-    </p>
+                        <div class="mb-3">
+                            <label for="proName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="proName" th:field="*{proName}" required/>
 
-    <p style="border: 1px solid #ccc; padding: 10px;">
-        <label>Image:</label>
-        <br/>
+                            <div th:if="${nameError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${nameError}">Name exception</span>
+                            </div>
+                        </div>
 
-        <strong style="display: block; margin-bottom: 5px;">Ảnh hiện tại:</strong>
-        <img th:src="@{/uploads/{img}(img=*{img})}" width="100"
-             style="border: 1px solid #ddd; padding: 2px; margin-bottom: 10px;" id="currentImage"/>
+                        <div class="mb-4 p-3 border rounded">
+                            <h5 class="mb-3">Image:</h5>
 
-        <input type="file" id="fileInput" name="file" accept="image/*"/> <small style="display: block; color: gray;">*Chọn
-        file mới để thay thế ảnh hiện tại.</small>
+                            <div class="mb-3">
+                                <strong class="d-block mb-2">Ảnh hiện tại:</strong>
+                                <img th:src="@{/uploads/{img}(img=*{img})}" alt="Current Product Image"
+                                     class="image-preview" id="currentImage"/>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="fileInput" class="form-label">Upload New Image:</label>
+                                <input type="file" class="form-control" id="fileInput" name="file" accept="image/*"/>
+                                <small class="form-text text-muted">*Chọn file mới để thay thế ảnh hiện tại.</small>
+                                <div th:if="${fileError}" class="alert alert-warning mt-3">
+                                    <span th:text="${fileError}">Lỗi xử lý file sẽ hiển thị ở đây.</span>
+                                </div>
+
+                            </div>
+
+                            <input type="hidden" th:field="*{img}" id="imgField"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price ($):</label>
+                            <input type="number" class="form-control" id="price" th:field="*{price}" min="1000"
+                                   required/>
+                            <div th:if="${priceError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${priceError}">Price exception</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description:</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                      rows="3"></textarea>
+                            <div th:if="${descriptionError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${descriptionError}">Description exception</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category:</label>
+                            <select class="form-select" id="category" th:field="*{category.cateId}">
+                                <option th:each="category : ${categoryList}"
+                                        th:value="${category.cateId}"
+                                        th:text="${category.cateName}">
+                                </option>
+                            </select>
+                        </div>
 
 
-        <input type="hidden" th:field="*{img}" id="imgField"/>
-    </p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                            <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <p>
-        <label>Price: </label>
-        <input type="number" th:field="*{price}" min="1000"/>
-    </p>
-
-    <p>
-        <label>Description: </label>
-        <input type="text" th:field="*{description}"/>
-    </p>
-
-    <p>
-        <label>Category: </label>
-        <select th:field="*{category.cateId}">
-            <option th:each="category : ${categoryList}"
-                    th:value="${category.cateId}"
-                    th:text="${category.cateName}">
-            </option>
-        </select>
-    </p>
-
-    <p>
-        <label>Active: </label>
-        <input type="checkbox" th:field="*{active}"/>
-    </p>
-
-    <input type="hidden" th:field="*{proId}"/>
-
-
-    <button type="submit"
-            style="padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer;">Submit
-    </button>
-    <button type="reset">Reset</button>
-</form>
 </body>
 </html>
