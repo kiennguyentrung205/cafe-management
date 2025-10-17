@@ -27,11 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId);
 
     List<Product> findByIsActiveFalse();
-
-    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrue(Pageable pageable);
-
-    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
-
     //    List<Product> findByIsActiveTrueAndProNameContainingIgnoreCaseAndCategoryIsActiveTrue(String searchText);
     @Query(value = """
                 SELECT p.* FROM product p
