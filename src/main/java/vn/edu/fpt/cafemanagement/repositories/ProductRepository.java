@@ -66,4 +66,18 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     )
     Page<Product> findSearchProductsByAllCriteria(@Param("searchText") String searchText, Pageable pageable);
 
+    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrue(Pageable pageable);
+
+    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
+
+    Page<Product> findByProNameContainingIgnoreCaseAndIsActiveTrue(String name, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.category.cateId = :categoryId " +
+            "AND LOWER(p.proName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "AND p.isActive = true")
+    Page<Product> findByCategoryAndNameContainingIgnoreCaseAndActiveTrue(
+            @Param("categoryId") Integer categoryId,
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
 }

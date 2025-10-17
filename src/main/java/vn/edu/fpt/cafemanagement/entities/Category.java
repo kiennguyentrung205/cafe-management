@@ -15,7 +15,9 @@ public class Category {
     @Column(name = "cate_name", nullable = false, length = 100)
     private String cateName;
 
+    @Column(name = "is_active")
     boolean isActive;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;
 
