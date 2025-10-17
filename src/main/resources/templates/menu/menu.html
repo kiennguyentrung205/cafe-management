@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            /*display: flex;*/
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 120px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            gap: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 10px 0;
+            width: 100px;
+            border-radius: 15px;
+            font-size: 12px;
+            transition: 0.25s;
+            text-align: center;
+        }
+
+        .menu-item i { font-size: 18px; margin-bottom: 5px; }
+        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
+        .menu-item.active { background-color: #ff4d4d; color: white; }
+
+        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
+
+        /* Main layout */
+        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
+        h2 { margin-bottom: 10px; font-size: 22px; }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr; /* tăng tỉ lệ hai panel */
+            max-width: 1200px; /* tăng tổng chiều rộng */
+            margin: 0 auto;
+        }
+
+        .menu-panel, .order-panel {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 6px rgba(0,0,0,0.1);
+        }
+
+        .menu-header { display: flex; justify-content: space-between; align-items: center; }
+
+        .categories select {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 14px;
+            width: 180px;
+        }
+
+        .categories button {
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .categories button:hover { background-color: #e60000; }
+
+        .search-bar input {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .product-card:hover { background-color: #f0f0f0; }
+
+        /*!* Pagination *!*/
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .pagination a {
+            color: #007bff;
+            padding: 5px 10px;
+            margin: 0 3px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .pagination a.active { background-color: #007bff; color: white; }
+        .pagination a:hover { background-color: #0056b3; color: white; }
+    </style>
+</head>
+<body>
+<!-- Main Content -->
+<div class="main-container">
+    <h2>MENU</h2>
+
+    <form th:action="@{/menu}" method="post">
+        <div class="container">
+
+            <!-- LEFT PANEL -->
+            <div class="menu-panel">
+                <div class="menu-header">
+                    <div class="categories">
+                        <h3 style="font-size:17px;">Menu Category</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="categorySelect" name="categoryId" class="form-select">
+                                <option value="0">-- All Categories --</option>
+                                <option th:each="category : ${categoryList}"
+                                        th:value="${category.cateId}"
+                                        th:text="${category.cateName}"
+                                        th:selected="${category.cateId == selectedCategoryId}">
+                                </option>
+                            </select>
+                            <button type="button" onclick="filterCategory()">Filter</button>
+                        </div>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="menu-grid">
+                    <div th:each="product : ${productList}" class="product-card">
+                        <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
+                        <p class="product-name" th:text="${product.proName}"></p>
+                        <p class="product-price"><b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b></p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a th:href="@{/menu(page=1)}">&lt;&lt;</a>
+                    <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                       th:href="@{/menu(page=${i})}"
+                       th:text="${i}"
+                       th:classappend="${i == currentPage} ? 'active' : ''"></a>
+                    <a th:href="@{/menu(page=${totalPages})}">&gt;&gt;</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

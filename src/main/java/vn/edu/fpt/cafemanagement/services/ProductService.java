@@ -26,6 +26,9 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public Page<Product> getAllProductsPage(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
 
     public void saveProduct(Product product) {
         productRepository.save(product);
