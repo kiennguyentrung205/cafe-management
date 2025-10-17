@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/frag :: head">
+    <title>Deleted Staff</title>
+</head>
+<body>
+<div th:insert="fragment/frag :: navbar"></div>
+
+<div class="container mt-5">
+    <h2>Deleted Staff</h2>
+    <p><a href="/dashboard/staff" class="btn btn-secondary">Back to Staff List</a></p>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="staff : ${staffs}">
+            <td><img th:src="${staff.img != null ? staff.img : '/img/no-image.png'}"
+                     style="width: 50px; height: 50px; object-fit: cover;"></td>
+            <td th:text="${staff.name}"></td>
+            <td th:text="${staff.email}"></td>
+            <td th:text="${staff.phoneNumber}"></td>
+            <td th:text="${staff.role.roleName}"></td>
+            <td>
+                <form th:action="@{/dashboard/staff/restore/{id}(id=${staff.managerId})}" method="post">
+                    <button type="submit" class="btn btn-success btn-sm">Restore</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:replace="fragment/frag :: footer"></div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragment/frag :: head}"></head>
+<body>
+
+<div th:insert="~{fragment/frag :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Staff Details</h2>
+
+    <!-- Ảnh nhân viên -->
+    <div class="text-center mb-4">
+        <img th:src="@{${staff.img}}" alt="Staff Photo" class="img-thumbnail" style="width: 150px; height: auto;">
+    </div>
+
+    <!-- Bảng chi tiết -->
+    <table class="table table-bordered">
+        <tbody>
+        <tr>
+            <th>ID</th>
+            <td th:text="${staff.managerId}"></td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td th:text="${staff.name}"></td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td th:text="${staff.email}"></td>
+        </tr>
+        <tr>
+            <th>Phone Number</th>
+            <td th:text="${staff.phoneNumber}"></td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td th:text="${staff.address}"></td>
+        </tr>
+        <tr>
+            <th>Date of Birth</th>
+            <td th:text="${staff.dateOfBirth}"></td>
+        </tr>
+        <tr>
+            <th>Role</th>
+            <td th:text="${staff.role.roleName}"></td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td th:text="${staff.username}"></td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td>********</td> <!-- Không hiển thị password thật -->
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Các nút -->
+    <div class="d-flex justify-content-start gap-2 mt-3">
+        <a class="btn btn-primary" th:href="@{'/dashboard/staff/edit/' + ${staff.managerId}}">Edit</a>
+        <a class="btn btn-danger" th:href="@{'/dashboard/staff/delete/' + ${staff.managerId}}">Delete</a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

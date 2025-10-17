@@ -14,12 +14,16 @@
 
     <!-- Search Bar -->
     <form class="d-flex mb-3" role="search" th:action="@{/dashboard/staff}" method="get">
-        <input class="form-control me-2" type="search" name="keyword"
-               placeholder="Search by name, email or role..." aria-label="Search">
+        <input class="form-control me-2" type="search" name="keyword" placeholder="Search by name, email or role..." th:value="${keyword}" aria-label="Search">
         <button class="btn btn-primary" type="submit">Search</button>
     </form>
 
+
     <!-- Staff Table -->
+    <div th:if="${notFound}" class="alert alert-warning">
+        <span th:text="${notFound}"></span>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body">
             <table class="table table-striped align-middle">
@@ -38,23 +42,32 @@
                 <tbody>
                 <tr th:each="staff : ${staffs}">
                     <td class="text-center">
-                        <img th:src="${staff.img}" alt="No image" class="img-thumbnail" width="80" height="80">
+                        <img th:src="${staff.img != null ? staff.img : '/img/no-image.png'}"
+                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
                     </td>
+
                     <td th:text="${staff.managerId}">1</td>
-                    <td><a th:text="${staff.name}" class="fw-bold text-decoration-none">Nguyen Van A</a></td>
+                    <td><a th:text="${staff.name}">Nguyen Van A</a></td>
                     <td th:text="${staff.email}">abc@gmail.com</td>
                     <td th:text="${staff.phoneNumber}">0123456789</td>
                     <td th:text="${staff.role != null ? staff.role.roleName : 'Unknown'}"></td>
-                    <td th:text="${staff.isActive ? 'Online' : 'Offline'}"></td>
+                    <td th:text="${staff.isActive ? 'Active' : 'Not Active'}"></td>
                     <td class="text-center">
                         <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}" class="btn btn-outline-secondary">Detail</a>
                         <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}" class="btn btn-sm btn-warning">Edit</a>
-                        <a th:href="@{/dashboard/staff/delete/{id}(id=${staff.managerId})}"
-                           class="btn btn-sm btn-danger">Delete</a>
 
+                        <!-- Sửa nút Delete -->
+                        <button class="btn btn-sm btn-danger btn-delete"
+                                th:data-id="${staff.managerId}"
+                                th:data-name="${staff.name}"
+                                th:data-email="${staff.email}"
+                                th:data-phoneNumber="${staff.phoneNumber}"
+                                th:data-role="${staff.role.roleName}">
+
+                            Delete
+                        </button>
                     </td>
                 </tr>
-
                 </tbody>
             </table>
         </div>
@@ -62,6 +75,58 @@
 </div>
 
 <div th:replace="fragment/frag :: footer"></div>
+
+<!-- Modal Xác nhận Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this staff?</p>
+                <ul>
+                    <li><strong>Name:</strong> <span id="modalName"></span></li>
+                    <li><strong>Email:</strong> <span id="modalEmail"></span></li>
+                    <li><strong>Phone Number:</strong> <span id="modalPhoneNumber"></span></li>
+                    <li><strong>Role:</strong> <span id="modalRole"></span></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+<!--                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>-->
+                <a id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript xử lý Delete -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".btn-delete");
+
+        deleteButtons.forEach(btn => {
+            btn.addEventListener("click", function () {
+                const id = this.getAttribute("data-id");
+                const name = this.getAttribute("data-name");
+                const email = this.getAttribute("data-email");
+                const phoneNumber = this.getAttribute("data-phoneNumber");
+                const role = this.getAttribute("data-role");
+
+                document.getElementById("modalName").textContent = name;
+                document.getElementById("modalEmail").textContent = email;
+                document.getElementById("modalPhoneNumber").textContent = phoneNumber;
+                document.getElementById("modalRole").textContent = role;
+
+                document.getElementById("confirmDeleteBtn").href = `/dashboard/staff/delete/${id}`;
+
+                const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+                modal.show();
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
-```
