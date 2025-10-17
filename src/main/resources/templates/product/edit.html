@@ -16,102 +16,126 @@
 <body>
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
+    <div th:if="${product == null}" class="alert alert-warning text-center" role="alert">
+        <h4 class="alert-heading">Sản phẩm không tìm thấy!</h4>
+        <p>Rất tiếc, sản phẩm với ID này không tồn tại hoặc đã bị xóa.</p>
+    </div>
+    <div th:unless="${product == null}">
 
-            <h1 class="mb-4 text-primary" th:text="${title}">Edit Product Form</h1>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
 
-                    <form th:action="@{/product/edit}" method="post" th:object="${product}"
-                          enctype="multipart/form-data">
+                <h1 class="mb-4 text-primary" th:text="${title}">Edit Product Form</h1>
 
-                        <input type="hidden" th:field="*{proId}"/>
+                <div class="card shadow-sm">
+                    <div class="card-body">
 
-                        <div class="mb-3">
-                            <label for="proName" class="form-label">Name:</label>
-                            <input type="text" id="proName" th:field="*{proName}" class="form-control" required/>
-                        </div>
+                        <form th:action="@{/product/edit}" method="post" th:object="${product}"
+                              enctype="multipart/form-data">
 
-                        <div class="mb-3 p-3 border rounded image-section">
-                            <h5 class="card-title mb-3">Image Management</h5>
-
-                            <div class="mb-3">
-                                <label class="form-label d-block">Current Image:</label>
-                                <img th:src="@{/uploads/{img}(img=*{img})}" width="150" class="img-thumbnail"
-                                     id="currentImage"/>
-                            </div>
+                            <input type="hidden" th:field="*{proId}"/>
 
                             <div class="mb-3">
-                                <label for="fileInput" class="form-label">Upload New Image:</label>
-                                <input type="file" id="fileInput" name="file" accept="image/*" class="form-control"/>
-                                <small class="form-text text-muted">*Chọn file mới để thay thế ảnh hiện tại.</small>
-                            </div>
-
-                            <div id="imagePreviewContainer" style="display: none; margin-top: 15px;">
-                                <label class="form-label d-block">New Image (Preview):</label>
-                                <img id="imagePreview" src="#" alt="Image Preview" width="150" class="img-thumbnail"/>
-                            </div>
-
-                            <input type="hidden" th:field="*{img}" id="imgField"/>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="price" class="form-label">Price (VND):</label>
-                            <input type="number" id="price" th:field="*{price}" min="1000"
-                                   class="form-control"/>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description:</label>
-                            <textarea id="description" th:field="*{description}" class="form-control"
-                                      rows="3"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="categorySelect" class="form-label">Category:</label>
-                            <select id="categorySelect" th:field="*{category}" class="form-select">
-                                <option th:each="category : ${categoryList}"
-                                        th:value="${category.cateId}"
-                                        th:text="${category.cateName}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input type="checkbox" id="activeCheckbox" th:field="*{active}"
-                                           class="form-check-input"/>
-                                    <label class="form-check-label" for="activeCheckbox">Active</label>
+                                <label for="proName" class="form-label">Name:</label>
+                                <input type="text" id="proName" th:field="*{proName}" class="form-control" required/>
+                                <div th:if="${nameError}" class="alert alert-danger mt-1" role="alert">
+                                    <span th:text="${nameError}">Name exception</span>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="statusSelect" class="form-label">Status:</label>
-                                <input type="hidden" name="active" value="false"/>
-                                <select id="statusSelect" th:field="*{status}" class="form-select">
-                                    <option value="Available">Available</option>
-                                    <option value="Unavailable">Unavailable</option>
-                                </select>
+                            <div class="mb-3 p-3 border rounded image-section">
+                                <h5 class="card-title mb-3">Image Management</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label d-block">Current Image:</label>
+                                    <img th:src="@{/uploads/{img}(img=*{img})}" width="150" class="img-thumbnail"
+                                         id="currentImage"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="fileInput" class="form-label">Upload New Image:</label>
+                                    <input type="file" id="fileInput" name="file" accept="image/*"
+                                           class="form-control"/>
+                                    <small class="form-text text-muted">*Chọn file mới để thay thế ảnh hiện tại.</small>
+                                </div>
+
+                                <div id="imagePreviewContainer" style="display: none; margin-top: 15px;">
+                                    <label class="form-label d-block">New Image (Preview):</label>
+                                    <img id="imagePreview" src="#" alt="Image Preview" width="150"
+                                         class="img-thumbnail"/>
+
+                                </div>
+                                <input type="hidden" th:field="*{img}" id="imgField"/>
+                                <div th:if="${fileError}" class="alert alert-warning mt-3">
+                                    <span th:text="${fileError}">Lỗi xử lý file sẽ hiển thị ở đây.</span>
+
+                                </div>
+
+
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Price (VND):</label>
+                                    <input type="number" id="price" th:field="*{price}" min="1000"
+                                           class="form-control"/>
+
+                                    <div th:if="${priceError}" class="alert alert-danger mt-1" role="alert">
+                                        <span th:text="${priceError}">Price exception</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description:</label>
+                                    <textarea id="description" th:field="*{description}" class="form-control"
+                                              rows="3"></textarea>
+                                    <div th:if="${descriptionError}" class="alert alert-danger mt-1" role="alert">
+                                        <span th:text="${descriptionError}">Description exception</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="categorySelect" class="form-label">Category:</label>
+                                    <select id="categorySelect" th:field="*{category}" class="form-select">
+                                        <option th:each="category : ${categoryList}"
+                                                th:value="${category.cateId}"
+                                                th:text="${category.cateName}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" id="activeCheckbox" th:field="*{active}"
+                                                   class="form-check-input"/>
+                                            <label class="form-check-label" for="activeCheckbox">Active</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="statusSelect" class="form-label">Status:</label>
+                                        <input type="hidden" name="active" value="false"/>
+                                        <select id="statusSelect" th:field="*{status}" class="form-select">
+                                            <option value="Available">Available</option>
+                                            <option value="Unavailable">Unavailable</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button type="reset" class="btn btn-secondary me-2">Reset</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
                             </div>
-                        </div>
+                        </form>
 
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="reset" class="btn btn-secondary me-2">Reset</button>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-
-                    </form>
-
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
+
 </div>
 
 

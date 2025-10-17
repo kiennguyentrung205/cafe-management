@@ -20,6 +20,9 @@
                         <div class="mb-3">
                             <label for="cateName" class="form-label">Name:</label>
                             <input type="text" class="form-control" id="cateName" th:field="*{cateName}" required/>
+                            <div th:if="${nameError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${nameError}">Name exception</span>
+                            </div>
                         </div>
 
 

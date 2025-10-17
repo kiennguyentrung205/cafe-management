@@ -32,6 +32,9 @@
                         <div class="mb-3">
                             <label for="proName" class="form-label">Name:</label>
                             <input type="text" id="proName" th:field="*{cateName}" class="form-control" required/>
+                            <div th:if="${nameError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${nameError}">Name exception</span>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -52,7 +55,7 @@
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
-                        
+
 
                     </form>
 
