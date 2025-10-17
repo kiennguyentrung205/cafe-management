@@ -3,47 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-    <form method="post" action="/customer/profile/edit" enctype="multipart/form-data">
-    <h1>Edit Profile</h1>
-    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
-        <p th:text="${errorMessage}"></p>
-    </div>
-    <p>
-        <input type="hidden" th:value="${customer.cusId}" name="cusId">
-    </p>
-    <p>
-        <img th:src="@{'/img/' + ${customer.img}}" alt="Avatar" width="80" style="border-radius: 50%; object-fit: cover;"/>
-        <label for="imgFile">Change avatar:</label>
-        <input type="file" id="imgFile" name="imgFile" accept="image/*">
-    </p>
-    <p>
-        <label>Name: </label>
-        <input type="text" th:value="${customer.name}" name="name">
-    </p>
-    <p>
-        <label>Phone number: </label>
-        <input type="text" th:value="${customer.phoneNumber}" name="phoneNumber">
-    </p>
-    <p>
-        <label>Email: </label>
-        <input type="text" th:value="${customer.email}" name="email">
-    </p>
-    <p>
-        <label>Point: </label>
-        <input type="text" th:value="${customer.point}" name="point" readonly>
-    </p>
-    <p>
-        <label>Date of birth: </label>
-        <input type="text" th:value="${customer.dateOfBirth}" name="dateOfBirth" readonly>
-    </p>
-    <p>
-        <button type="submit" class="btn btn-primary">Edit</button>
-        <button type="reset" class="btn btn-dark">Cancel</button>
-    </p>
+    <form action="/customer/profile/edit" enctype="multipart/form-data" method="post">
+        <h1>Edit Profile</h1>
+        <div style="color: red; font-weight: bold;" th:if="${errorMessage}">
+            <p th:text="${errorMessage}"></p>
+        </div>
+        <p>
+            <input name="cusId" th:value="${customer.cusId}" type="hidden">
+        </p>
+        <p>
+            <img alt="Avatar" style="border-radius: 50%; object-fit: cover;" th:src="${customer.googleAccount} ? ${customer.img} : @{/img/{img}(img=${customer.img})}"
+                 width="80"/>
+            <label for="imgFile">Change avatar:</label>
+            <input accept="image/*" id="imgFile" name="imgFile" type="file">
+        </p>
+        <p>
+            <label>Name: </label>
+            <input name="name" th:value="${customer.name}" type="text">
+        </p>
+        <p>
+            <label>Phone number: </label>
+            <input name="phoneNumber" th:value="${customer.phoneNumber != null ? customer.phoneNumber : ''}"
+                   type="text">
+        </p>
+        <p>
+            <label>Email: </label>
+            <input name="email" th:value="${customer.email}" type="text">
+        </p>
+        <p>
+            <label>Point: </label>
+            <input name="point" readonly th:value="${customer.point}" type="text">
+        </p>
+
+        <p>
+            <label>Date of birth: </label>
+            <input name="dateOfBirth"
+                   type="date"
+                   th:value="${#temporals.format(customer.dateOfBirth, 'yyyy-MM-dd')}"
+                   th:readonly="${!customer.googleAccount}">
+
+        </p>
+
+        <p>
+            <button class="btn btn-primary" type="submit">Edit</button>
+            <button class="btn btn-dark" type="reset">Cancel</button>
+        </p>
     </form>
 </div>
 </body>
