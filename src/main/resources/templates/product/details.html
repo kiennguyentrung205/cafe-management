@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <title>Product Detail</title>
+    <style>
+        /* CSS Tùy chỉnh cho giao diện thanh lịch */
+        body {
+            background-color: #f7f7f7; /* Nền xám nhạt */
+            color: #333; /* Màu chữ cơ bản */
+            font-family: Arial, sans-serif; /* Phông chữ đơn giản, dễ đọc */
+        }
+
+        .product-card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Shadow nhẹ nhàng */
+        }
+
+        h1 {
+            color: #2c3e50 !important; /* Màu tiêu đề xanh đậm tinh tế */
+            font-weight: 600;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .product-image {
+            max-width: 250px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px; /* Bo tròn vừa phải */
+            border: 1px solid #eee; /* Khung mỏng */
+            padding: 5px;
+        }
+
+        .divider {
+            border-top: 1px solid #e0e0e0; /* Đường kẻ mỏng, màu xám nhạt */
+            margin: 1.5rem 0;
+        }
+
+        .price-text {
+            color: #e74c3c; /* Màu giá nổi bật, hiện đại */
+            font-size: 2rem !important;
+            font-weight: 700;
+        }
+
+        .detail-label {
+            color: #7f8c8d; /* Màu nhãn xám nhẹ nhàng */
+            text-transform: uppercase;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-available {
+            background-color: #2ecc71 !important; /* Xanh lá cây tinh tế */
+        }
+
+        .status-unavailable {
+            background-color: #95a5a6 !important; /* Xám cho trạng thái hết hàng */
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+
+    <div th:if="${product == null}" class="alert alert-warning text-center" role="alert">
+        <h4 class="alert-heading">Sản phẩm không tìm thấy!</h4>
+        <p>Rất tiếc, sản phẩm với ID này không tồn tại hoặc đã bị xóa.</p>
+    </div>
+
+    <div th:if="${product != null}">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-12">
+                <div class="product-card">
+                    <h1 th:text="${product.getProName()}">PRODUCT NAME HERE</h1>
+                    <p class="text-muted mb-4" th:text="${product.getCategory().getCateName()}">Category Name</p>
+
+                    <div class="row mt-4">
+                        <div class="col-md-5 d-flex flex-column align-items-center">
+                            <img th:src="@{/uploads/{img}(img=${product.getImg()})}"
+                                 alt="Product Image"
+                                 class="img-fluid mb-3 product-image"
+                            />
+                        </div>
+
+                        <div class="col-md-7">
+
+                            <div class="mb-4">
+                                <span class="detail-label">Giá</span>
+                                <span class="price-text"
+                                      th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}">55,000</span>
+                                <span class="price-text">VND</span>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <span class="detail-label">Category</span>
+                                    <p class="fs-6 mt-1 mb-0" th:text="${product.getCategory().getCateName()}">Category
+                                        Name</p>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <span class="detail-label">Status</span>
+                                    <p class="mt-1 mb-0">
+                                    <span th:if="${product.getStatus().equalsIgnoreCase('available')}"
+                                          class="badge status-available fs-6 px-3 py-2">Available</span>
+                                        <span th:if="${product.getStatus().equalsIgnoreCase('unavailable')}"
+                                              class="badge status-unavailable fs-6 px-3 py-2">Unavailable</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="mt-4">
+                                <span class="detail-label">Mô tả</span>
+                                <p class="text-secondary fs-6 mt-1" style="line-height: 1.6;"
+                                   th:text="${product.getDescription()}">
+                                    Mô tả sản phẩm placeholder...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -48,6 +48,7 @@
     </style>
 </head>
 <body>
+<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: header"></header>
 
 <div class="container my-5">
     <h1 class="text-center mb-5">Table List</h1>
@@ -72,7 +73,7 @@
 
                     <p class="card-text text-muted mb-3">
                         <i class="fas fa-users"></i>
-                        <span>Capacity: 4 people</span></p>
+                        <span>Capacity: [[${table.capacity}]]</span></p>
 
 
                     <div th:if="${table.status == 'available'}">
@@ -88,12 +89,39 @@
         <i class="fa-regular fa-folder-open"></i>
         <h3>No table info</h3>
     </div>
+</div>
 
-    <div class="text-center my-5">
-        <!--            <a class="btn btn-success btn-lg" type="submit" th:href="@{/table/booking/new}">Order table</a>-->
-        <button class="btn btn-success btn-lg" type="submit">Order table</button>
+<div aria-hidden="true" aria-labelledby="successModalLabel" class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-success" role="alert">
+                    <span th:text="${successMessage}">ok</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
     </div>
 </div>
+
+<script  th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const hasSuccess = /*[[${successMessage != null}]]*/ false;
+        if (hasSuccess) {
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+        }
+    });
+</script>
+
 
 
 <script src="/assets/js/bootstrap.bundle.min.js"></script>

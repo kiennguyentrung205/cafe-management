@@ -24,4 +24,8 @@ public class TableBookingService {
     public List<TableBooking> findByCustomerId(int customerId) {
         return tableBookingRepository.findByCustomer_CusId(customerId);
     }
+
+    public TableBooking findById(int id) {
+        return tableBookingRepository.findById(id).orElse(null);
+    }
 }

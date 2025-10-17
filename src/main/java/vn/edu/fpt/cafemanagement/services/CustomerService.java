@@ -6,14 +6,9 @@ import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.util.List;
 
-
-import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
-import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 public class CustomerService {
     ManagerService managerService;
     CustomerRepository customerRepository;
+
     public CustomerService(CustomerRepository customerRepository, ManagerService managerService) {
         this.customerRepository = customerRepository;
         this.managerService = managerService;
@@ -42,7 +38,7 @@ public class CustomerService {
     public Customer findByUsername(String username) {
         return customerRepository.findByUsername(username).orElse(null);
     }
-  
+
     public Customer createCustomer(Customer customer) throws Exception {
         String username = customer.getUsername();
         String phoneNumber = customer.getPhoneNumber();
@@ -72,33 +68,46 @@ public class CustomerService {
     }
 
 
-
-
-    public Customer getCustomerById (int cusId) {
+    public Customer getCustomerById(int cusId) {
         return customerRepository.getCustomerByCusId(cusId);
     }
 
-    public List<PointHistory> getPointHistoryByCustomerId (int cusId) {
+    public List<PointHistory> getPointHistoryByCustomerId(int cusId) {
         return customerRepository.getPointHistoryByCustomerId(cusId);
     }
 
-    public void updateCustomer (Customer customer, MultipartFile imgFile) {
-        Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElse(null);
+    public void updateCustomer(Customer customer, MultipartFile imgFile) {
+        Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
         if (existingCustomer != null) {
-            if(!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
+            if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
                 if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
-                    throw new IllegalArgumentException("Email đã tồn tại, vui lòng dùng email khác!");
+                    throw new IllegalArgumentException("The email already exists, please use a different one!");
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
-            if(!existingCustomer.getPhoneNumber().equalsIgnoreCase(customer.getPhoneNumber())) {
+
+            if (!customer.getPhoneNumber().equalsIgnoreCase(existingCustomer.getPhoneNumber())) {
+                if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
+                    throw new IllegalArgumentException("The phone number cannot be empty.");
+                }
+                if (customer.getPhoneNumber().length() != 10) {
+                    throw new IllegalArgumentException("The phone number must be 10 digits!");
+                }
+                if (!customer.getPhoneNumber().matches("\\d{10}")) {
+                    throw new IllegalArgumentException("The phone number must contain only digits!");
+                }
                 if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
-                    throw new IllegalArgumentException("So dien thoai đã tồn tại, vui lòng dùng so dien thoai khác!");
+                    throw new IllegalArgumentException("The phone number already exists, please use a different one!");
                 }
                 existingCustomer.setPhoneNumber(customer.getPhoneNumber());
             }
 
+            if (customer.getName() == null || customer.getName().isEmpty()) {
+                throw new IllegalArgumentException("The name cannot be empty.");
+            }
             existingCustomer.setName(customer.getName());
+            // Nhut Them Update Birthdate
+            existingCustomer.setDateOfBirth(customer.getDateOfBirth());
 
             if (imgFile != null && !imgFile.isEmpty()) {
                 try {
@@ -110,32 +119,43 @@ public class CustomerService {
 
                     existingCustomer.setImg(fileName);
                 } catch (IOException e) {
-                    throw new IllegalArgumentException("Lỗi khi tải ảnh lên!");
+                    throw new IllegalArgumentException("Error uploading image!");
                 }
             }
-
             customerRepository.save(existingCustomer);
         }
     }
 
     public void changePassword(int cusId, String newPassword, String confirmPassword, String currentPassword) {
-        Customer customer = customerRepository.findById(cusId).orElse(null);
-        if (customer != null) {
-            if (BCrypt.checkpw(currentPassword, customer.getPassword())) {
-                if (newPassword.equals(confirmPassword)) {
-                    String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-                    customer.setPassword(hashedPassword);
-                    customerRepository.save(customer);
-                } else {
-                    throw new IllegalArgumentException("Password moi khong khop");
+        Customer customer = customerRepository.findById(cusId).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            throw new IllegalArgumentException("The new password cannot be empty.");
+        }
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("The new password cannot be empty.");
+        }
+        if (confirmPassword == null || confirmPassword.isEmpty()) {
+            throw new IllegalArgumentException("The confirm password cannot be empty.");
+        }
+        if (BCrypt.checkpw(currentPassword, customer.getPassword())) {
+            if (newPassword.equals(confirmPassword)) {
+                String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+                if (!newPassword.matches(passwordPattern)) {
+                    throw new IllegalArgumentException("Password must be at least 8 characters long and include uppercase letters, " +
+                            "lowercase letters, numbers, and special characters!\n");
                 }
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                customer.setPassword(hashedPassword);
+                customerRepository.save(customer);
             } else {
-                throw new IllegalArgumentException("Sai password");
+                throw new IllegalArgumentException("New password does not match!");
             }
+        } else {
+            throw new IllegalArgumentException("Incorrect password!");
         }
     }
-  
-  public Customer getCustomerByPhone(String phoneNumber) {
+
+    public Customer getCustomerByPhone(String phoneNumber) {
         return customerRepository.findByPhoneNumber(phoneNumber);
     }
 
@@ -146,6 +166,5 @@ public class CustomerService {
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
-  
 }
 

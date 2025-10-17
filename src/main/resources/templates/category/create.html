@@ -3,8 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
 </head>
 <body>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h1 class="h3 mb-0" th:text="${title}">Category Form</h1>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/category/create}" method="post" th:object="${category}">
+                        <input type="hidden" th:field="*{cateId}"/>
 
+                        <div class="mb-3">
+                            <label for="cateName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="cateName" th:field="*{cateName}" required/>
+                            <div th:if="${nameError}" class="alert alert-danger mt-1" role="alert">
+                                <span th:text="${nameError}">Name exception</span>
+                            </div>
+                        </div>
+
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success btn-lg">Submit</button>
+                            <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -56,7 +56,7 @@ public class Manager implements UserDetails {
 
     @ManyToMany
     @JoinTable(
-            name = "ShiftAssignment",
+            name = "shiftassignment",
             joinColumns = @JoinColumn(name = "manager_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_id")
     )
