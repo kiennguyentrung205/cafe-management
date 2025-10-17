@@ -290,14 +290,25 @@
                     if (curGrid && newGrid) curGrid.innerHTML = newGrid.innerHTML;
                     if (curPag && newPagination) curPag.innerHTML = newPagination.innerHTML;
 
+                    //Kiểm tra nếu không có sản phẩm
+                    const products = curGrid.querySelectorAll('.product-card');
+                    const pagination = curPag.querySelectorAll('a');
+                    if (products.length === 0) {
+                        curGrid.innerHTML = `
+                    <div class="text-center mt-5" style="font-size: 18px; color: #888;">
+                        <i class="bi bi-emoji-frown" style="font-size: 32px;"></i>
+                        <p>Not found</p>
+                    </div>`;
+                        if (curPag) curPag.innerHTML = ''; // Ẩn thanh phân trang
+                    }
+
                     selectedCategoryId = categoryId ? String(categoryId) : null;
                     document.querySelectorAll('.category-checkbox').forEach(cb => {
                         cb.checked = selectedCategoryId === cb.value;
                     });
 
                     attachProductCardListeners();
-                    rebindLiveSearch(); // <— thêm vào đây
-
+                    rebindLiveSearch();
                     history.pushState(null, '', url);
                 })
                 .catch(err => {
@@ -305,6 +316,7 @@
                     window.location.href = url;
                 });
         }
+
 
         /* ========== Chọn danh mục (checkbox click) ========== */
         let selectedCategoryId = null;

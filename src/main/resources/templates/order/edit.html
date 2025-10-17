@@ -154,33 +154,41 @@
         </thead>
 
         <tbody>
-        <tr th:each="order : ${orders}">
-            <form th:action="@{/order/updateStatus}" method="post" class="align-middle">
+        <form th:action="@{/order/updateStatus}" method="post" th:each="order : ${orders}">
+            <tr>
                 <td th:text="${order.orderId}"></td>
 
                 <td>
                     <input type="hidden" name="orderId" th:value="${order.orderId}" />
                     <select name="status" class="form-select form-select-sm me-2">
-                        <option value="Pending" th:selected="${order.status == 'Pending'}">Pending</option>
-                        <option value="Completed" th:selected="${order.status == 'Completed'}">Completed</option>
-                        <option value="Cancelled" th:selected="${order.status == 'Cancelled'}">Cancelled</option>
+                        <option value="pending"
+                                th:selected="${order.status == null or order.status == 'pending'}">
+                            Pending
+                        </option>
+                        <option value="served"
+                                th:selected="${order.status == 'served'}">
+                            Served
+                        </option>
+                        <option value="canceled"
+                                th:selected="${order.status == 'canceled'}">
+                            Canceled
+                        </option>
                     </select>
                 </td>
 
                 <td th:text="${order.orderItems != null && !order.orderItems.isEmpty()
-            ? order.orderItems[0].note : '-'}"></td>
+                          ? order.orderItems[0].note : '-'}"></td>
 
                 <td th:text="${currentUser != null && currentUser.role != null
-            ? currentUser.role.roleName : 'N/A'}"></td>
+                          ? currentUser.role.roleName : 'N/A'}"></td>
 
                 <td>
                     <input type="datetime-local"
                            th:value="${#temporals.format(order.updatedAt, 'yyyy-MM-dd''T''HH:mm')}" />
-
                     <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
                 </td>
-            </form>
-        </tr>
+            </tr>
+        </form>
         </tbody>
     </table>
 
@@ -194,7 +202,6 @@
         </a>
         <a th:href="@{/order/edit(page=${totalPages})}">&gt;&gt;</a>
     </div>
-
 </div>
 
 </body>
