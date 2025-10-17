@@ -1,10 +1,12 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name="pointhistory")
 public class PointHistory {
 
     @Id

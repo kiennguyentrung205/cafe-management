@@ -12,8 +12,10 @@ import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return customerRepository.findByUsername(username).<UserDetails>map(CustomUserDetails::new).orElseGet(() ->
-                managerRepository.findByUsername(username).map(CustomUserDetails::new).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username)));
+        return customerRepository.findByUsername(username).<UserDetails>map(CustomUserDetails::new)
+                .orElseGet(() ->
+                managerRepository.findByUsername(username).map(CustomUserDetails::new)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username)));
     }
 
     private final CustomerRepository customerRepository;
@@ -23,6 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.customerRepository = customerRepository;
         this.managerRepository = managerRepository;
     }
+
 
 
 }

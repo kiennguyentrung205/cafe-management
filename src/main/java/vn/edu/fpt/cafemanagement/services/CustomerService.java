@@ -86,7 +86,7 @@ public class CustomerService {
                 existingCustomer.setEmail(customer.getEmail());
             }
 
-            if (!existingCustomer.getPhoneNumber().equalsIgnoreCase(customer.getPhoneNumber())) {
+            if (!customer.getPhoneNumber().equalsIgnoreCase(existingCustomer.getPhoneNumber())) {
                 if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
                     throw new IllegalArgumentException("The phone number cannot be empty.");
                 }
@@ -106,6 +106,8 @@ public class CustomerService {
                 throw new IllegalArgumentException("The name cannot be empty.");
             }
             existingCustomer.setName(customer.getName());
+            // Nhut Them Update Birthdate
+            existingCustomer.setDateOfBirth(customer.getDateOfBirth());
 
             if (imgFile != null && !imgFile.isEmpty()) {
                 try {
