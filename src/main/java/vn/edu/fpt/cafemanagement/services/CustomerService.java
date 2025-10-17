@@ -82,7 +82,8 @@ public class CustomerService {
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
-            if (!existingCustomer.getPhoneNumber().equalsIgnoreCase(customer.getPhoneNumber())) {
+
+            if (!customer.getPhoneNumber().equalsIgnoreCase(existingCustomer.getPhoneNumber())) {
                 if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
                     throw new IllegalArgumentException("So dien thoai đã tồn tại, vui lòng dùng so dien thoai khác!");
                 }
@@ -90,6 +91,8 @@ public class CustomerService {
             }
 
             existingCustomer.setName(customer.getName());
+            // Nhut Them Update Birthdate
+            existingCustomer.setDateOfBirth(customer.getDateOfBirth());
 
             if (imgFile != null && !imgFile.isEmpty()) {
                 try {

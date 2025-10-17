@@ -18,7 +18,7 @@ public class DemoController {
     public String home(Model model, Authentication authentication) {
         Customer customer= loggedUser.getLoggedCustomer();
 
-        if(customer.getDateOfBirth() == null || customer.getPhoneNumber() == null) {
+        if(customer.getPhoneNumber() == null) {
             return "redirect:/customer/profile/edit/" + customer.getCusId();
         }
 //        if(customer.getDateOfBirth() == null){
