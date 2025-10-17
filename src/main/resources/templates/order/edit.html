@@ -184,7 +184,10 @@
 
                 <td>
                     <input type="datetime-local"
-                           th:value="${#temporals.format(order.updatedAt, 'yyyy-MM-dd''T''HH:mm')}" />
+                           name="updatedAt"
+                           class="form-control form-control-sm updatedAtInput"
+                           required />
+
                     <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
                 </td>
             </tr>
@@ -203,6 +206,30 @@
         <a th:href="@{/order/edit(page=${totalPages})}">&gt;&gt;</a>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date();
+
+        // Lấy phần ngày hôm nay (YYYY-MM-DD)
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
+        // Tính thời gian hiện tại để set mặc định
+        const hh = String(today.getHours()).padStart(2, "0");
+        const min = String(today.getMinutes()).padStart(2, "0");
+        const nowStr = `${todayStr}T${hh}:${min}`;
+
+        // Gán giới hạn cho tất cả input datetime-local
+        document.querySelectorAll(".updatedAtInput").forEach(input => {
+            input.min = `${todayStr}T00:00`;
+            input.max = `${todayStr}T23:59`;
+            input.value = nowStr; // set mặc định = giờ hiện tại
+        });
+    });
+</script>
 
 </body>
 </html>
