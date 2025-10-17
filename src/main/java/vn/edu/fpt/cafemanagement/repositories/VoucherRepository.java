@@ -10,7 +10,7 @@ import java.util.List;
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     List<Voucher> findByIsActiveTrue();
-
+    List<Voucher> findByIsActiveFalse();
     Voucher findByVoucherId(int voucherId);
 
     void deleteByVoucherId(int voucherId);

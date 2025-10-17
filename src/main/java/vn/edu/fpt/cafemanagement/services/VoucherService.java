@@ -23,24 +23,32 @@ public class VoucherService {
         return voucherRepository.findByIsActiveTrue();
     }
 
+    public List<Voucher> getNoActiveVouchers() {
+        return voucherRepository.findByIsActiveFalse();
+    }
+
     public Voucher saveVoucher(Voucher voucher) {
         return voucherRepository.save(voucher);
     }
-  
+
     public List<Voucher> findAll() {
         return voucherRepository.findAll();
     }
+
     @Transactional
     public Voucher save(Voucher voucher) {
         return voucherRepository.save(voucher);
     }
+
     public void delete(Voucher voucher) {
         voucherRepository.delete(voucher);
     }
+
     @Transactional
     public void deleteVoucherById(int id) {
         voucherRepository.deleteByVoucherId(id);
     }
+
     public Voucher findById(int voucherId) {
         return voucherRepository.findByVoucherId(voucherId);
     }
