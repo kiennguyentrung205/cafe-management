@@ -23,10 +23,12 @@ public class RegisterController {
         return "account/register";
     }
 
+    private final String UPLOAD_DIR = "D:/SWP/Project/uploads/";
     @PostMapping(path = "/register")
     public String register(Model model, @ModelAttribute Customer customer){
         String hashPassword = BCrypt.hashpw(customer.getPassword(), BCrypt.gensalt());
         customer.setPassword(hashPassword);
+        customer.setImg("/assets/images/avatar.jpeg");
 
         try {
             customerService.createCustomer(customer);

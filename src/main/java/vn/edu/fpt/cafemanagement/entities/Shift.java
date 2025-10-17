@@ -35,7 +35,7 @@ public class Shift {
     private List<Role> shiftRoles;
 
     @ManyToMany(mappedBy = "shiftAssignments")
-    private List<Manager>  managers;
+    private List<Manager> managers;
 
     public Shift() {
     }

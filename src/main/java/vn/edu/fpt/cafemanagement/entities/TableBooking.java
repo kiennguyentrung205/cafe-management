@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@jakarta.persistence.Table(name="tablebooking")
 public class TableBooking {
 
     @Id
@@ -28,15 +29,18 @@ public class TableBooking {
     @Column(name = "booking_time")
     private LocalDateTime bookingTime;
 
+    private String note;
+
     public TableBooking() {
     }
 
-    public TableBooking(int bookingId, Table table, Customer customer, String status, LocalDateTime bookingTime) {
+    public TableBooking(int bookingId, Table table, Customer customer, String status, LocalDateTime bookingTime, String note) {
         this.bookingId = bookingId;
         this.table = table;
         this.customer = customer;
         this.status = status;
         this.bookingTime = bookingTime;
+        this.note = note;
     }
 
     public int getBookingId() {
@@ -77,6 +81,14 @@ public class TableBooking {
 
     public void setBookingTime(LocalDateTime bookingTime) {
         this.bookingTime = bookingTime;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String tosString(){

@@ -1,7 +1,11 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.cafemanagement.entities.*;
@@ -16,72 +20,114 @@ import java.util.Optional;
 @RequestMapping("/order")
 public class OrderController {
 
-    private ProductService productService;
-    private OrderService orderService;
-    private VoucherService voucherService;
-    private CustomerService customerService;
-    private ManagerService managerService;
-    private PointHistoryService pointHistoryService;
+    private final ProductService productService;
+    private final OrderService orderService;
+    private final VoucherService voucherService;
+    private final CustomerService customerService;
+    private final ManagerService managerService;
+    private final CategoryService categoryService;
+    private final PointHistoryService pointHistoryService;
 
     public OrderController(ProductService productService,
                            OrderService orderService,
                            VoucherService voucherService,
                            CustomerService customerService,
                            ManagerService managerService,
+                           CategoryService categoryService,
                            PointHistoryService pointHistoryService) {
         this.productService = productService;
         this.orderService = orderService;
         this.voucherService = voucherService;
         this.customerService = customerService;
         this.managerService = managerService;
+        this.categoryService = categoryService;
         this.pointHistoryService = pointHistoryService;
     }
 
-    // ----------------------- [GET: Hiển thị form tạo order] -----------------------
+    // ----------------------- [GET: Hiển thị form tạo order + tìm kiếm + phân trang] -----------------------
     @GetMapping("/create")
-    public String showCreateOrderForm(@RequestParam(defaultValue = "1") int page, Model model) {
-        int size = 6; // mỗi trang 6 sản phẩm
-        Page<Product> productPage = productService.getActiveProductsPaged(page, size);
+    public String showCreateOrderForm(
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            Model model) {
 
-        model.addAttribute("title", "Create In-Store Order");
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Page<Product> productPage;
+
+        if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
+            // tìm theo cả tên + category
+            productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
+        }
+        else if (query != null && !query.trim().isEmpty()) {
+            // chỉ tìm theo tên
+            productPage = productService.searchActiveProducts(query.trim(), pageable);
+        }
+        else if (categoryId != null && categoryId > 0) {
+            // chỉ lọc theo category
+            productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
+        }
+        else {
+            productPage = productService.getActiveProductsPaged(pageable);
+        }
+
+        model.addAttribute("categoryList", categoryService.getCategories());
+        model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
+        model.addAttribute("query", query != null ? query : "");
         model.addAttribute("productList", productPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("voucherList", voucherService.getActiveVouchers());
         model.addAttribute("customer", null);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("title", "Create In-Store Order");
 
         return "order/create";
     }
 
     // ----------------------- [POST: Tạo order mới] -----------------------
+    @Transactional
     @PostMapping("/create")
     public String createOrder(
-            @RequestParam("productIds") List<Integer> productIds,
-            @RequestParam("quantities") List<Integer> quantities,
+            @RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "productIds", required = false) List<Integer> productIds,
+            @RequestParam(value = "quantities", required = false) List<Integer> quantities,
             @RequestParam(value = "voucherId", required = false) Optional<Integer> voucherId,
-            @RequestParam("customerPhone") String customerPhone,
+            @RequestParam(value = "customerPhone", required = false) String customerPhone,
             @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
             Model model) {
 
-        // --- Lấy thông tin khách hàng ---
+        if ("check".equals(action)) {
+            Customer customer = customerService.getCustomerByPhone(customerPhone);
+            if (customer == null)
+                model.addAttribute("error", "Customer not found!");
+            else
+                model.addAttribute("customer", customer);
+            return reloadCreatePage(model);
+        }
+
+        if (productIds == null || productIds.isEmpty()) {
+            model.addAttribute("error", "No products selected!");
+            return reloadCreatePage(model);
+        }
+
         Customer customer = customerService.getCustomerByPhone(customerPhone);
         if (customer == null) {
             model.addAttribute("error", "Customer not found!");
-            model.addAttribute("productList", productService.getActiveProducts());
-            model.addAttribute("voucherList", voucherService.getActiveVouchers());
-            return "order/create";
+            return reloadCreatePage(model);
         }
 
-        // --- Kiểm tra manager ---
+        if (pointsUsed > customer.getPoint()) {
+            model.addAttribute("error", "Not enough points!");
+            return reloadCreatePage(model);
+        }
+
         Manager manager = managerService.getDefaultManager();
         if (manager == null) {
-            model.addAttribute("error", "No manager available! Please check manager data.");
-            model.addAttribute("productList", productService.getActiveProducts());
-            model.addAttribute("voucherList", voucherService.getActiveVouchers());
-            return "order/create";
+            model.addAttribute("error", "No manager available!");
+            return reloadCreatePage(model);
         }
 
-        // --- Tạo đối tượng Order ---
         Order order = new Order();
         order.setCustomer(customer);
         order.setManager(manager);
@@ -89,77 +135,60 @@ public class OrderController {
         order.setStatus("Pending");
         order.setPointsUsed(pointsUsed);
 
-        // --- Áp dụng voucher nếu có ---
         Voucher voucher = null;
-        if (voucherId.isPresent() && voucherId.get() != 0) {
-            voucher = voucherService.getVoucherById(voucherId.get());
-            if (voucher != null && voucher.getQuantity() > 0) {
-                order.setVoucher(voucher);
-
-                // Giảm số lượng voucher còn lại
-                voucher.setQuantity(voucher.getQuantity() - 1);
-                voucherService.saveVoucher(voucher);
-            } else {
-                model.addAttribute("error", "Voucher is invalid or out of stock!");
-                model.addAttribute("productList", productService.getActiveProducts());
-                model.addAttribute("voucherList", voucherService.getActiveVouchers());
-                return "order/create";
+        Integer voucherIdValue = voucherId.orElse(0);
+        if (voucherIdValue != 0) {
+            voucher = voucherService.getVoucherById(voucherIdValue);
+            if (voucher == null || voucher.getQuantity() <= 0) {
+                model.addAttribute("error", "Voucher invalid or out of stock!");
+                return reloadCreatePage(model);
             }
+            order.setVoucher(voucher);
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherService.saveVoucher(voucher);
         }
 
-        // --- Tính tổng tiền và danh sách sản phẩm ---
         double totalPrice = 0;
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
             Product product = productService.getProductById(productIds.get(i));
             int qty = quantities.get(i);
-
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
             item.setQuantity(qty);
             orderItems.add(item);
-
             totalPrice += product.getPrice() * qty;
         }
 
-        // --- Áp dụng giảm giá nếu có voucher ---
         if (voucher != null) {
-            if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType())) {
+            if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType()))
                 totalPrice -= totalPrice * (voucher.getDiscountValue() / 100.0);
-            } else if ("AMOUNT".equalsIgnoreCase(voucher.getDiscountType())) {
+            else if ("AMOUNT".equalsIgnoreCase(voucher.getDiscountType()))
                 totalPrice -= voucher.getDiscountValue();
-            }
         }
 
-        // --- Trừ điểm đổi thưởng ---
-        double discountValue = pointsUsed * 2000;
-        totalPrice -= discountValue;
+        totalPrice -= pointsUsed * 2000;
         if (totalPrice < 0) totalPrice = 0;
         order.setTotalPrice(totalPrice);
         order.setOrderItems(orderItems);
 
-        // --- Cập nhật điểm khách hàng ---
         int earnedPoints = (int) (totalPrice / 50000);
-        int newPoint = customer.getPoint() - pointsUsed + earnedPoints;
-        customer.setPoint(newPoint);
+        customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
         customerService.saveCustomer(customer);
 
-        // --- Ghi lịch sử điểm nếu có sử dụng ---
         if (pointsUsed > 0) {
             PointHistory ph = new PointHistory();
             ph.setCustomer(customer);
             ph.setOrder(order);
-            ph.setAmount(pointsUsed * -1);
+            ph.setAmount(-pointsUsed);
             ph.setTypeOfChange("Redeemed in order");
             ph.setChangeTime(LocalDateTime.now());
             pointHistoryService.saveHistory(ph);
         }
 
-        // --- Lưu Order vào DB ---
         orderService.saveOrder(order);
 
-        // --- Gửi phản hồi về view ---
         model.addAttribute("success", "Order created successfully!");
         model.addAttribute("order", order);
         return "order/success";
@@ -168,13 +197,76 @@ public class OrderController {
     // ----------------------- [GET: Danh sách đơn hàng] -----------------------
     @GetMapping("/list")
     public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 6;
+        int pageSize = 9;
         Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
-
+        model.addAttribute("customerList", customerService.getAllCustomers());
         return "order/list";
+    }
+
+    // ----------------------- [Helper: Reload trang create khi lỗi] -----------------------
+    private String reloadCreatePage(Model model) {
+        model.addAttribute("categoryList", categoryService.getCategories());
+        model.addAttribute("productList", productService.getActiveProducts());
+        model.addAttribute("voucherList", voucherService.getActiveVouchers());
+        model.addAttribute("customer", null);
+        model.addAttribute("currentPage", 1);
+        model.addAttribute("totalPages", 1);
+        return "order/create";
+    }
+
+    @GetMapping("/edit")
+    public String showEditOrderPage(
+            @RequestParam(defaultValue = "1") int page,
+            Model model,
+            HttpSession session) {
+
+        int pageSize = 9;
+        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+
+        Manager currentUser = (Manager) session.getAttribute("loggedInUser");
+        model.addAttribute("currentUser", currentUser);
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("title", "Edit Order");
+
+        return "order/edit";
+    }
+
+    @PostMapping("/updateStatus")
+    @Transactional
+    public String updateOrderStatus(
+            @RequestParam("orderId") int orderId,
+            @RequestParam("status") String status,
+            @RequestParam(value = "updatedAt", required = false) String updatedAtStr,
+            HttpSession session) {
+
+        Optional<Order> optionalOrder = orderService.getOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            return "redirect:/order/edit?error=OrderNotFound";
+        }
+
+        Order order = optionalOrder.get();
+        order.setStatus(status);
+
+        if (updatedAtStr != null && !updatedAtStr.isEmpty()) {
+            order.setUpdatedAt(LocalDateTime.parse(updatedAtStr));
+        } else {
+            order.setUpdatedAt(LocalDateTime.now());
+        }
+
+        if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
+            order.setActive(true);
+        } else {
+            order.setActive(false);
+        }
+
+        orderService.saveOrder(order);
+        return "redirect:/order/edit";
     }
 }

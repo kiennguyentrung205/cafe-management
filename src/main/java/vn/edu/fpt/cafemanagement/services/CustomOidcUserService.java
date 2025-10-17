@@ -42,11 +42,15 @@ public class CustomOidcUserService extends OidcUserService {
 
         if (existingCustomer.isPresent()) {
             customer = existingCustomer.get();
+            customer.setImg(picture);
         } else {
             customer = new Customer();
             customer.setUsername(googleId);
             customer.setEmail(email);
             customer.setName(name);
+            customer.setImg(picture);
+            customer.setPoint(Integer.valueOf(0));
+            customer.setGoogleAccount(true);
 
             String randomPassword = UUID.randomUUID().toString();
             customer.setPassword(passwordEncoder.encode(randomPassword));

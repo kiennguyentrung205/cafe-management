@@ -9,6 +9,7 @@ import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -27,10 +28,9 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order getOrderById(int id) {
-        return orderRepository.findById(id).orElse(null);
+    public Optional<Order> getOrderById(int id) {
+        return orderRepository.findById(id);
     }
-
     public void deleteOrder(int id) {
         orderRepository.deleteById(id);
     }
@@ -39,4 +39,5 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "createdAt"));
         return orderRepository.findAll(pageable);
     }
+
 }
