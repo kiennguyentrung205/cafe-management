@@ -33,16 +33,11 @@ public class TableBookingController {
         this.customerService = customerService;
     }
 
-    @GetMapping(value="/view-history")
+    @GetMapping(value="/my")
     public String showHistory(Model model) {
         Customer loggedCustomer = loggedUser.getLoggedCustomer();
         List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
 
-        for (TableBooking tb : tableBooking) {
-            System.out.println(tb.getBookingId());
-        }
-
-        System.out.println("LOi");
 
         model.addAttribute("tableBooking", tableBooking);
         return "table-booking/view-table-booking";
@@ -79,7 +74,6 @@ public class TableBookingController {
         LocalDateTime now = LocalDateTime.now();
 
 
-// 2️⃣ Chỉ được đặt trong vòng 2 tiếng trước khi tới
         long diffMinutes = Duration.between(now, bookingTime).toMinutes();
         if (diffMinutes < 0) {
             redirectAttributes.addFlashAttribute("errorMessage", "You cannot book table in the past!");
@@ -91,11 +85,12 @@ public class TableBookingController {
             return "redirect:/table/booking/new?table-id=" + tableBooking.getTable().getTableId();
         }
 
-// 3️⃣ Không được đặt sau 22 giờ
         if (bookingTime.getHour() >= 22) {
             redirectAttributes.addFlashAttribute("errorMessage", "You cannot book table after 22:00!");
             return "redirect:/table/booking/new?table-id=" + tableBooking.getTable().getTableId();
         }
+
+        tableBooking.setStatus("booked");
 
         tableBookingService.save(tableBooking);
         tableService.updateStatus(tableBooking.getTable().getTableId(), "unavailable");
@@ -103,5 +98,23 @@ public class TableBookingController {
         redirectAttributes.addFlashAttribute("successMessage", "Table booking has been saved successfully!");
 
         return "redirect:/table/list?book-success";
+    }
+
+
+    @PostMapping(value="/cancel")
+    public String cancelBooking(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
+        Customer loggedCustomer = loggedUser.getLoggedCustomer();
+
+        TableBooking tableBooking = tableBookingService.findById(bookingId);
+        if(tableBooking.getCustomer().getCusId() != loggedCustomer.getCusId()){
+            return "redirect:/table/booking/my?cancel=failed";
+        }
+
+        tableService.updateStatus(tableBooking.getTable().getTableId(), "available");
+
+        tableBooking.setStatus("canceled");
+        tableBookingService.save(tableBooking);
+
+        return "redirect:/table/booking/my?cancel=success";
     }
 }
