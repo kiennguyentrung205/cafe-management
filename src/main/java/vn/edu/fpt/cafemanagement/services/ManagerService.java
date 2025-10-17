@@ -7,6 +7,7 @@ import vn.edu.fpt.cafemanagement.entities.Role;
 import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -50,5 +51,29 @@ public class ManagerService {
     public Manager getDefaultManager() {
         return managerRepository.findAll().isEmpty() ? null : managerRepository.findAll().get(0);
     }
+
+    public boolean isUsernameTaken(String username, Integer idToExclude) {
+        Optional<Manager> existing = managerRepository.findByUsername(username);
+        // nếu không tồn tại -> false (chưa bị lấy)
+        // nếu tồn tại và id của existing khác idToExclude -> true (bị lấy bởi người khác)
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
+    }
+
+    public boolean isEmailTaken(String email, Integer idToExclude) {
+        Optional<Manager> existing = managerRepository.findByEmail(email);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
+    }
+
+    public boolean isPhoneTaken(String phone, Integer idToExclude) {
+        Optional<Manager> existing = managerRepository.findByPhoneNumber(phone);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
+    }
+
+    public List<Manager> searchStaff(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) return managerRepository.findAll();
+        return managerRepository.search(keyword.trim());
+    }
+
+
 
 }
