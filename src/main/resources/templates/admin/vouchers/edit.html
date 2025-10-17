@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit</title>
-    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
-</head>
+<head th:replace="~{fragment/frag :: head}"></head>
 <body>
+<div th:insert="~{fragment/frag::navbar}"></div>
 <h1>Edit Voucher</h1>
 <form method="post" th:action="@{/admin/vouchers/save}" th:object="${voucher}">
     <input type="hidden" th:field="*{voucherId}">
@@ -24,7 +21,7 @@
     <br>
     <br>
     <label>Quantity</label>
-    <input type="text" placeholder="Enter quantity" th:field="*{quantity}">
+    <input type="text" placeholder="Enter quantity" th:field="*{quantity}" required>
     <br>
     <br>
     <label>Discount Type</label>
@@ -35,16 +32,17 @@
     <br>
     <br>
     <label>Discount Value</label>
-    <input type="text" placeholder="Enter discount value" th:field="*{discountValue}">
+    <input type="text" placeholder="Enter discount value" th:field="*{discountValue}" required>
     <br>
     <br>
     <label>Minimum Order Value</label>
-    <input type="text" placeholder="Enter minimum order value" th:field="*{minOrderValue}">
+    <input type="text" placeholder="Enter minimum order value" th:field="*{minOrderValue}" required>
     <br>
     <br>
+    <p th:text="${message}"></p>
     <button type="submit">Save</button>
     <a th:href="@{/admin/vouchers/list}">Cancel</a>
 </form>
-<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+<div th:insert="~{fragment/frag::footer}"></div>
 </body>
 </html>
