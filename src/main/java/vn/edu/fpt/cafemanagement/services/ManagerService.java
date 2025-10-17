@@ -75,5 +75,32 @@ public class ManagerService {
     }
 
 
+    public List<Manager> getActiveStaffs() {
+        return managerRepository.findByIsActiveTrue();
+    }
+
+    public List<Manager> getDeletedStaffs() {
+        return managerRepository.findByIsActiveFalse();
+    }
+    @Transactional
+    public void softDelete(int id) {
+        Manager staff = managerRepository.findById(id).orElse(null);
+        if (staff != null) {
+            staff.setActive(false);
+            managerRepository.save(staff);
+        }
+    }
+
+    @Transactional
+    public void restore(int id) {
+        Manager staff = managerRepository.findById(id).orElse(null);
+        if (staff != null) {
+            staff.setActive(true);
+            managerRepository.save(staff);
+        }
+    }
+
+
+
 
 }

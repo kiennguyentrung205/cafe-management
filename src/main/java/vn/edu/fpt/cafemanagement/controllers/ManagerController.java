@@ -55,13 +55,6 @@ public class ManagerController {
         return "dashboard/staff/edit";
     }
 
-
-    @RequestMapping(value = "/delete/{id}")
-    public String delete(@PathVariable("id") int id, Model model) {
-        model.addAttribute("staff", managerService.findById(id));
-        return "deleted-staff";
-    }
-
         @PostMapping("/save")
         public String save(@ModelAttribute("staff") Manager staff,
                            @RequestParam("roleId") int roleId,
@@ -98,7 +91,7 @@ public class ManagerController {
             if (!file.isEmpty()) {
                 try {
                     String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                    String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/img/staff/";
+                    String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/img/staff/";//
                     java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
                     if (!java.nio.file.Files.exists(uploadPath)) {
                         java.nio.file.Files.createDirectories(uploadPath);
@@ -116,12 +109,6 @@ public class ManagerController {
             return "redirect:/dashboard/staff";
         }
 
-    @PostMapping("/delete/{id}")
-    public String doDelete(@PathVariable int id) {
-        managerService.deleteById(id);
-        return "redirect:/dashboard/staff";
-    }
-
     @GetMapping("/{id}")
     public String getStaffDetails(@PathVariable("id") int id, Model model) {
         Manager s = managerService.findById(id);
@@ -129,6 +116,27 @@ public class ManagerController {
         model.addAttribute("staff", s);
         model.addAttribute("roles", roles);
         return "dashboard/staff/detail";
+    }
+
+    // --- Soft delete ---
+    @PostMapping("/delete/{id}")
+    public String softDelete(@PathVariable int id) {
+        managerService.softDelete(id); // chỉ set isActive = false
+        return "redirect:/dashboard/staff";
+    }
+
+    // --- Danh sách nhân viên đã xóa ---
+    @GetMapping("/deleted")
+    public String deletedList(Model model) {
+        model.addAttribute("staffs", managerService.getDeletedStaffs());
+        return "dashboard/staff/deleted-staff"; // tạo file deleted-staff.html
+    }
+
+    // --- Restore nhân viên ---
+    @PostMapping("/restore/{id}")
+    public String restore(@PathVariable int id) {
+        managerService.restore(id); // set isActive = true
+        return "redirect:/dashboard/staff/deleted";
     }
 
 

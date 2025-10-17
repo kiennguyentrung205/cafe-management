@@ -22,4 +22,11 @@ public interface ManagerRepository extends JpaRepository<Manager, Integer> {
     @Query("SELECT m FROM Manager m LEFT JOIN m.role r WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(m.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(r.roleName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Manager> search(@Param("keyword") String keyword);
 
+    // Lấy danh sách nhân viên còn active
+    List<Manager> findByIsActiveTrue();
+
+    // Lấy danh sách nhân viên đã xóa
+    List<Manager> findByIsActiveFalse();
+
+
 }
