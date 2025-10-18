@@ -12,9 +12,7 @@ import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.services.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/order")
@@ -99,27 +97,30 @@ public class OrderController {
 
         if ("check".equals(action)) {
             Customer customer = customerService.getCustomerByPhone(customerPhone);
-            if (customer == null)
+            if (customer == null) {
                 model.addAttribute("error", "Customer not found!");
-            else
+            } else {
                 model.addAttribute("customer", customer);
-            return reloadCreatePage(model);
+            }
+            return reloadCreatePage(model, customer);
         }
 
-        if (productIds == null || productIds.isEmpty()) {
+        if (productIds == null || productIds.isEmpty() || "null".equals(String.valueOf(productIds.get(0)))) {
             model.addAttribute("error", "No products selected!");
             return reloadCreatePage(model);
         }
 
-        Customer customer = customerService.getCustomerByPhone(customerPhone);
-        if (customer == null) {
-            model.addAttribute("error", "Customer not found!");
-            return reloadCreatePage(model);
+        Customer customer = null;
+        if (customerPhone != null && !customerPhone.trim().isEmpty()) {
+            customer = customerService.getCustomerByPhone(customerPhone.trim());
+            if (customer == null) {
+                model.addAttribute("warning", "Customer not found! Order will not be linked to any customer.");
+            }
         }
 
-        if (pointsUsed > customer.getPoint()) {
+        if (customer != null && pointsUsed > customer.getPoint()) {
             model.addAttribute("error", "Not enough points!");
-            return reloadCreatePage(model);
+            return reloadCreatePage(model, customer);
         }
 
         Manager manager = managerService.getDefaultManager();
@@ -129,7 +130,7 @@ public class OrderController {
         }
 
         Order order = new Order();
-        order.setCustomer(customer);
+        if (customer != null) order.setCustomer(customer);
         order.setManager(manager);
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus("Pending");
@@ -174,18 +175,21 @@ public class OrderController {
         order.setOrderItems(orderItems);
 
         int earnedPoints = (int) (totalPrice / 50000);
-        customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
-        customerService.saveCustomer(customer);
+        if (customer != null) {
+            customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
+            customerService.saveCustomer(customer);
 
-        if (pointsUsed > 0) {
-            PointHistory ph = new PointHistory();
-            ph.setCustomer(customer);
-            ph.setOrder(order);
-            ph.setAmount(-pointsUsed);
-            ph.setTypeOfChange("Redeemed in order");
-            ph.setChangeTime(LocalDateTime.now());
-            pointHistoryService.saveHistory(ph);
+            if (pointsUsed > 0) {
+                PointHistory ph = new PointHistory();
+                ph.setCustomer(customer);
+                ph.setOrder(order);
+                ph.setAmount(-pointsUsed);
+                ph.setTypeOfChange("Redeemed in order");
+                ph.setChangeTime(LocalDateTime.now());
+                pointHistoryService.saveHistory(ph);
+            }
         }
+
 
         orderService.saveOrder(order);
 
@@ -224,7 +228,7 @@ public class OrderController {
             Model model,
             HttpSession session) {
 
-        int pageSize = 9;
+        int pageSize = 7;
         Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
 
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
@@ -269,4 +273,63 @@ public class OrderController {
         orderService.saveOrder(order);
         return "redirect:/order/edit";
     }
+
+    @GetMapping("/detail/{id}")
+    @ResponseBody
+    public Map<String, Object> getOrderDetail(@PathVariable("id") int orderId) {
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<Order> optionalOrder = orderService.getOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Order not found!");
+            return response;
+        }
+
+        Order order = optionalOrder.get();
+        List<OrderItem> items = orderService.getOrderItemsByOrderId(orderId);
+
+        response.put("success", true);
+        response.put("order", Map.of(
+                "id", order.getOrderId(),
+                "customer", order.getCustomer().getName(),
+                "manager", order.getManager() != null ? order.getManager().getName() : "N/A",
+                "status", order.getStatus(),
+                "totalPrice", order.getTotalPrice(),
+                "date", order.getCreatedAt(),
+                "pointsUsed", order.getPointsUsed(),
+                "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
+                "products", items.stream()
+                        .map(i -> Map.of(
+                                "name", i.getProduct().getProName(),
+                                "price", i.getProduct().getPrice(),
+                                "quantity", i.getQuantity()
+                        ))
+                        .toList()
+        ));
+
+        // thêm customer info
+        response.put("customer", Map.of(
+                "id", order.getCustomer().getCusId(),
+                "name", order.getCustomer().getName(),
+                "phone", order.getCustomer().getPhoneNumber(),
+                "email", order.getCustomer().getEmail(),
+                "address", order.getCustomer().getAddress(),
+                "img", order.getCustomer().getImg()
+        ));
+
+        return response;
+    }
+
+    private String reloadCreatePage(Model model, Customer customer) {
+        model.addAttribute("categoryList", categoryService.getCategories());
+        model.addAttribute("productList", productService.getActiveProducts());
+        model.addAttribute("voucherList", voucherService.getActiveVouchers());
+        model.addAttribute("customer", customer); // ✅ GIỮ LẠI CUSTOMER
+        model.addAttribute("currentPage", 1);
+        model.addAttribute("totalPages", 1);
+        return "order/create";
+    }
+
+
 }
