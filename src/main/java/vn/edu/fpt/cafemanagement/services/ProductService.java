@@ -47,8 +47,12 @@ public class ProductService {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
     }
 
-    public Page<Product> getProductsByCategory(int categoryId, Pageable pageable) {
+    public Page<Product> getActiveProductsByCategory(int categoryId, Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
+    }
+
+    public Page<Product> getNonActiveProductsByCategory(int categoryId, Pageable pageable) {
+        return productRepository.findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
     }
 
     public List<Product> getNonActiveProductsByCategory(int categoryId) {
@@ -62,9 +66,14 @@ public class ProductService {
     public Page<Product> getActiveProductsPaged(Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
     }
-  
+
     public Page<Product> getAllProductsPaged(Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
+
+    }
+
+    public Page<Product> getAllNonActiveProductsPaged(Pageable pageable) {
+        return productRepository.findByIsActiveFalseAndCategoryIsActiveTrue(pageable);
 
     }
 
@@ -81,8 +90,12 @@ public class ProductService {
         return productRepository.findSearchProductsByAllCriteria(searchText);
     }
 
-    public Page<Product> getSearchProducts(String searchText, Pageable pageable){
+    public Page<Product> getSearchProducts(String searchText, Pageable pageable) {
         return productRepository.findSearchProductsByAllCriteria(searchText, pageable);
+    }
+
+    public Page<Product> getNonActiveSearchProducts(String searchText, Pageable pageable) {
+        return productRepository.findNonActiveSearchProductsByAllCriteria(searchText, pageable);
     }
 
     // ---------------- ORDER LOGIC ----------------
@@ -133,5 +146,29 @@ public class ProductService {
 
     public Page<Product> searchActiveProductsByCategory(Integer categoryId, String keyword, Pageable pageable) {
         return productRepository.findByCategoryAndNameContainingIgnoreCaseAndActiveTrue(categoryId, keyword, pageable);
+    }
+
+    public Page<Product> searchProductsByCategoryAndKeyword(Integer finalCategoryId, String keyword, Pageable pageable) {
+        String searchKeyword = keyword != null ? keyword.trim() : "";
+
+        // Kiểm tra nếu categoryId = 0, bạn sẽ gọi phương thức tìm kiếm chung hơn.
+        // Tuy nhiên, nếu bạn sử dụng @Query trong Repository (như phương pháp tốt hơn),
+        // bạn chỉ cần gọi 1 hàm duy nhất:
+
+        // Sử dụng phương thức @Query đã định nghĩa:
+        return productRepository.searchProductsByCategoryAndKeyword(finalCategoryId, searchKeyword, pageable);
+    }
+
+
+    public Page<Product> searchNonActiveProductsByCategoryAndKeyword(Integer finalCategoryId, String keyword, Pageable pageable) {
+        String searchKeyword = keyword != null ? keyword.trim() : "";
+
+        // Kiểm tra nếu categoryId = 0, bạn sẽ gọi phương thức tìm kiếm chung hơn.
+        // Tuy nhiên, nếu bạn sử dụng @Query trong Repository (như phương pháp tốt hơn),
+        // bạn chỉ cần gọi 1 hàm duy nhất:
+
+        // Sử dụng phương thức @Query đã định nghĩa:
+        return productRepository.searchNonActiveProductsByCategoryAndKeyword(finalCategoryId, searchKeyword, pageable);
+
     }
 }
