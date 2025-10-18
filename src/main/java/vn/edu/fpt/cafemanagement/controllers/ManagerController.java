@@ -1,5 +1,8 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +12,8 @@ import vn.edu.fpt.cafemanagement.entities.Role;
 import vn.edu.fpt.cafemanagement.services.ManagerService;
 import vn.edu.fpt.cafemanagement.services.RoleService;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Controller
@@ -24,21 +29,30 @@ public class ManagerController {
     }
 
     @RequestMapping
-    public String list(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        List<Manager> list;
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            list = managerService.searchStaff(keyword.trim());
-        } else {
-            list = managerService.getList();
-        }
-        model.addAttribute("staffs", list);
-        model.addAttribute("keyword", keyword);
+    public String list(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            Model model) {
 
-        if (list.isEmpty() && keyword != null && !keyword.trim().isEmpty()) {
-            model.addAttribute("notFound", "No staff found for \"" + keyword + "\"");
+        int size = 10; // số phần tử mỗi trang
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<Manager> staffPage;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            staffPage = managerService.searchStaff(keyword.trim(), pageable);
+            model.addAttribute("keyword", keyword);
+        } else {
+            staffPage = managerService.getActiveStaffs(pageable);
         }
+
+        model.addAttribute("staffs", staffPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", staffPage.getTotalPages());
+
         return "dashboard/staff/list";
     }
+
 
     @GetMapping("/new")
     public String create(Model model) {
@@ -55,7 +69,17 @@ public class ManagerController {
         return "dashboard/staff/edit";
     }
 
-        @PostMapping("/save")
+    @GetMapping("/{id}")
+    public String getStaffDetails(@PathVariable("id") int id, Model model) {
+        Manager s = managerService.findById(id);
+        List<Role> roles = roleService.getAllRoles();
+        model.addAttribute("staff", s);
+        model.addAttribute("roles", roles);
+        return "dashboard/staff/detail";
+    }
+
+
+    @PostMapping("/save")
         public String save(@ModelAttribute("staff") Manager staff,
                            @RequestParam("roleId") int roleId,
                            @RequestParam("photo") MultipartFile file,  Model model) {
@@ -63,12 +87,22 @@ public class ManagerController {
                     .orElseThrow(() -> new IllegalArgumentException("Null"));
             staff.setRole(role);
 
-            if (staff.getManagerId() == 0) {
-                staff.setActive(true);
+
+// Validate blank
+            if (staff.getName().isBlank() || staff.getEmail().isBlank()
+                    || staff.getPhoneNumber().isBlank() || staff.getUsername().isBlank()
+                    || staff.getPassword().isBlank() || staff.getRole() == null) {
+
+                model.addAttribute("error", "Please fill all required fields!");
+                model.addAttribute("roles", roleService.getAllRoles()); // Load lại roles
+
+                // Nếu là create thì quay lại create, nếu là edit thì quay lại edit
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
             }
 
+
             Integer idForCheck = (staff.getManagerId() == 0) ? null : staff.getManagerId();
-            // check username/email/phone (service sẽ xử lý loại trừ bản thân nếu idForCheck != null)
+            // check username/email/phone trùng
             if (managerService.isUsernameTaken(staff.getUsername(), idForCheck)) {
                 model.addAttribute("error", "Username already exists!");
                 model.addAttribute("roles", roleService.getAllRoles());
@@ -85,6 +119,60 @@ public class ManagerController {
                 model.addAttribute("error", "Phone number already exists!");
                 model.addAttribute("roles", roleService.getAllRoles());
                 return (idForCheck == null) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Validate blank
+            if (staff.getName().isBlank() || staff.getEmail().isBlank()
+                    || staff.getPhoneNumber().isBlank() || staff.getUsername().isBlank()
+                    || staff.getPassword().isBlank() || staff.getRole() == null) {
+
+                model.addAttribute("error", "Please fill all required fields!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Validate tên
+            if (!staff.getName().matches("^[\\p{L} ]+$")) {
+                model.addAttribute("error", "Name must contain only letters!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Validate email
+            if (!staff.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,6}$")) {
+                model.addAttribute("error", "Invalid email format!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Validate số điện thoại
+            if (!staff.getPhoneNumber().matches("^0\\d{9}$")) {
+                model.addAttribute("error", "Phone number must be 10 digits and start with 0!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Validate Date of Birth
+            if (staff.getDateOfBirth() == null) {
+                model.addAttribute("error", "Date of Birth is required!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+            LocalDate today = LocalDate.now();
+
+// Không được chọn ngày trong tương lai
+            if (staff.getDateOfBirth().isAfter(today)) {
+                model.addAttribute("error", "Date of Birth cannot be in the future!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            }
+
+// Tuổi phải >= 18
+            if (Period.between(staff.getDateOfBirth(), today).getYears() < 18) {
+                model.addAttribute("error", "Staff must be at least 18 years old!");
+                model.addAttribute("roles", roleService.getAllRoles());
+                return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
             }
 
 
@@ -109,35 +197,44 @@ public class ManagerController {
             return "redirect:/dashboard/staff";
         }
 
-    @GetMapping("/{id}")
-    public String getStaffDetails(@PathVariable("id") int id, Model model) {
-        Manager s = managerService.findById(id);
-        List<Role> roles = roleService.getAllRoles();
-        model.addAttribute("staff", s);
-        model.addAttribute("roles", roles);
-        return "dashboard/staff/detail";
-    }
-
-    // --- Soft delete ---
+    // Xóa mềm
     @PostMapping("/delete/{id}")
     public String softDelete(@PathVariable int id) {
         managerService.softDelete(id); // chỉ set isActive = false
         return "redirect:/dashboard/staff";
     }
 
-    // --- Danh sách nhân viên đã xóa ---
+    // DS
     @GetMapping("/deleted")
-    public String deletedList(Model model) {
-        model.addAttribute("staffs", managerService.getDeletedStaffs());
-        return "dashboard/staff/deleted-staff"; // tạo file deleted-staff.html
+    public String deletedList(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            Model model) {
+
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Manager> deletedPage = managerService.getDeletedStaffs(pageable);
+
+        model.addAttribute("staffs", deletedPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", deletedPage.getTotalPages());
+
+        return "dashboard/staff/deleted-staff";
     }
 
-    // --- Restore nhân viên ---
-    @PostMapping("/restore/{id}")
+
+    //Restore
+    @GetMapping("/restore/{id}")
     public String restore(@PathVariable int id) {
-        managerService.restore(id); // set isActive = true
+        managerService.restore(id);
         return "redirect:/dashboard/staff/deleted";
     }
+    //Xóa cứng
+    @GetMapping("/delete-forever/{id}")
+    public String hardDelete(@PathVariable int id) {
+        managerService.hardDelete(id);
+        return "redirect:/dashboard/staff/deleted";
+    }
+
 
 
 }

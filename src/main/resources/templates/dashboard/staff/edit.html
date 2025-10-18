@@ -101,21 +101,6 @@
 <div th:replace="fragment/frag :: footer"></div>
 
 <<script>
-    // Bootstrap Validation
-    (function () {
-        'use strict'
-        const forms = document.querySelectorAll('.needs-validation')
-
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
 
     // Preview Image
     function previewImage(event) {
