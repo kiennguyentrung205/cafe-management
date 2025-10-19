@@ -34,9 +34,8 @@ public class ManagerController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
 
-        int size = 10; // số phần tử mỗi trang
+        int size = 15; // số phần tử mỗi trang
         Pageable pageable = PageRequest.of(page - 1, size);
-
         Page<Manager> staffPage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -44,6 +43,11 @@ public class ManagerController {
             model.addAttribute("keyword", keyword);
         } else {
             staffPage = managerService.getActiveStaffs(pageable);
+        }
+        if (staffPage.getContent().isEmpty()) {
+            model.addAttribute("notFound", "No staff found" + (keyword != null ? " for \"" + keyword + "\"" : ""));
+            model.addAttribute("staffs", null);
+            return "dashboard/staff/list";
         }
 
         model.addAttribute("staffs", staffPage.getContent());
@@ -174,8 +178,6 @@ public class ManagerController {
                 model.addAttribute("roles", roleService.getAllRoles());
                 return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
             }
-
-
             if (!file.isEmpty()) {
                 try {
                     String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -210,13 +212,14 @@ public class ManagerController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
 
-        int size = 10;
+        int size = 15;
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Manager> deletedPage = managerService.getDeletedStaffs(pageable);
 
         model.addAttribute("staffs", deletedPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", deletedPage.getTotalPages());
+
 
         return "dashboard/staff/deleted-staff";
     }
