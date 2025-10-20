@@ -11,39 +11,11 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            min-height: 100vh;
-        }
-
-        /* Navigation */
-        .nav-tabs {
-            display: flex;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 0 30px;
-        }
-
-        .nav-tab {
-            padding: 15px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .nav-tab.active {
-            color: #333;
-            border-bottom-color: #5cb85c;
-            font-weight: 500;
-        }
+        /*body {*/
+        /*    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;*/
+        /*    background-color: #f5f5f5;*/
+        /*    color: #333;*/
+        /*}*/
 
         /* Header */
         .header {
@@ -59,24 +31,11 @@
             color: #333;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 20px;
-        }
-
-        .header-link {
-            color: #5cb85c;
-            text-decoration: none;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            padding: 0 30px 30px;
-            margin: 0 30px 30px;
-        }
+        /*!*!* Filter Section *!*!*/
+        /*.filter-section {*/
+        /*    padding: 0 30px 30px;*/
+        /*    margin: 0 30px 30px;*/
+        /*}*/
 
         .filter-grid {
             display: grid;
@@ -116,50 +75,50 @@
             padding-right: 30px;
         }
 
-        .btn {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 500;
-        }
+        /*.btn {*/
+        /*    padding: 10px 25px;*/
+        /*    border: none;*/
+        /*    border-radius: 4px;*/
+        /*    cursor: pointer;*/
+        /*    font-size: 14px;*/
+        /*    text-transform: uppercase;*/
+        /*    letter-spacing: 0.5px;*/
+        /*    font-weight: 500;*/
+        /*}*/
 
-        .btn-clear {
-            background-color: transparent;
-            color: #999;
-        }
+        /*.btn-clear {*/
+        /*    background-color: transparent;*/
+        /*    color: #999;*/
+        /*}*/
 
-        .btn-search {
-            background-color: #5cb85c;
-            color: white;
-        }
+        /*.btn-search {*/
+        /*    background-color: #5cb85c;*/
+        /*    color: white;*/
+        /*}*/
 
         /* Table */
-        .table-container {
-            padding: 0 30px 30px;
-        }
+        /*.table-container {*/
+        /*    padding: 0 30px 30px;*/
+        /*}*/
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        /*table {*/
+        /*    width: 100%;*/
+        /*    border-collapse: collapse;*/
+        /*}*/
 
-        thead {
-            border-bottom: 2px solid #e0e0e0;
-        }
+        /*thead {*/
+        /*    border-bottom: 2px solid #e0e0e0;*/
+        /*}*/
 
-        th {
-            text-align: left;
-            padding: 15px 10px;
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
+        /*th {*/
+        /*    text-align: left;*/
+        /*    padding: 15px 10px;*/
+        /*    font-size: 11px;*/
+        /*    color: #666;*/
+        /*    text-transform: uppercase;*/
+        /*    letter-spacing: 0.5px;*/
+        /*    font-weight: 600;*/
+        /*}*/
 
         td {
             padding: 10px 10px;
@@ -178,64 +137,6 @@
 
         .date-cell {
             color: #666;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-submitted {
-            background-color: #d4e7f7;
-            color: #4a90c7;
-        }
-
-        .status-invoiced {
-            background-color: #d4e7f7;
-            color: #4a90c7;
-        }
-
-        .status-time {
-            display: block;
-            font-size: 11px;
-            margin-top: 5px;
-            color: #666;
-            font-weight: normal;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        .btn-view {
-            background-color: transparent;
-            color: #666;
-            padding: 8px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .btn-reorder {
-            background-color: #5cb85c;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: 500;
-            border-radius: 4px;
         }
 
         @media (max-width: 768px) {
@@ -259,73 +160,88 @@
 </head>
 <body>
 <header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: header"></header>
-<main>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>Table booking history</h1>
-        </div>
+<main class="container my-5">
+    <!-- Header -->
+    <div class="header">
+        <h1>Table booking history</h1>
+    </div>
 
+    <form method="get" th:action="@{/table/booking/my}">
         <!-- Filter Section -->
-        <div class="filter-section">
+        <div class="container filter-section">
             <div class="filter-grid">
-                <div class="filter-group">
-                    <label class="filter-label">From Date</label>
-                    <select class="filter-select">
-                        <option>Select Date</option>
-                    </select>
+                <div class="filter-group" >
+                    <label class="filter-label" for="endDate">From Date</label>
+                    <input class="filter-select" id="endDate" type="date" name="startDate">
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">To Date</label>
-                    <select class="filter-select">
-                        <option>Select Date</option>
-                    </select>
+                    <label class="filter-label" for="beginDate">To Date</label>
+                    <input class="filter-select" id="beginDate" type="date" name="endDate">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Status</label>
-                    <select class="filter-select">
-                        <option>Please select...</option>
+                    <select class="filter-select" name="status">
+                        <option value="">Please select status...</option>
+                        <option th:each="x : ${bookingStatus}" th:value="${x}" th:text="${x.toUpperCase()}"></option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label">Reference</label>
-                    <input class="filter-input" placeholder="#" type="text">
-                </div>
-                <button class="btn btn-clear">CLEAR</button>
-                <button class="btn btn-search">SEARCH</button>
+                <button class="btn" type="reset">CLEAR</button>
+                <button class="btn btn-search" type="submit">SEARCH</button>
             </div>
         </div>
+    </form>
 
-        <!-- Table -->
-        <div class="table-container">
-            <table>
-                <thead>
-                <tr>
-                    <th>Table ID</th>
-                    <th>Customer Name</th>
-                    <th>Phone Number</th>
-                    <th>Booking Status</th>
-                    <th>Date and Time</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="x : ${tableBooking}">
-                    <td class="id-cell" th:text="${x.table.tableId}">${x.table.tableId}</td>
-                    <td class="id-cell" th:text="${x.customer.name}">${x.customer.name}</td>
-                    <td class="id-cell" th:text="${x.customer.phoneNumber}">${x.customer.phoneNumber}</td>
-                    <td class="date-cell" th:text="${x.status}">${x.status}</td>
-                    <td class="date-cell" th:text="${x.bookingTime}">${x.bookingTime}</td>
-                    <td>
-                        <button th:if="${x.status == 'booked'}" type="button" class="btn btn-warning"
-                                th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
-                                 [[${x.bookingTime}]])">Cancel</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Table -->
+    <table th:if="${!tableBooking.isEmpty()}" class="table table-hover">
+        <thead>
+        <tr>
+            <th>Table ID</th>
+            <th>Customer Name</th>
+            <th>Phone Number</th>
+            <th>Booking Status</th>
+            <th>Date and Time</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="x : ${tableBooking}">
+            <td class="id-cell" th:text="${x.table.tableId}">${x.table.tableId}</td>
+            <td class="id-cell" th:text="${x.customer.name}">${x.customer.name}</td>
+            <td class="id-cell" th:text="${x.customer.phoneNumber}">${x.customer.phoneNumber}</td>
+            <td class="date-cell" th:text="${x.status}">${x.status}</td>
+            <td class="date-cell" th:text="${x.bookingTime}">${x.bookingTime}</td>
+            <td>
+                <button class="btn btn-warning" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
+                                 [[${x.bookingTime}]])"
+                        type="button">Cancel
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table th:if="${tableBooking.isEmpty()}">
+        <tr>
+            <td>No Content Found!</td>
+        </tr>
+    </table>
+
+    <nav>
+        <ul class="list-unstyled pagination justify-content-center" th:if="${totalPages > 1}">
+            <li class="page-item" th:classappend="${tableBooking.first} ? 'disabled' : ''">
+                <a class="page-link" th:href="@{/table/booking/my(page=${currentPage - 1})}">Previous</a>
+            </li>
+
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(1,totalPages)}">
+                <a class="page-link" th:href="@{/table/booking/my(page=${i})}" th:text="${i}" th:classappend="${i == tableBooking.number + 1} ? 'active' : ''"></a>
+            </li>
+            <li class="page-item" th:classappend="${tableBooking.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/table/booking/my(page=${currentPage + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+
 
     <!-- Cancel booking   -->
     <div aria-hidden="true" aria-labelledby="cancelModalLabel" class="modal fade" id="cancelModal" tabindex="-1">

@@ -25,4 +25,8 @@ public class TableService {
         table.setStatus(status);
         return tableRepository.save(table);
     }
+
+    public List<Integer> getCapacityList(){
+        return tableRepository.capacityList();
+    }
 }
