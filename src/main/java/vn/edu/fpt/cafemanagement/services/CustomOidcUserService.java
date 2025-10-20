@@ -1,15 +1,18 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -24,7 +27,6 @@ public class CustomOidcUserService extends OidcUserService {
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        System.out.println("CustomOidcUserService.loadUser() called!");
 
         OidcUser oidcUser = super.loadUser(userRequest);
 
@@ -55,11 +57,12 @@ public class CustomOidcUserService extends OidcUserService {
             String randomPassword = UUID.randomUUID().toString();
             customer.setPassword(passwordEncoder.encode(randomPassword));
         }
-        System.out.println("before add");
 
         customerRepository.save(customer);
-        System.out.println("add Customer ok");
 
-        return oidcUser;
+        Set<SimpleGrantedAuthority> mappedAuthorities = Set.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+
+
+        return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 }

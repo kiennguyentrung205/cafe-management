@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Trang Chủ | Cafe Management</title>
@@ -52,6 +52,12 @@
                     <strong>Log out</strong>
                 </a>
 
+                <a class="list-group-item list-group-item-action p-3" sec:authorize="hasRole('ROLE_CASHIER')"
+                   th:href="@{/table/booking/management}">
+                    <i class="fas fa-cash-register fa-fw me-3 text-primary list-icon"></i>
+                    <strong>Booking History</strong>
+                </a>
+
             </div>
         </div>
     </div>
@@ -79,7 +85,7 @@
 </div>
 
 
-<script  th:inline="javascript">
+<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
         const hasSuccess = /*[[${completeInfo != null}]]*/ false;
         if (hasSuccess) {

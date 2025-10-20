@@ -28,7 +28,7 @@ public class RegisterController {
     public String register(Model model, @ModelAttribute Customer customer){
         String hashPassword = BCrypt.hashpw(customer.getPassword(), BCrypt.gensalt());
         customer.setPassword(hashPassword);
-        customer.setImg("/assets/images/avatar.jpeg");
+        customer.setImg("avatar.jpeg");
 
         try {
             customerService.createCustomer(customer);

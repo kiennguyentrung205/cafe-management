@@ -16,4 +16,7 @@ public interface TableRepository extends JpaRepository<Table, Integer> {
 
     @Query(value = "SELECT table_id, status, capacity FROM [TABLE] WHERE table_id = :id", nativeQuery = true)
     Optional<Table> findById(@Param("id")Integer integer);
+
+    @Query(value = "select distinct capacity from [table]", nativeQuery = true)
+    List<Integer> capacityList();
 }
