@@ -2,7 +2,6 @@ package vn.edu.fpt.cafemanagement.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
@@ -38,11 +37,11 @@ public class LoggedUser {
 
         Object principal = authentication.getPrincipal();
 
-        if(principal instanceof CustomUserDetails userDetails) {
+        if (principal instanceof CustomUserDetails userDetails) {
             return userDetails.getCustomer();
         }
 
-        if(principal instanceof OidcUser oidcUser) {
+        if (principal instanceof OidcUser oidcUser) {
             return customerService.findByEmail(oidcUser.getEmail());
         }
 
