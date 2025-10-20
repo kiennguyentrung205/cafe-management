@@ -1,5 +1,9 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +19,8 @@ import vn.edu.fpt.cafemanagement.services.TableService;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -26,20 +31,56 @@ public class TableBookingController {
     private final TableBookingService tableBookingService;
     private final CustomerService customerService;
 
-    public TableBookingController(TableService tableService,  LoggedUser loggedUser,  TableBookingService tableBookingService, CustomerService customerService) {
+    public TableBookingController(TableService tableService, LoggedUser loggedUser, TableBookingService tableBookingService, CustomerService customerService) {
         this.tableService = tableService;
         this.loggedUser = loggedUser;
         this.tableBookingService = tableBookingService;
         this.customerService = customerService;
     }
 
-    @GetMapping(value="/my")
-    public String showHistory(Model model) {
+    @GetMapping(value = "/my")
+    public String showHistory(Model model,
+                              @RequestParam(value = "page", defaultValue = "1") int page,
+                              @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                              @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                              @RequestParam(value = "status", required = false) String status) {
         Customer loggedCustomer = loggedUser.getLoggedCustomer();
-        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
+
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        if (startDate != null && endDate != null) {
+            startDateTime = startDate.atStartOfDay();
+            endDateTime = endDate.atTime(23, 59, 59);
+        }
 
 
+        // Pagination
+        int size = 10;
+        if (page < 1) {
+            page = 1;
+        }
+
+        int pageIndex = Math.max(page - 1, 0);
+        Pageable pageable = PageRequest.of(pageIndex, size);
+
+        Page<TableBooking> tableBooking = tableBookingService.findByBookingTimeBetween(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
+
+        if (page > tableBooking.getTotalPages()) {
+            page = tableBooking.getTotalPages();
+            pageIndex = Math.max(page - 1, 0);
+            pageable = PageRequest.of(pageIndex, size);
+            tableBooking = tableBookingService.findByBookingTimeBetween(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
+        }
+//        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
+
+        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in"));
+        int totalPages = Math.max(tableBooking.getTotalPages(), 1);
+
+
+        model.addAttribute("bookingStatus", bookingStatus);
         model.addAttribute("tableBooking", tableBooking);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
         return "table-booking/view-table-booking";
     }
 
@@ -65,7 +106,7 @@ public class TableBookingController {
         return "table-booking/create-booking";
     }
 
-    @PostMapping(path="/new")
+    @PostMapping(path = "/new")
     public String addBooking(Model model, @ModelAttribute TableBooking tableBooking, RedirectAttributes redirectAttributes) {
         Customer loggedCustomer = loggedUser.getLoggedCustomer();
         tableBooking.setCustomer(loggedCustomer);
@@ -93,7 +134,7 @@ public class TableBookingController {
         tableBooking.setStatus("booked");
 
         tableBookingService.save(tableBooking);
-        tableService.updateStatus(tableBooking.getTable().getTableId(), "unavailable");
+        tableService.updateStatus(tableBooking.getTable().getTableId(), "booked");
 
         redirectAttributes.addFlashAttribute("successMessage", "Table booking has been saved successfully!");
 
@@ -101,12 +142,12 @@ public class TableBookingController {
     }
 
 
-    @PostMapping(value="/cancel")
+    @PostMapping(value = "/cancel")
     public String cancelBooking(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
         Customer loggedCustomer = loggedUser.getLoggedCustomer();
 
         TableBooking tableBooking = tableBookingService.findById(bookingId);
-        if(tableBooking.getCustomer().getCusId() != loggedCustomer.getCusId()){
+        if (tableBooking.getCustomer().getCusId() != loggedCustomer.getCusId()) {
             return "redirect:/table/booking/my?cancel=failed";
         }
 
@@ -116,5 +157,63 @@ public class TableBookingController {
         tableBookingService.save(tableBooking);
 
         return "redirect:/table/booking/my?cancel=success";
+    }
+
+    @GetMapping(value = "/management")
+    public String showBookingManagement(Model model,
+                                        @RequestParam(value = "page", defaultValue = "1") int page,
+                                        @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                        @RequestParam(value = "status", required = false) String status) {
+
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        if (startDate != null && endDate != null) {
+            startDateTime = startDate.atStartOfDay();
+            endDateTime = endDate.atTime(23, 59, 59);
+        }
+
+
+        // Pagination
+        int size = 10;
+        if (page < 1) {
+            page = 1;
+        }
+
+        int pageIndex = Math.max(page - 1, 0);
+        Pageable pageable = PageRequest.of(pageIndex, size);
+
+        Page<TableBooking> tableBooking = tableBookingService.findByStatusAndDateBetween( status, startDateTime, endDateTime, pageable);
+
+        if (page > tableBooking.getTotalPages()) {
+            page = tableBooking.getTotalPages();
+            pageIndex = Math.max(page - 1, 0);
+            pageable = PageRequest.of(pageIndex, size);
+            tableBooking = tableBookingService.findByStatusAndDateBetween(status, startDateTime, endDateTime, pageable);
+        }
+//        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
+
+        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in"));
+
+        int totalPages = Math.max(tableBooking.getTotalPages(), 1);
+        System.out.println(totalPages);
+
+
+        model.addAttribute("bookingStatus", bookingStatus);
+        model.addAttribute("tableBooking", tableBooking);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        return "staff/table-booking/staff-table-booking-history";
+    }
+
+    @PostMapping(value="/management/checkin")
+    public String updateStatus(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
+        TableBooking booking = tableBookingService.findById(bookingId);
+        if(booking.getStatus().equals("canceled")) {
+            return "redirect:/table/booking/management?update=failed";
+        }
+        booking.setStatus("checked-in");
+        tableBookingService.save(booking);
+        return "redirect:/table/booking/management?update=success";
     }
 }
