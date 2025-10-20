@@ -6,6 +6,7 @@
 <h1>Edit Voucher</h1>
 <form method="post" th:action="@{/admin/vouchers/save}" th:object="${voucher}">
     <input type="hidden" th:field="*{voucherId}">
+    <input type="hidden" name="sig" th:value="${sig}">
     <label>Voucher Code</label>
     <input type="text" th:field="*{code}" placeholder="Enter voucher code" required>
     <br>

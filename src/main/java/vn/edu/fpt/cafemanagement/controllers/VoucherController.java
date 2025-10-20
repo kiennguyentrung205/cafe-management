@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.cafemanagement.entities.Voucher;
 import vn.edu.fpt.cafemanagement.services.VoucherService;
+import vn.edu.fpt.cafemanagement.util.SignUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class VoucherController {
     @GetMapping(value = {"/admin/vouchers", "/admin/vouchers/list"})
     public String getVouchers(Model model) {
         List<Voucher> activeVouchers = voucherService.findAll().stream().filter(Voucher::isActive).collect(Collectors.toList());
+        activeVouchers.forEach(v -> v.setSignature(SignUtil.sign(String.valueOf(v.getVoucherId())))); //lambda expression
         model.addAttribute("vouchers", activeVouchers);
         return "/admin/vouchers/list";
     }
@@ -34,13 +36,16 @@ public class VoucherController {
     }
 
     @RequestMapping(value = "/admin/vouchers/edit/{id}")
-    public String editVoucher(Model model, @PathVariable("id") int id) {
+    public String editVoucher(Model model, @PathVariable("id") int id, Voucher voucher) {
+        voucher.setVoucherId(id);
+        String signature = SignUtil.sign(String.valueOf(voucher.getVoucherId()));
         model.addAttribute("voucher", voucherService.findById(id));
+        model.addAttribute("sig", signature);
         return "admin/vouchers/edit";
     }
 
     @RequestMapping(value = "/admin/vouchers/save", method = RequestMethod.POST)
-    public String save(@Validated @ModelAttribute(name = "voucher") Voucher voucher, BindingResult bindingResult, Model model) {
+    public String save(@Validated @ModelAttribute(name = "voucher") Voucher voucher, @RequestParam(name = "sig") String signature, BindingResult bindingResult, Model model) {
 //        exception data
         if (bindingResult.hasErrors()) {
             model.addAttribute("message", "Error: Invalid! Please try again.");
@@ -100,17 +105,18 @@ public class VoucherController {
             }
         }
 //        check duplicate
-        for (Voucher list : voucherService.findAll()) {
-            if (voucher.getVoucherName().equals(list.getVoucherName()) || voucher.getCode().equals(list.getCode())) {
-                model.addAttribute("message", "Error: Voucher Name or Code already exists!");
-                if (voucher.getVoucherId() == 0) {
-                    //  create
+        if (voucher.getVoucherId() == 0) {
+            for (Voucher list : voucherService.findAll()) {
+                if (voucher.getVoucherName().equals(list.getVoucherName()) || voucher.getCode().equals(list.getCode())) {
+                    model.addAttribute("message", "Error: Voucher Name or Code already exists!");
                     return "admin/vouchers/create";
-                } else {
-                    //  edit
-                    return "admin/vouchers/edit";
                 }
             }
+        }
+        boolean valid = SignUtil.verify(String.valueOf(voucher.getVoucherId()), signature);
+        if (!valid) {
+            model.addAttribute("message", "⚠️DO NOT F12!!!!!!, YEAH I'M TELLING U");
+            return "/admin/vouchers/edit";
         }
         voucher.setActive(true);
         voucherService.save(voucher);
@@ -118,7 +124,12 @@ public class VoucherController {
     }
 
     @RequestMapping(value = "/admin/vouchers/remove", method = RequestMethod.POST)
-    public String remove(@ModelAttribute(name = "voucher") Voucher voucher, @RequestParam("voucherId") int id) {
+    public String remove(@ModelAttribute(name = "voucher") Voucher voucher, @RequestParam("voucherId") int id, @RequestParam("sig") String sig, Model model) {
+        if (!SignUtil.verify(String.valueOf(id), sig)) {
+            model.addAttribute("error", "⚠️DO NOT F12!!!!!!, YEAH I'M TELLING U");
+            return "/admin/vouchers/list";
+        }
+
         voucher = voucherService.findById(id);
         if (voucher != null) {
             voucher.setActive(false);
