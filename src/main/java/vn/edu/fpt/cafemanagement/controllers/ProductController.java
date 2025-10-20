@@ -1,23 +1,30 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.cafemanagement.entities.Category;
-import vn.edu.fpt.cafemanagement.entities.Product;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.cafemanagement.entities.*;
+import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.CategoryService;
+import vn.edu.fpt.cafemanagement.services.FeedbackService;
+import vn.edu.fpt.cafemanagement.services.OrderItemService;
 import vn.edu.fpt.cafemanagement.services.ProductService;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -28,13 +35,20 @@ public class ProductController {
 
     private ProductService productService;
     private CategoryService categoryService;
+    private FeedbackService feedbackService;
+    private OrderItemService orderItemService;
 
-    public ProductController(CategoryService categoryService, ProductService productService) {
-        this.categoryService = categoryService;
+    public ProductController(ProductService productService, CategoryService categoryService, FeedbackService feedbackService, OrderItemService orderItemService) {
         this.productService = productService;
+        this.categoryService = categoryService;
+        this.feedbackService = feedbackService;
+        this.orderItemService = orderItemService;
     }
 
     private final String UPLOAD_DIR = "D:/SWP/Project/uploads/";
+
+    @Autowired
+    private LoggedUser loggedUser;
 
     private static final String VIETNAMESE_NAME_PATTERN = "^[\\p{L}\\s]+$";
 
@@ -552,10 +566,83 @@ public class ProductController {
             proId = -1; // Hoặc một giá trị chắc chắn không tồn tại
         }
 
+        int cusId = 0;
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
+            Customer customer = loggedUser.getLoggedCustomer();
+            cusId = customer.getCusId();
+            model.addAttribute("customerId", cusId);
+        }
+
+        List<Integer> bought = orderItemService.getProductIdsByCustomerId(cusId);
+
+        boolean isBought = bought != null && bought.contains(proId);
+
+        model.addAttribute("isBought", isBought);
+
+        List<Feedback> feedbackList = feedbackService.getAllFeedback(proId);
         // Nếu proId là -1, productService.getProductById(-1) sẽ trả về null
         model.addAttribute("product", productService.getProductById(proId));
 
+        model.addAttribute("feedbackList", feedbackList);
+
         // View sẽ xử lý product == null để hiển thị thông báo lỗi (như đã sửa ở câu trước)
         return "product/details";
+    }
+
+    @PostMapping("/{id}")
+    public String addFeedback(@PathVariable("id") int productId,
+                              @RequestParam("content") String content,
+                              RedirectAttributes redirectAttributes) {
+
+        Customer customer = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
+            customer = loggedUser.getLoggedCustomer();
+        }
+
+        if (content == null || content.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "The feedback content cannot be empty!");
+            return "redirect:/product/" + productId;
+        }
+
+        Product product = productService.getProductById(productId);
+        System.out.println(productId + " " + product.getProId());
+        // Tạo đối tượng Feedback mới
+        Feedback feedback = new Feedback();
+        feedback.setCustomer(customer);
+        feedback.setProduct(product);
+        feedback.setContent(content);
+        feedback.setCreatedAt(LocalDateTime.now());
+
+        feedbackService.saveFeedback(feedback);
+        return "redirect:/product/" + productId;
+    }
+
+    @PostMapping("/{productId}/feedback/{fid}/edit")
+    public String editFeedback(@PathVariable("productId") int productId,
+                               @PathVariable("fid") int feedbackId,
+                               @RequestParam("content") String newContent,
+                               RedirectAttributes redirectAttributes) {
+
+        if (newContent == null || newContent.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "The feedback content cannot be empty!");
+            return "redirect:/product/" + productId;
+        }
+        Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+        feedback.setContent(newContent);
+        feedback.setCreatedAt(LocalDateTime.now()); // Cập nhật lại thời gian
+        feedbackService.saveFeedback(feedback);
+
+        return "redirect:/product/" + productId;
+    }
+
+    @PostMapping("/{productId}/feedback/{fid}/delete")
+    public String deleteFeedback(@PathVariable("productId") int productId,
+                                 @PathVariable("fid") int feedbackId) {
+
+        feedbackService.deleteFeedback(feedbackId);
+        return "redirect:/product/" + productId;
     }
 }
