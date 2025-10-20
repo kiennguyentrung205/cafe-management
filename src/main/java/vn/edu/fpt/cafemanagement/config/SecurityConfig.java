@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import vn.edu.fpt.cafemanagement.services.CustomOidcUserService;
 
 @Configuration
@@ -29,8 +31,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
                         .permitAll()
+                        .requestMatchers( "/table/booking/management").hasRole("CASHIER")
+                        .requestMatchers( "/admin/vouchers/list").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
+                )
+
+                .exceptionHandling(exc -> exc
+                        .accessDeniedHandler(accessDeniedHandler())
                 )
 
                 .formLogin(form -> form.loginPage("/login")
@@ -55,6 +63,27 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            // Nếu là AJAX hoặc REST API (trả JSON)
+            String accept = request.getHeader("Accept");
+            String xrw = request.getHeader("X-Requested-With");
+
+            if ("XMLHttpRequest".equalsIgnoreCase(xrw) ||
+                    (accept != null && accept.contains("application/json"))) {
+
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
+            } else {
+                // Nếu là web (browser), redirect sang trang lỗi 403
+                response.sendRedirect(request.getContextPath() + "/403");
+            }
+        };
+    }
+
 
 
 }

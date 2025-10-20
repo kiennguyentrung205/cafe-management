@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Table Management</title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: header"></header>
+<main>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Table Management</h1>
+        </div>
+
+        <form class="d-flex mb-3 gap-2" method="get" th:action="@{/table/management}">
+            <!-- Filter by Status -->
+            <select class="form-select" name="status" style="width: 180px;">
+                <option value="">--All Status--</option>
+                <option th:selected="${status == 'available'}" value="available">Available</option>
+                <option th:selected="${status == 'booked'}" value="booked">Booked</option>
+                <option th:selected="${status == 'occupied'}" value="occupied">Occupied</option>
+            </select>
+
+            <!-- Filter by Capacity -->
+            <select class="form-select" name="capacity" style="width: 180px;">
+                <option value="">--All Capacity--</option>
+                <option th:each="x : ${capacityList}" th:selected="${x == capacity}" th:text="${x}"
+                        th:value="${x}" value="2">${x}
+                </option>
+            </select>
+
+            <button class="btn btn-primary" type="submit">Filter</button>
+        </form>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 20%">Table ID</th>
+                    <th style="width: 30%">Capacity</th>
+                    <th style="width: 20%">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="x : ${tables}">
+                    <td class="id-cell" th:text="${x.tableId}">..</td>
+                    <td class="id-cell" th:text="${x.capacity}+ ' people'">${x.customer.name}</td>
+                    <td class="date-cell">
+                        <select class="form-select table-status"
+                                id="select" name="status" th:data-id="${x.tableId}" th:value="${x.status}">
+                            <option style="color: green;" th:selected="${x.status == 'available'}" value="available">
+                                Available
+                            </option>
+                            <option style="color: orange;" th:if="${x.status != 'occupied'}"
+                                    th:selected="${x.status == 'booked'}" value="booked">Booked
+                            </option>
+                            <option style="color: red;" th:if="${x.status != 'booked'}"
+                                    th:selected="${x.status == 'occupied'}" value="occupied">Occupied
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.table-status').forEach(select => {
+        // Gán màu khi load trang
+        setSelectColor(select);
+
+        // Gán màu khi user đổi
+        select.addEventListener('change', function () {
+            setSelectColor(this);
+        });
+    });
+
+    function setSelectColor(select) {
+        if (select.value === 'available') select.style.color = 'green';
+        else if (select.value === 'booked') select.style.color = 'orange';
+        else if (select.value === 'occupied') select.style.color = 'red';
+    }
+</script>
+<script>
+    document.querySelectorAll('.table-status').forEach(select => {
+        select.addEventListener('change', function () {
+            const tableId = this.dataset.id;
+            const newStatus = this.value;
+
+            fetch('/table/management/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({tableId: tableId, status: newStatus})
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not Ok');
+                    return res.text();
+                })
+                .then(msg => {
+                    alert(msg);
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert('err: ' + err);
+                });
+        });
+    });
+</script>
+<script>
+    // Add click handlers for buttons
+    document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function () {
+            alert('View order details');
+        });
+    });
+
+    document.querySelector('.btn-clear').addEventListener('click', function () {
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.selectedIndex = 0;
+        });
+        document.querySelector('.filter-input').value = '';
+    });
+
+    document.querySelector('.btn-search').addEventListener('click', function () {
+        alert('Search functionality would filter the orders');
+    });
+</script>
+</body>
+</html>

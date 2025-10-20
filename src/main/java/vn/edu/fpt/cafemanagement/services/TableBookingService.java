@@ -1,11 +1,13 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.TableBooking;
 import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
-import vn.edu.fpt.cafemanagement.repositories.TableRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,10 +24,49 @@ public class TableBookingService {
     }
 
     public List<TableBooking> findByCustomerId(int customerId) {
-        return tableBookingRepository.findByCustomer_CusId(customerId);
+        return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(customerId);
     }
 
     public TableBooking findById(int id) {
         return tableBookingRepository.findById(id).orElse(null);
+    }
+
+    public Page<TableBooking> findByCustomer_CusId(Integer customerId, Pageable pageable) {
+        return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(customerId, pageable);
+    }
+
+    public Page<TableBooking> findAll(Pageable pageable) {
+        return tableBookingRepository.findAll(pageable);
+    }
+
+    public Page<TableBooking> findByBookingTimeBetween(Integer cusId, String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        boolean hasDate = start != null && end != null;
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (!hasDate && !hasStatus) {
+            return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(cusId, pageable);
+        } else if (hasDate && !hasStatus) {
+            return tableBookingRepository.findByCustomer_CusIdAndBookingTimeBetweenOrderByBookingTimeDesc(cusId, start, end, pageable);
+        } else if (hasStatus && !hasDate) {
+            return tableBookingRepository.findByCustomer_CusIdAndStatusOrderByBookingTimeDesc(cusId, status, pageable);
+        } else{
+            return tableBookingRepository.findByCustomer_CusIdAndStatusAndBookingTimeBetweenOrderByBookingTimeDesc(cusId, status, start, end, pageable);
+        }
+    }
+
+    public Page<TableBooking> findByStatusAndDateBetween(String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        boolean hasDate = start != null && end != null;
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (!hasDate && !hasStatus) {
+//            return tableBookingRepository.findAll(pageable);
+            return tableBookingRepository.findAllByOrderByBookingTimeDesc(pageable);
+        } else if (hasDate && !hasStatus) {
+            return tableBookingRepository.findByBookingTimeBetweenOrderByBookingTimeDesc(start, end, pageable);
+        } else if (hasStatus && !hasDate) {
+            return tableBookingRepository.findByStatusOrderByBookingTimeDesc( status, pageable);
+        } else{
+            return tableBookingRepository.findByStatusAndBookingTimeBetweenOrderByBookingTimeDesc(status, start, end, pageable);
+        }
     }
 }
