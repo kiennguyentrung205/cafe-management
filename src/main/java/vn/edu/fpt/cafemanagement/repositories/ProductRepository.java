@@ -66,9 +66,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     )
     Page<Product> findSearchProductsByAllCriteria(@Param("searchText") String searchText, Pageable pageable);
 
-    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrue(Pageable pageable);
-
-    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
+//    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrue(Pageable pageable);
+//
+//    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
 
     Page<Product> findByProNameContainingIgnoreCaseAndIsActiveTrue(String name, Pageable pageable);
 
