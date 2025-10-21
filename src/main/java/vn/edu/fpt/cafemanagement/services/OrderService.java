@@ -41,12 +41,30 @@ public class OrderService {
     }
 
     public Page<Order> getPagedOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "createdAt"));
+        Pageable pageable = PageRequest.of(page - 1, size);
         return orderRepository.findAll(pageable);
     }
 
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         return orderItemRepository.findByOrder_OrderId(orderId);
+    }
+
+    // Lấy đơn đang hoạt động
+    public Page<Order> getActiveOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return orderRepository.findActiveOrders(pageable);
+    }
+
+    // Lấy đơn lịch sử (Served, Canceled)
+    public Page<Order> getHistoryOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return orderRepository.findHistoryOrders(pageable);
+    }
+
+    public Page<Order> getUnservedOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        List<String> excludedStatuses = List.of("Served", "Canceled");
+        return orderRepository.findByStatusNotIn(excludedStatuses, pageable);
     }
 
 }

@@ -10,10 +10,20 @@ import vn.edu.fpt.cafemanagement.entities.Order;
 import java.util.List;
 
 @Repository
-public interface  OrderRepository extends JpaRepository<Order, Integer> {
+public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findByCustomerCusId(int cusId);
 
-    @Query("SELECT o FROM Order o WHERE o.isActive = false ORDER BY o.createdAt DESC")
+    // Chỉ lấy đơn đang hoạt động (Pending, Paid)
+    @Query("SELECT o FROM Order o WHERE LOWER(o.status) IN ('Pending', 'Paid')")
     Page<Order> findActiveOrders(Pageable pageable);
+
+    // Lấy đơn lịch sử (Served, Canceled)
+    @Query("SELECT o FROM Order o WHERE LOWER(o.status) IN ('Served', 'Canceled')")
+    Page<Order> findHistoryOrders(Pageable pageable);
+
+    Page<Order> findByStatusIn(List<String> statuses, Pageable pageable);
+
+    Page<Order> findByStatusNotIn(List<String> statuses, Pageable pageable);
+
 }

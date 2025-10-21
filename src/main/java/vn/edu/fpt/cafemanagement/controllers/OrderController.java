@@ -201,8 +201,8 @@ public class OrderController {
     // ----------------------- [GET: Danh sách đơn hàng] -----------------------
     @GetMapping("/list")
     public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 9;
-        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+        int pageSize = 7;
+        Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -210,6 +210,18 @@ public class OrderController {
         model.addAttribute("customerList", customerService.getAllCustomers());
         return "order/list";
     }
+
+    @GetMapping("/history-list")
+    public String viewOrderHistory(@RequestParam(defaultValue = "1") int page, Model model) {
+        int pageSize = 7;
+        Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        return "order/history-list";
+    }
+
 
     // ----------------------- [Helper: Reload trang create khi lỗi] -----------------------
     private String reloadCreatePage(Model model) {
@@ -229,11 +241,10 @@ public class OrderController {
             HttpSession session) {
 
         int pageSize = 7;
-        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+        Page<Order> orderPage = orderService.getUnservedOrders(page, pageSize);
 
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
         model.addAttribute("currentUser", currentUser);
-
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -241,6 +252,7 @@ public class OrderController {
 
         return "order/edit";
     }
+
 
     @PostMapping("/updateStatus")
     @Transactional
@@ -264,10 +276,10 @@ public class OrderController {
             order.setUpdatedAt(LocalDateTime.now());
         }
 
-        if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
-            order.setActive(true);
-        } else {
-            order.setActive(false);
+        //Gán Manager (Barista) đang đăng nhập
+        Manager currentUser = (Manager) session.getAttribute("loggedInUser");
+        if (currentUser != null) {
+            order.setManager(currentUser);
         }
 
         orderService.saveOrder(order);
@@ -325,7 +337,7 @@ public class OrderController {
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("productList", productService.getActiveProducts());
         model.addAttribute("voucherList", voucherService.getActiveVouchers());
-        model.addAttribute("customer", customer); // ✅ GIỮ LẠI CUSTOMER
+        model.addAttribute("customer", customer); //GIỮ LẠI CUSTOMER
         model.addAttribute("currentPage", 1);
         model.addAttribute("totalPages", 1);
         return "order/create";
