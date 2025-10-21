@@ -3,6 +3,7 @@ package vn.edu.fpt.cafemanagement.controllers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -57,13 +58,13 @@ public class ManagerController {
         return "dashboard/staff/list";
     }
 
-
     @GetMapping("/new")
     public String create(Model model) {
         model.addAttribute("staff", new Manager());
         model.addAttribute("roles", roleService.getAllRoles());
         return "dashboard/staff/create";
     }
+
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") int id, Model model) {
@@ -90,6 +91,11 @@ public class ManagerController {
             Role role = roleService.getRoleById(roleId)
                     .orElseThrow(() -> new IllegalArgumentException("Null"));
             staff.setRole(role);
+        // Hash mật khẩu trước khi lưu
+        if (staff.getPassword() != null && !staff.getPassword().isEmpty()) {
+            String hashedPassword = BCrypt.hashpw(staff.getPassword(), BCrypt.gensalt());
+            staff.setPassword(hashedPassword);
+        }
 
 
 // Validate blank
