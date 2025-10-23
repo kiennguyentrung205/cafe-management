@@ -82,7 +82,7 @@
 
         /* Modal chỉnh sửa */
         .modal-dialog {
-            max-width: 110vw;
+            max-width: 130vw;
             margin: auto;
         }
 
@@ -98,9 +98,9 @@
 
         .customer-section {
             display: flex;
-            justify-content: center; /* căn giữa */
+            justify-content: center;
             align-items: flex-start;
-            gap: 40px; /* khoảng cách giữa bảng và ảnh */
+            gap: 40px;
         }
 
         .customer-table {
@@ -163,10 +163,12 @@
             <th>Status</th>
             <th>Total Price</th>
             <th>Created At</th>
+            <th>Completed At</th>
             <th>Points Used</th>
             <th>Voucher</th>
         </tr>
         </thead>
+
         <tbody>
         <tr th:each="order : ${orders}"
             th:data-cust-id="${order.customer.cusId}"
@@ -181,7 +183,8 @@
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${#strings.concat(#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT'), ' VND')}"></td>
-            <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${#temporals.format(order.createdAt, 'HH:mm dd/MM/yyyy')}"></td>
+            <td>-</td>
             <td th:text="${order.pointsUsed}"></td>
             <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
         </tr>
@@ -231,11 +234,12 @@
                     <tr>
                         <th>#</th>
                         <th>Customer</th>
-                        <th>Manager</th>
+                        <th>Staff</th>
                         <th>Status</th>
                         <th>Product</th>
                         <th>Total Price</th>
                         <th>Created At</th>
+                        <th>Completed At</th>
                         <th>Points Used</th>
                         <th>Voucher</th>
                     </tr>
@@ -285,6 +289,9 @@
                     const o = data.order;
                     const c = data.customer;
 
+                    const completedAt = o.update ? formatDateTime(o.update) : "-";
+
+
                     // tạo danh sách sản phẩm (mỗi sản phẩm 1 dòng xuống)
                     const productNames = o.products.length > 0
                         ? o.products.map(p =>
@@ -301,7 +308,8 @@
                     <td>${o.status}</td>
                     <td>${productNames}</td>
                     <td>${o.totalPrice.toLocaleString()} VND</td>
-                    <td>${new Date(o.date).toLocaleString('vi-VN')}</td>
+                    <td>${formatDateTime(o.date)}</td>
+                    <td>${completedAt}</td>
                     <td>${o.pointsUsed}</td>
                     <td>${o.voucher}</td>
                 `;
@@ -322,6 +330,24 @@
                 });
         });
     });
+    function formatDateTime(dateTime) {
+        if (!dateTime || dateTime === "-" || dateTime === null) {
+            return "-";
+        }
+
+        const date = new Date(dateTime);
+        if (isNaN(date.getTime())) {
+            return "-";
+        }
+
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${hours}:${minutes} ${day}/${month}/${year}`;
+    }
 </script>
 
 

@@ -301,14 +301,19 @@ public class OrderController {
         Order order = optionalOrder.get();
         List<OrderItem> items = orderService.getOrderItemsByOrderId(orderId);
 
+        // Lấy customer ra và kiểm tra null
+        Customer customer = order.getCustomer();
+
         response.put("success", true);
         response.put("order", Map.of(
                 "id", order.getOrderId(),
-                "customer", order.getCustomer().getName(),
+                // Kiểm tra null
+                "customer", customer != null ? customer.getName() : "N/A",
                 "manager", order.getManager() != null ? order.getManager().getName() : "N/A",
                 "status", order.getStatus(),
                 "totalPrice", order.getTotalPrice(),
                 "date", order.getCreatedAt(),
+                "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-" ,
                 "pointsUsed", order.getPointsUsed(),
                 "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
                 "products", items.stream()
@@ -320,18 +325,32 @@ public class OrderController {
                         .toList()
         ));
 
-        // thêm customer info
-        response.put("customer", Map.of(
-                "id", order.getCustomer().getCusId(),
-                "name", order.getCustomer().getName(),
-                "phone", order.getCustomer().getPhoneNumber(),
-                "email", order.getCustomer().getEmail(),
-                "address", order.getCustomer().getAddress(),
-                "img", order.getCustomer().getImg()
-        ));
+        // Kiểm tra null cho toàn bộ
+        if (customer != null) {
+            response.put("customer", Map.of(
+                    "id", customer.getCusId(),
+                    "name", customer.getName(),
+                    "phone", customer.getPhoneNumber(),
+                    "email", customer.getEmail(),
+                    "address", customer.getAddress(),
+                    "img", customer.getImg()
+            ));
+        } else {
+            // Trả về một đối tượng customer rỗng nếu không có
+            response.put("customer", Map.of(
+                    "id", "N/A",
+                    "name", "N/A",
+                    "phone", "N/A",
+                    "email", "N/A",
+                    "address", "N/A",
+                    "img", "" // Hoặc "default-user.jpg"
+            ));
+        }
 
         return response;
     }
+
+
 
     private String reloadCreatePage(Model model, Customer customer) {
         model.addAttribute("categoryList", categoryService.getCategories());

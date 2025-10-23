@@ -86,7 +86,7 @@
         }
 
         .modal-dialog {
-            max-width: 110vw;
+            max-width: 130vw;
             margin: auto;
         }
 
@@ -162,7 +162,7 @@
             <th>Status</th>
             <th>Total Price</th>
             <th>Created At</th>
-            <th>Completed</th>
+            <th>Completed At</th>
             <th>Points Used</th>
             <th>Voucher</th>
         </tr>
@@ -184,8 +184,8 @@
                 th:classappend="${order.status == 'Served'} ? 'status-served' :
                 (${order.status == 'Canceled'} ? 'status-canceled' : '')"></td>
             <td th:text="${#strings.concat(#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT'), ' VND')}"></td>
-            <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-            <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${#temporals.format(order.createdAt, 'HH:mm dd/MM/yyyy')}"></td>
+            <td th:text="${#temporals.format(order.updatedAt, 'HH:mm dd/MM/yyyy')}"></td>
             <td th:text="${order.pointsUsed}"></td>
             <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
         </tr>
@@ -237,7 +237,7 @@
                         <th>Product</th>
                         <th>Total Price</th>
                         <th>Created At</th>
-                        <th>Completed</th>
+                        <th>Completed At</th>
                         <th>Points Used</th>
                         <th>Voucher</th>
                     </tr>
@@ -278,6 +278,7 @@
             fetch(`/order/detail/${orderId}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log("📦 Customer data:", data.customer);
                     if (!data.success) {
                         alert(data.message || "Order not found");
                         return;
@@ -299,8 +300,8 @@
                            <td>${o.status}</td>
                            <td>${productNames}</td>
                            <td>${o.totalPrice.toLocaleString()} VND</td>
-                           <td>${new Date(o.date).toLocaleString('vi-VN')}</td>
-                           <td>${new Date(o.update).toLocaleString('vi-VN')}</td>
+                           <td>${formatDateTime(o.date)}</td>
+                           <td>${formatDateTime(o.update)}</td>
                            <td>${o.pointsUsed}</td>
                            <td>${o.voucher || 'None'}</td>
                      `;
@@ -321,6 +322,16 @@
                 });
         });
     });
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${hours}:${minutes} ${day}/${month}/${year}`;
+    }
+
 </script>
 
 </body>
