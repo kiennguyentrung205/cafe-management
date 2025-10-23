@@ -29,18 +29,16 @@ public class SecurityConfig {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login**", "/assets/**", "/forgot-password", "/set-password**", "/register", "/home")
+                        .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
                         .permitAll()
-                        .requestMatchers("/table/booking/management").hasRole("CASHIER")
-                        .requestMatchers("/admin/vouchers/list").hasRole("ADMIN")
-                        .requestMatchers("/product/list").hasRole("ADMIN")
-                        .requestMatchers("/product/deleted-list").hasRole("ADMIN")
-                        .requestMatchers("/product/create").hasRole("ADMIN")
-                        .requestMatchers("/product/edit/{id}").hasRole("ADMIN")
-                        .requestMatchers("/category/list").hasRole("ADMIN")
-                        .requestMatchers("/category/create").hasRole("ADMIN")
-                        .requestMatchers("/category/edit/{id}").hasRole("ADMIN")
-                        .requestMatchers("/category/deleted-list").hasRole("ADMIN")
+                        .requestMatchers( "/table/booking/management").hasRole("CASHIER")
+                        .requestMatchers( "/dashboard/admin/vouchers/list").hasRole("ADMIN")
+                        .requestMatchers( "/dashboard/admin/vouchers/create").hasRole("ADMIN")
+                        .requestMatchers( "/dashboard/admin/vouchers/edit/**").hasRole("ADMIN")
+                        .requestMatchers( "/dashboard/admin/vouchers/deleted-list").hasRole("ADMIN")
+                        .requestMatchers( "/product/list").hasRole("ADMIN")
+                        .requestMatchers( "/dashboard/staff").hasRole("ADMIN")
+                        .requestMatchers( "/dashboard").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
                 )
@@ -61,7 +59,7 @@ public class SecurityConfig {
                         )
                         .defaultSuccessUrl("/home", true))
 
-                .logout(logout -> logout
+                .logout(logout ->logout
                         .logoutUrl("/logout")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
@@ -91,6 +89,7 @@ public class SecurityConfig {
             }
         };
     }
+
 
 
 }

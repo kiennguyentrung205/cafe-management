@@ -3,9 +3,8 @@
 <head th:replace="~{fragment/frag :: head}"></head>
 <body>
 <div th:insert="~{fragment/frag::navbar}"></div>
-<h1>Edit Voucher</h1>
-<form method="post" th:action="@{/admin/vouchers/save}" th:object="${voucher}">
-    <input type="hidden" th:field="*{voucherId}">
+<h1>Create New Voucher</h1>
+<form method="post" th:action="@{/dashboard/admin/vouchers/save}" th:object="${voucher}">
     <label>Voucher Code</label>
     <input type="text" th:field="*{code}" placeholder="Enter voucher code" required>
     <br>
@@ -41,8 +40,8 @@
     <br>
     <p th:text="${message}"></p>
     <button type="submit">Save</button>
-    <a th:href="@{/admin/vouchers/list}">Cancel</a>
+    <a th:href="@{list}">Cancel</a>
 </form>
-<div th:insert="~{fragment/frag::footer}"></div>
+<div th:insert="~{fragment/frag :: footer}"></div>
 </body>
 </html>
