@@ -17,6 +17,10 @@ public class Customer implements UserDetails {
     @Column(name = "cus_id")
     private int cusId;
 
+//Tăngj điểm cho khách
+    @Column(name = "last_birthday_reward_year")
+    private Integer lastBirthdayRewardYear;
+
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
@@ -107,6 +111,14 @@ public class Customer implements UserDetails {
         this.orders = orders;
         this.pointHistories = pointHistories;
         this.tableBookings = tableBookings;
+    }
+
+    public Integer getLastBirthdayRewardYear() {
+        return lastBirthdayRewardYear;
+    }
+
+    public void setLastBirthdayRewardYear(Integer lastBirthdayRewardYear) {
+        this.lastBirthdayRewardYear = lastBirthdayRewardYear;
     }
 
     public void setPoint(Integer point) {

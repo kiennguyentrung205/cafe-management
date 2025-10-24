@@ -35,6 +35,8 @@ public class SecurityConfig {
                         .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
                         .permitAll()
                         .requestMatchers( "/table/booking/management").hasRole("CASHIER")
+                     
+                        .requestMatchers( "/dashboard/staff/**").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/admin/vouchers/list").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/admin/vouchers/create").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/admin/vouchers/edit/**").hasRole("ADMIN")
