@@ -61,8 +61,8 @@
                     <td th:text="${staff.role != null ? staff.role.roleName : 'Unknown'}"></td>
                     <td th:text="${staff.isActive ? 'Active' : 'Not Active'}"></td>
                     <td class="text-center">
-                        <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}" class="btn btn-outline-secondary">Detail</a>
-                        <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}" class="btn btn-sm btn-warning">Edit</a>
+                        <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}" class="btn btn-outline-secondary">Details</a>
+                        <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}"  class="btn btn-sm btn-warning">Edit</a>
 
                         <!-- Sửa nút Delete -->
                         <button class="btn btn-sm btn-danger btn-delete"
