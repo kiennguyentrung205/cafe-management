@@ -12,9 +12,7 @@ import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.services.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/order")
@@ -99,27 +97,30 @@ public class OrderController {
 
         if ("check".equals(action)) {
             Customer customer = customerService.getCustomerByPhone(customerPhone);
-            if (customer == null)
+            if (customer == null) {
                 model.addAttribute("error", "Customer not found!");
-            else
+            } else {
                 model.addAttribute("customer", customer);
-            return reloadCreatePage(model);
+            }
+            return reloadCreatePage(model, customer);
         }
 
-        if (productIds == null || productIds.isEmpty()) {
+        if (productIds == null || productIds.isEmpty() || "null".equals(String.valueOf(productIds.get(0)))) {
             model.addAttribute("error", "No products selected!");
             return reloadCreatePage(model);
         }
 
-        Customer customer = customerService.getCustomerByPhone(customerPhone);
-        if (customer == null) {
-            model.addAttribute("error", "Customer not found!");
-            return reloadCreatePage(model);
+        Customer customer = null;
+        if (customerPhone != null && !customerPhone.trim().isEmpty()) {
+            customer = customerService.getCustomerByPhone(customerPhone.trim());
+            if (customer == null) {
+                model.addAttribute("warning", "Customer not found! Order will not be linked to any customer.");
+            }
         }
 
-        if (pointsUsed > customer.getPoint()) {
+        if (customer != null && pointsUsed > customer.getPoint()) {
             model.addAttribute("error", "Not enough points!");
-            return reloadCreatePage(model);
+            return reloadCreatePage(model, customer);
         }
 
         Manager manager = managerService.getDefaultManager();
@@ -129,7 +130,7 @@ public class OrderController {
         }
 
         Order order = new Order();
-        order.setCustomer(customer);
+        if (customer != null) order.setCustomer(customer);
         order.setManager(manager);
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus("Pending");
@@ -174,18 +175,21 @@ public class OrderController {
         order.setOrderItems(orderItems);
 
         int earnedPoints = (int) (totalPrice / 50000);
-        customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
-        customerService.saveCustomer(customer);
+        if (customer != null) {
+            customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
+            customerService.saveCustomer(customer);
 
-        if (pointsUsed > 0) {
-            PointHistory ph = new PointHistory();
-            ph.setCustomer(customer);
-            ph.setOrder(order);
-            ph.setAmount(-pointsUsed);
-            ph.setTypeOfChange("Redeemed in order");
-            ph.setChangeTime(LocalDateTime.now());
-            pointHistoryService.saveHistory(ph);
+            if (pointsUsed > 0) {
+                PointHistory ph = new PointHistory();
+                ph.setCustomer(customer);
+                ph.setOrder(order);
+                ph.setAmount(-pointsUsed);
+                ph.setTypeOfChange("Redeemed in order");
+                ph.setChangeTime(LocalDateTime.now());
+                pointHistoryService.saveHistory(ph);
+            }
         }
+
 
         orderService.saveOrder(order);
 
@@ -197,8 +201,8 @@ public class OrderController {
     // ----------------------- [GET: Danh sách đơn hàng] -----------------------
     @GetMapping("/list")
     public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 9;
-        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+        int pageSize = 7;
+        Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -206,6 +210,18 @@ public class OrderController {
         model.addAttribute("customerList", customerService.getAllCustomers());
         return "order/list";
     }
+
+    @GetMapping("/history-list")
+    public String viewOrderHistory(@RequestParam(defaultValue = "1") int page, Model model) {
+        int pageSize = 7;
+        Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        return "order/history-list";
+    }
+
 
     // ----------------------- [Helper: Reload trang create khi lỗi] -----------------------
     private String reloadCreatePage(Model model) {
@@ -224,12 +240,11 @@ public class OrderController {
             Model model,
             HttpSession session) {
 
-        int pageSize = 9;
-        Page<Order> orderPage = orderService.getPagedOrders(page, pageSize);
+        int pageSize = 7;
+        Page<Order> orderPage = orderService.getUnservedOrders(page, pageSize);
 
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
         model.addAttribute("currentUser", currentUser);
-
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -237,6 +252,7 @@ public class OrderController {
 
         return "order/edit";
     }
+
 
     @PostMapping("/updateStatus")
     @Transactional
@@ -260,13 +276,91 @@ public class OrderController {
             order.setUpdatedAt(LocalDateTime.now());
         }
 
-        if ("Completed".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status)) {
-            order.setActive(true);
-        } else {
-            order.setActive(false);
+        //Gán Manager (Barista) đang đăng nhập
+        Manager currentUser = (Manager) session.getAttribute("loggedInUser");
+        if (currentUser != null) {
+            order.setManager(currentUser);
         }
 
         orderService.saveOrder(order);
         return "redirect:/order/edit";
     }
+
+    @GetMapping("/detail/{id}")
+    @ResponseBody
+    public Map<String, Object> getOrderDetail(@PathVariable("id") int orderId) {
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<Order> optionalOrder = orderService.getOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Order not found!");
+            return response;
+        }
+
+        Order order = optionalOrder.get();
+        List<OrderItem> items = orderService.getOrderItemsByOrderId(orderId);
+
+        // Lấy customer ra và kiểm tra null
+        Customer customer = order.getCustomer();
+
+        response.put("success", true);
+        response.put("order", Map.of(
+                "id", order.getOrderId(),
+                // Kiểm tra null
+                "customer", customer != null ? customer.getName() : "N/A",
+                "manager", order.getManager() != null ? order.getManager().getName() : "N/A",
+                "status", order.getStatus(),
+                "totalPrice", order.getTotalPrice(),
+                "date", order.getCreatedAt(),
+                "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-" ,
+                "pointsUsed", order.getPointsUsed(),
+                "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
+                "products", items.stream()
+                        .map(i -> Map.of(
+                                "name", i.getProduct().getProName(),
+                                "price", i.getProduct().getPrice(),
+                                "quantity", i.getQuantity()
+                        ))
+                        .toList()
+        ));
+
+        // Kiểm tra null cho toàn bộ
+        if (customer != null) {
+            response.put("customer", Map.of(
+                    "id", customer.getCusId(),
+                    "name", customer.getName(),
+                    "phone", customer.getPhoneNumber(),
+                    "email", customer.getEmail(),
+                    "address", customer.getAddress(),
+                    "img", customer.getImg()
+            ));
+        } else {
+            // Trả về một đối tượng customer rỗng nếu không có
+            response.put("customer", Map.of(
+                    "id", "N/A",
+                    "name", "N/A",
+                    "phone", "N/A",
+                    "email", "N/A",
+                    "address", "N/A",
+                    "img", "" // Hoặc "default-user.jpg"
+            ));
+        }
+
+        return response;
+    }
+
+
+
+    private String reloadCreatePage(Model model, Customer customer) {
+        model.addAttribute("categoryList", categoryService.getCategories());
+        model.addAttribute("productList", productService.getActiveProducts());
+        model.addAttribute("voucherList", voucherService.getActiveVouchers());
+        model.addAttribute("customer", customer); //GIỮ LẠI CUSTOMER
+        model.addAttribute("currentPage", 1);
+        model.addAttribute("totalPages", 1);
+        return "order/create";
+    }
+
+
 }

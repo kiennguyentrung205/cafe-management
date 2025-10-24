@@ -16,4 +16,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
             "WHERE o.cus_id = :customerId",
             nativeQuery = true)
     List<Integer> getProductIdsByCustomerId(int customerId);
+
+    List<OrderItem> findByOrder_OrderId(int orderId);
+
 }

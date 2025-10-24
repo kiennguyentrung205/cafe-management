@@ -1,31 +1,43 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
+import vn.edu.fpt.cafemanagement.repositories.PointHistoryRepository;
+import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 
 
 @Service
 public class CustomerService {
-    ManagerService managerService;
     CustomerRepository customerRepository;
+    PointHistoryRepository pointHistoryRepository;
 
-    public CustomerService(CustomerRepository customerRepository, ManagerService managerService) {
+    public CustomerService(CustomerRepository customerRepository, ManagerService managerService, PointHistoryRepository pointHistoryRepository) {
         this.customerRepository = customerRepository;
         this.managerService = managerService;
+        this.pointHistoryRepository = pointHistoryRepository;
     }
+
 
     public Customer findByEmail(String email) {
         return customerRepository.findByEmail(email).orElse(null);
@@ -39,32 +51,8 @@ public class CustomerService {
         return customerRepository.findByUsername(username).orElse(null);
     }
 
-    public Customer createCustomer(Customer customer) throws Exception {
-        String username = customer.getUsername();
-        String phoneNumber = customer.getPhoneNumber();
-
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username cannot be null or blank");
-        }
-        if (phoneNumber == null || phoneNumber.isBlank()) {
-            throw new IllegalArgumentException("Phone number cannot be null or blank");
-        }
-
-        boolean usernameExists =
-                managerService.findByUsername(username) != null ||
-                        findByUsername(username) != null;
-
-        if (usernameExists) {
-            throw new IllegalStateException("Username is already in use");
-        }
-
-        boolean phoneExists = findByPhoneNumber(phoneNumber) != null;
-
-        if (phoneExists) {
-            throw new IllegalStateException("Phone number is already in use");
-        }
-
-        return customerRepository.save(customer);
+    public Customer save(Customer customer) {
+        return  customerRepository.save(customer);
     }
 
 
@@ -165,6 +153,39 @@ public class CustomerService {
 
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
+    }
+
+
+    @Transactional
+    public void rewardBirthdayPoints() {
+        List<Customer> customers = customerRepository.findAll();
+        int currentYear = LocalDate.now().getYear();
+        LocalDate today = LocalDate.now();
+        int birthdayBonus = 50; // Số điểm tặng
+
+        for (Customer customer : customers) {
+            if (customer.getDateOfBirth() == null) continue;
+
+            // Kiểm tra đúng ngày sinh và chưa được tặng trong năm nay
+            if (customer.getDateOfBirth().getMonth() == today.getMonth() &&
+                    customer.getDateOfBirth().getDayOfMonth() == today.getDayOfMonth() &&
+                    (customer.getLastBirthdayRewardYear() == null || customer.getLastBirthdayRewardYear() < currentYear)) {
+
+                // Cộng điểm
+                customer.setPoint(customer.getPoint() + birthdayBonus);
+                customer.setLastBirthdayRewardYear(currentYear);
+                customerRepository.save(customer);
+
+                //  Lưu lịch sử điểm
+                PointHistory history = new PointHistory();
+                history.setCustomer(customer);
+                history.setTypeOfChange("Birthday Bonus");
+                history.setAmount(birthdayBonus);
+                history.setChangeTime(LocalDateTime.now());
+                new java.util.Date();
+                pointHistoryRepository.save(history);
+            }
+        }
     }
 }
 

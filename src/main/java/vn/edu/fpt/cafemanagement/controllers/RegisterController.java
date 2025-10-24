@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.services.CustomerService;
+import vn.edu.fpt.cafemanagement.services.RegisterService;
 
 @Controller
 public class RegisterController {
-    private final CustomerService customerService;
+    private final RegisterService registerService;
 
-    public RegisterController(CustomerService customerService) {
-        this.customerService = customerService;
+    public RegisterController(RegisterService registerService) {
+        this.registerService = registerService;
     }
 
     @GetMapping(path = "/register")
@@ -23,15 +24,15 @@ public class RegisterController {
         return "account/register";
     }
 
-    private final String UPLOAD_DIR = "D:/SWP/Project/uploads/";
+
     @PostMapping(path = "/register")
-    public String register(Model model, @ModelAttribute Customer customer){
+    public String doRegister(Model model, @ModelAttribute Customer customer){
         String hashPassword = BCrypt.hashpw(customer.getPassword(), BCrypt.gensalt());
         customer.setPassword(hashPassword);
         customer.setImg("avatar.jpeg");
 
         try {
-            customerService.createCustomer(customer);
+            registerService.createCustomer(customer);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "account/register";

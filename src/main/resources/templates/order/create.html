@@ -1,5 +1,5 @@
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="en" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <title>Create In-Store Order</title>
@@ -119,9 +119,13 @@
     <!-- Main Content -->
     <div class="main-container">
         <h2>Create In-Store Order</h2>
+        <div th:if="${warning}" class="alert alert-warning mt-2" th:text="${warning}"></div>
+        <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
 
-        <form th:action="@{/order/create}" method="post">
-            <div class="container">
+        <form th:action="@{/order/create}" method="post" onsubmit="return validateOrderForm()">
+
+        <div class="container">
 
                 <!-- LEFT PANEL -->
                 <div th:replace="fragment/frag :: menu-panel"></div>
@@ -172,6 +176,7 @@
                     <hr/>
                     <div class="place-container">
                         <button type="submit" class="place-btn" name="action" value="create">
+                            <div id="hiddenInputs"></div>
                             <span style="font-size: 16px; font-weight: 600;">Place</span><br>
                             <span style="font-size: 13px;">(<span id="totalPrice">0</span> VND)</span>
                         </button>
@@ -182,7 +187,17 @@
     </div>
 
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script>
+        /* ===== Hàm hiển thị modal cảnh báo ===== */
+        function showAlertModal(message) {
+            const modalEl = document.getElementById('alertModal');
+            const msgEl = document.getElementById('alertMessage');
+            msgEl.textContent = message;
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
         /* ========== Gắn sự kiện cho product cards ========== */
         function attachProductCardListeners() {
             document.querySelectorAll(".product-card").forEach(card => {
@@ -209,23 +224,23 @@
                     } else {
                         const item = document.createElement("div");
                         item.classList.add("order-item");
+                        item.setAttribute("data-product-id", card.getAttribute("data-product-id"));
                         item.innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <img src="${img}" alt="${name}">
-                    <span class="item-name">${name}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <img src="${img}" alt="${name}">
+                <span class="item-name">${name}</span>
+            </div>
+            <div style="text-align:right;">
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
+                    <button type="button" class="btn-minus"
+                        style="border:1px solid #aaa; background-color:#e9ecef;
+                               border-radius:5px; width:28px; height:28px;
+                               font-weight:bold; line-height:1;">−</button>
+                    <span class="item-qty">1</span>x
+                    <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
                 </div>
-                <div style="text-align:right;">
-                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
-                        <button type="button" class="btn-minus"
-                            style="border:1px solid #aaa; background-color:#e9ecef;
-                                   border-radius:5px; width:28px; height:28px;
-                                   font-weight:bold; line-height:1;">−</button>
-                        <span class="item-qty">1</span>x
-                        <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
-                    </div>
-                    <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
-                </div>
-            `;
+                <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
+            </div>`;
                         orderList.appendChild(item);
 
                         const minusBtn = item.querySelector(".btn-minus");
@@ -256,6 +271,7 @@
                 total += qty * price;
             });
             document.getElementById("totalPrice").textContent = total.toLocaleString();
+            updateHiddenInputs();
         }
 
         /* ========== Điểm thưởng ========== */
@@ -290,16 +306,14 @@
                     if (curGrid && newGrid) curGrid.innerHTML = newGrid.innerHTML;
                     if (curPag && newPagination) curPag.innerHTML = newPagination.innerHTML;
 
-                    //Kiểm tra nếu không có sản phẩm
                     const products = curGrid.querySelectorAll('.product-card');
-                    const pagination = curPag.querySelectorAll('a');
                     if (products.length === 0) {
                         curGrid.innerHTML = `
                     <div class="text-center mt-5" style="font-size: 18px; color: #888;">
                         <i class="bi bi-emoji-frown" style="font-size: 32px;"></i>
                         <p>Not found</p>
                     </div>`;
-                        if (curPag) curPag.innerHTML = ''; // Ẩn thanh phân trang
+                        if (curPag) curPag.innerHTML = '';
                     }
 
                     selectedCategoryId = categoryId ? String(categoryId) : null;
@@ -317,10 +331,8 @@
                 });
         }
 
-
-        /* ========== Chọn danh mục (checkbox click) ========== */
+        /* ========== Chọn danh mục ========== */
         let selectedCategoryId = null;
-
         function handleCategorySelect(checkbox) {
             const allCheckboxes = document.querySelectorAll('.category-checkbox');
             if (checkbox.checked) {
@@ -333,27 +345,22 @@
             }
         }
 
-        /* ========== Live Search (lọc sản phẩm khi gõ) ========== */
+        /* ========== Live Search ========== */
         function rebindLiveSearch() {
             const searchInput = document.querySelector('.search-bar input');
             if (!searchInput) return;
-
             searchInput.removeEventListener('input', searchInput._handler || (() => {}));
-
             const handler = debounce(function() {
                 const query = this.value.trim();
                 let url = '/order/create?page=1';
                 if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
                 if (query) url += `&query=${encodeURIComponent(query)}`;
-
                 fetchAndReplace(url, selectedCategoryId);
             }, 300);
-
             searchInput._handler = handler;
             searchInput.addEventListener('input', handler);
         }
 
-        // Debounce để tránh fetch liên tục khi gõ nhanh
         function debounce(fn, delay) {
             let timer;
             return function(...args) {
@@ -362,7 +369,7 @@
             };
         }
 
-        /* ========== Phân trang bằng AJAX ========== */
+        /* ========== Phân trang AJAX ========== */
         document.addEventListener('click', function(e) {
             const a = e.target.closest('.pagination a');
             if (!a) return;
@@ -371,7 +378,7 @@
             fetchAndReplace(href, selectedCategoryId);
         });
 
-        /* ========== Khởi tạo khi DOM sẵn sàng ========== */
+        /* ========== DOM Ready ========== */
         document.addEventListener('DOMContentLoaded', () => {
             attachProductCardListeners();
             rebindLiveSearch();
@@ -398,7 +405,7 @@
                 e.preventDefault();
                 const phone = phoneInput.value.trim();
                 if (!phone) {
-                    alert('Please enter a phone number');
+                    showAlertModal('Please enter a phone number.');
                     return;
                 }
 
@@ -415,12 +422,14 @@
                         const curCustomerInfo = document.querySelector('.customer-info');
                         if (curCustomerInfo && newCustomerInfo) {
                             curCustomerInfo.innerHTML = newCustomerInfo.innerHTML;
+                            const newMax = doc.querySelector('#pointsUsed')?.getAttribute('data-max');
+                            if (newMax) document.querySelector('#pointsUsed').setAttribute('data-max', newMax);
                         }
                         rebindPointButtons();
                     })
                     .catch(err => {
                         console.error(err);
-                        alert('Failed to load customer info.');
+                        showAlertModal('Failed to load customer info.');
                     });
             });
         });
@@ -432,7 +441,65 @@
                 btn.addEventListener('click', () => changePoint(delta));
             });
         }
+
+        /* ========== Hidden inputs ========== */
+        function updateHiddenInputs() {
+            const container = document.getElementById("hiddenInputs");
+            container.innerHTML = "";
+            const orderItems = document.querySelectorAll(".order-item");
+            orderItems.forEach(item => {
+                const qty = parseInt(item.querySelector(".item-qty").textContent);
+                const productId = item.getAttribute("data-product-id");
+                if (!productId) return;
+                const hiddenProduct = document.createElement("input");
+                hiddenProduct.type = "hidden";
+                hiddenProduct.name = "productIds";
+                hiddenProduct.value = productId;
+                const hiddenQty = document.createElement("input");
+                hiddenQty.type = "hidden";
+                hiddenQty.name = "quantities";
+                hiddenQty.value = qty;
+                container.appendChild(hiddenProduct);
+                container.appendChild(hiddenQty);
+            });
+        }
+
+        /* ========== Validate đặt hàng ========== */
+        function validateOrderForm() {
+            const orderItems = document.querySelectorAll(".order-item");
+            if (orderItems.length === 0) {
+                showAlertModal('Please select at least one product before placing the order.');
+                return false;
+            }
+            const productInputs = document.querySelectorAll("input[name='productIds']");
+            if (productInputs.length === 0) {
+                showAlertModal('No products found in form.');
+                return false;
+            }
+            return true;
+        }
     </script>
+
+
+    <!-- Modal cảnh báo -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-black">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="alertModalLabel">
+                        Warning
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center fs-5" id="alertMessage">
+                    <!-- JS sẽ chèn nội dung cảnh báo vào đây -->
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     </body>
     </html>

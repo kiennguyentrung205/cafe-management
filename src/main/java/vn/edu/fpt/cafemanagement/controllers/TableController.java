@@ -1,5 +1,6 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class TableController {
     }
 
     @GetMapping(path = "/management")
+    @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
     public String showTableListForStaff(Model model,
                                         @RequestParam(required = false) String status,
                                         @RequestParam(required = false) Integer capacity) {
@@ -58,8 +60,8 @@ public class TableController {
     @PostMapping(path = "/management/update-status")
     @ResponseBody
     public String updateTableStatus(@RequestBody Table table) {
-        System.out.println(table.getStatus());
-        tableService.updateStatus(table.getTableId(), table.getStatus());
+//        System.out.println(table.getStatus());
+        tableService.updateTableStatus(table.getTableId(), table.getStatus());
         return "Status updated successfully";
     }
 

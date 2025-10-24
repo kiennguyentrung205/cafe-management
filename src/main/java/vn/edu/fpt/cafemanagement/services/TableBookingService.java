@@ -19,6 +19,11 @@ public class TableBookingService {
     }
 
     @Transactional
+    public TableBooking createBooking(TableBooking tableBooking) {
+        return tableBookingRepository.save(tableBooking);
+    }
+
+    @Transactional
     public TableBooking save(TableBooking tableBooking) {
         return tableBookingRepository.save(tableBooking);
     }
