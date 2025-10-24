@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -32,7 +32,7 @@
         </p>
         <p>
             <label>Email: </label>
-            <input name="email" th:value="${customer.email}" type="text">
+            <input name="email" th:readonly="${customer.googleAccount} ? 'readonly' : ''" th:value="${customer.email}" type="text">
         </p>
         <p>
             <label>Point: </label>
