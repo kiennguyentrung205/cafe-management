@@ -16,7 +16,8 @@
             <input name="cusId" th:value="${customer.cusId}" type="hidden">
         </p>
         <p>
-            <img alt="Avatar" style="border-radius: 50%; object-fit: cover;" th:src="${customer.googleAccount} ? ${customer.img} : @{/img/{img}(img=${customer.img})}"
+            <img alt="Avatar" style="border-radius: 50%; object-fit: cover;"
+                 th:src="${customer.googleAccount} ? ${customer.img} : @{/img/{img}(img=${customer.img})}"
                  width="80"/>
             <label for="imgFile">Change avatar:</label>
             <input accept="image/*" id="imgFile" name="imgFile" type="file">
@@ -32,7 +33,8 @@
         </p>
         <p>
             <label>Email: </label>
-            <input name="email" th:readonly="${customer.googleAccount} ? 'readonly' : ''" th:value="${customer.email}" type="text">
+            <input name="email" th:readonly="${customer.googleAccount} ? 'readonly' : ''" th:value="${customer.email}"
+                   type="text">
         </p>
         <p>
             <label>Point: </label>
@@ -47,7 +49,9 @@
                    th:readonly="${!customer.googleAccount}">
 
         </p>
-
+        <p>
+            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+        </p>
         <p>
             <button class="btn btn-primary" type="submit">Edit</button>
             <button class="btn btn-dark" type="reset">Cancel</button>

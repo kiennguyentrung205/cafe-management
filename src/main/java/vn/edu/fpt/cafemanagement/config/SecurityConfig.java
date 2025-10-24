@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers( "/dashboard/admin/vouchers/deleted-list").hasRole("ADMIN")
                         .requestMatchers( "/product/list").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/staff").hasRole("ADMIN")
+//                        .requestMatchers( "/dashboard/staff/delete/**").hasRole("ADMIN")
                         .requestMatchers( "/dashboard").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()

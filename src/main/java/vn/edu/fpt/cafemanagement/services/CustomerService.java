@@ -31,7 +31,7 @@ import java.util.List;
 public class CustomerService {
     CustomerRepository customerRepository;
     PointHistoryRepository pointHistoryRepository;
-
+    ManagerService managerService;
     public CustomerService(CustomerRepository customerRepository, ManagerService managerService, PointHistoryRepository pointHistoryRepository) {
         this.customerRepository = customerRepository;
         this.managerService = managerService;
