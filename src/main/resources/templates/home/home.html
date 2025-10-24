@@ -47,15 +47,21 @@
                     <strong>Table Booking History</strong>
                 </a>
 
-                <a class="list-group-item list-group-item-action p-3" th:href="@{/logout}">
+                <form class="list-group-item list-group-item-action p-3" th:action="@{/logout}" method="post">
                     <i class="fas fa-cash-register fa-fw me-3 text-primary list-icon"></i>
-                    <strong>Log out</strong>
-                </a>
+                    <button type="submit" class="list-group-item-action border-0"><strong>Log out</strong></button>
+                </form>
 
                 <a class="list-group-item list-group-item-action p-3" sec:authorize="hasRole('ROLE_CASHIER')"
                    th:href="@{/table/booking/management}">
                     <i class="fas fa-cash-register fa-fw me-3 text-primary list-icon"></i>
                     <strong>Booking History</strong>
+                </a>
+
+                <a class="list-group-item list-group-item-action p-3" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER')"
+                   th:href="@{/table/management}">
+                    <i class="fas fa-cash-register fa-fw me-3 text-primary list-icon"></i>
+                    <strong>Table Management</strong>
                 </a>
 
             </div>

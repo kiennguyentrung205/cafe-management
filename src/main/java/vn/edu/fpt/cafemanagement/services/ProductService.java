@@ -65,7 +65,7 @@ public class ProductService {
     public Page<Product> getActiveProductsPaged(Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
     }
-  
+
     public Page<Product> getAllProductsPaged(Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
 

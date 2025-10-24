@@ -43,6 +43,17 @@ public class Voucher {
     @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL)
     private List<Order> orders;
 
+    @Transient
+    private String signature;
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     public Voucher() {
     }
 

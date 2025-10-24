@@ -1,5 +1,7 @@
 <head th:fragment="head">
+    <title>Cafe Management</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <div th:fragment="navbar">
@@ -184,14 +186,33 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination">
-            <a th:href="@{/order/create(page=1)}">&lt;&lt;</a>
-            <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-               th:href="@{/order/create(page=${i})}"
-               th:text="${i}"
-               th:classappend="${i == currentPage} ? 'active' : ''"></a>
-            <a th:href="@{/order/create(page=${totalPages})}">&gt;&gt;</a>
-        </div>
+        <nav aria-label="Product pagination">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/order/create(page=${currentPage - 1}, categoryId=${selectedCategoryId}, query=${query})}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/order/create(page=${i}, categoryId=${selectedCategoryId}, query=${query})}"
+                       th:text="${i}"></a>
+                </li>
+
+                <!-- Next -->
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/order/create(page=${currentPage + 1}, categoryId=${selectedCategoryId}, query=${query})}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
     </div>
 </div>
 
