@@ -39,6 +39,10 @@ public class ManagerService {
         return managerRepository.findByUsername(username).orElse(null);
     }
 
+    public Manager findByEmail(String email) {
+        return managerRepository.findByEmail(email).orElse(null);
+    }
+
     public Manager saveManager(Manager manager) {
         return managerRepository.save(manager);
     }
@@ -72,6 +76,10 @@ public class ManagerService {
     public List<Manager> searchStaff(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) return managerRepository.findAll();
         return managerRepository.search(keyword.trim());
+    }
+
+    public boolean emailExisted(String email) {
+        return managerRepository.findByEmail(email).isPresent();
     }
 
 

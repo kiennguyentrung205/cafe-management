@@ -9,6 +9,7 @@ import java.util.List;
 @Service
 public class TableService {
     private final TableRepository tableRepository;
+
     public TableService(TableRepository tableRepository) {
         this.tableRepository = tableRepository;
     }
@@ -20,7 +21,7 @@ public class TableService {
         return tableRepository.findById(id).orElse(null);
     }
 
-    public Table updateStatus(int id,String status){
+    public Table updateTableStatus(int id,String status){
         Table table = tableRepository.findById(id).orElse(null);
         table.setStatus(status);
         return tableRepository.save(table);
