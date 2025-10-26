@@ -1,13 +1,16 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.services.*;
 
@@ -48,11 +51,12 @@ public class OrderController {
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            Model model) {
+            Model model, HttpServletRequest request) {
 
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
+
 
         if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
             // tìm theo cả tên + category
@@ -68,6 +72,15 @@ public class OrderController {
         }
         else {
             productPage = productService.getActiveProductsPaged(pageable);
+        }
+
+        int totalPages = productPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                return "error/404 :: content";
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+            }
         }
 
         model.addAttribute("categoryList", categoryService.getCategories());
@@ -201,9 +214,13 @@ public class OrderController {
     // ----------------------- [GET: Danh sách đơn hàng] -----------------------
     @GetMapping("/list")
     public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 7;
+        int pageSize = 6;
         Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -212,9 +229,14 @@ public class OrderController {
     }
 
     @GetMapping("/history-list")
-    public String viewOrderHistory(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 7;
+    public String viewOrdersHistory(@RequestParam(defaultValue = "1") int page, Model model) {
+        int pageSize = 6;
         Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
+
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -240,8 +262,13 @@ public class OrderController {
             Model model,
             HttpSession session) {
 
-        int pageSize = 7;
+        int pageSize = 6;
         Page<Order> orderPage = orderService.getUnservedOrders(page, pageSize);
+
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
 
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
         model.addAttribute("currentUser", currentUser);
@@ -311,11 +338,11 @@ public class OrderController {
                 "customer", customer != null ? customer.getName() : "N/A",
                 "manager", order.getManager() != null ? order.getManager().getName() : "N/A",
                 "status", order.getStatus(),
+                "pointsUsed", order.getPointsUsed(),
+                "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
                 "totalPrice", order.getTotalPrice(),
                 "date", order.getCreatedAt(),
                 "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-" ,
-                "pointsUsed", order.getPointsUsed(),
-                "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
                 "products", items.stream()
                         .map(i -> Map.of(
                                 "name", i.getProduct().getProName(),

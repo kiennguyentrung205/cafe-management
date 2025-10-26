@@ -50,6 +50,15 @@
             background-color: #f2f2f2;
         }
 
+        .table-striped tbody tr:hover {
+            background-color: #d9d9d9;
+        }
+
+        .table-striped tbody tr.no-orders-row:hover {
+            background-color: #fafafa;
+            cursor: default;
+        }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -82,7 +91,7 @@
 
         /* Modal chỉnh sửa */
         .modal-dialog {
-            max-width: 130vw;
+            max-width: 180vw;
             margin: auto;
         }
 
@@ -161,15 +170,16 @@
             <th>Customer</th>
             <th>Staff</th>
             <th>Status</th>
+            <th>Points Used</th>
+            <th>Voucher</th>
             <th>Total Price</th>
             <th>Created At</th>
             <th>Completed At</th>
-            <th>Points Used</th>
-            <th>Voucher</th>
         </tr>
         </thead>
 
         <tbody>
+        <!-- Nếu có đơn -->
         <tr th:each="order : ${orders}"
             th:data-cust-id="${order.customer.cusId}"
             th:data-cust-name="${order.customer.name}"
@@ -182,17 +192,24 @@
             <td th:text="${order.manager != null ? order.manager.name : 'N/A'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
+            <td th:text="${order.pointsUsed}"></td>
+            <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
             <td th:text="${#strings.concat(#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT'), ' VND')}"></td>
             <td th:text="${#temporals.format(order.createdAt, 'HH:mm dd/MM/yyyy')}"></td>
             <td>-</td>
-            <td th:text="${order.pointsUsed}"></td>
-            <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
+        </tr>
+
+        <!-- Nếu không có đơn -->
+        <tr th:if="${orders == null or orders.isEmpty()}" class="no-orders-row">
+            <td colspan="9" class="text-center text-muted py-4">
+                There are not any orders.
+            </td>
         </tr>
         </tbody>
     </table>
 
     <!-- Pagination -->
-    <nav aria-label="Order pagination">
+    <nav aria-label="Order pagination" th:if="${orders != null and !orders.isEmpty() and totalPages > 0}">
         <ul class="pagination justify-content-center">
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
@@ -237,11 +254,11 @@
                         <th>Staff</th>
                         <th>Status</th>
                         <th>Product</th>
+                        <th>Points Used</th>
+                        <th>Voucher</th>
                         <th>Total Price</th>
                         <th>Created At</th>
                         <th>Completed At</th>
-                        <th>Points Used</th>
-                        <th>Voucher</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -273,6 +290,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.querySelectorAll(".main-content table.table.table-striped tbody tr").forEach(row => {
+        if (row.classList.contains("no-orders-row")) return;
         if (row.querySelectorAll("td").length === 0) return;
 
         row.addEventListener("click", () => {
@@ -307,11 +325,11 @@
                     <td>${o.manager}</td>
                     <td>${o.status}</td>
                     <td>${productNames}</td>
+                    <td>${o.pointsUsed}</td>
+                    <td>${o.voucher}</td>
                     <td>${o.totalPrice.toLocaleString()} VND</td>
                     <td>${formatDateTime(o.date)}</td>
                     <td>${completedAt}</td>
-                    <td>${o.pointsUsed}</td>
-                    <td>${o.voucher}</td>
                 `;
 
                     // hiển thị customer info

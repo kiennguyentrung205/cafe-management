@@ -72,6 +72,7 @@
             background-color: white;
             overflow: hidden;
             box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+            font-size: 17px;
         }
 
         th {
@@ -88,6 +89,63 @@
 
         tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+
+        table th:nth-child(1),  /* Order# */
+        table td:nth-child(1) {
+            width: 10%;
+        }
+
+        table th:nth-child(2),  /* Status */
+        table td:nth-child(2) {
+            width: 16%;
+        }
+
+        table th:nth-child(3),  /* Product */
+        table td:nth-child(3) {
+            width: 20%;
+            text-align: left;
+        }
+
+        table th:nth-child(4),  /* Note */
+        table td:nth-child(4) {
+            width: 20%;
+            text-align: left;
+        }
+
+        table th:nth-child(5),  /* Staff */
+        table td:nth-child(5) {
+            width: 20%;
+        }
+
+        table th:nth-child(6),  /* Updated At + Save button */
+        table td:nth-child(6) {
+            width: 20%;
+        }
+
+        td ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 10px;
+        }
+
+        td ul li {
+            margin-bottom: 3px;
+            font-size: 18px;
+        }
+
+        select.form-select {
+            font-size: 17px;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* ==== Save button ==== */
+        .btn.btn-primary {
+            font-size: 17px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 8px;
         }
 
         .pagination {
@@ -146,19 +204,37 @@
         <thead>
         <tr>
             <th>Order#</th>
-            <th>Status</th>
-            <th>Note</th>
             <th>Staff</th>
+            <th>Product</th>
+            <th>Note</th>
+            <th>Status</th>
             <th>Updated At</th>
         </tr>
         </thead>
 
         <tbody>
+        <!-- Nếu có đơn -->
         <form th:action="@{/order/updateStatus}" method="post"
               th:each="order : ${orders}"
-              th:if="${order.status != 'Served' and order.status != 'Canceled'}">
+              th:if="${orders != null and !orders.isEmpty() and order.status != 'Served' and order.status != 'Canceled'}">
             <tr>
                 <td th:text="${order.orderId}"></td>
+
+                <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
+
+                <td>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${order.orderItems}"
+                            th:text="${item.product != null ? item.product.proName + ' ×' + item.quantity : '-'}"></li>
+                    </ul>
+                </td>
+
+                <td>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${order.orderItems}"
+                            th:text="${item.note != null && item.note != '' ? item.note : '-'}"></li>
+                    </ul>
+                </td>
 
                 <td>
                     <input type="hidden" name="orderId" th:value="${order.orderId}" />
@@ -170,23 +246,24 @@
                     </select>
                 </td>
 
-                <td th:text="${order.orderItems != null && !order.orderItems.isEmpty()
-                  ? order.orderItems[0].note : '-'}"></td>
-
-                <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
-
-
                 <td>
                     <input type="hidden" name="updatedAt" class="updatedAtInput" />
                     <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
                 </td>
             </tr>
         </form>
+
+        <!-- Nếu không có đơn -->
+        <tr th:if="${orders == null or orders.isEmpty()}">
+            <td colspan="5" class="text-center text-muted py-3">
+                There are not any orders.
+            </td>
+        </tr>
         </tbody>
     </table>
 
     <!-- Pagination -->
-    <nav aria-label="Order pagination">
+    <nav aria-label="Order pagination" th:if="${orders != null and !orders.isEmpty() and totalPages > 0}">
         <ul class="pagination justify-content-center">
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
