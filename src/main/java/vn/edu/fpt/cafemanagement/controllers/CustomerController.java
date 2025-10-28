@@ -35,9 +35,24 @@ public class CustomerController {
     @RequestMapping(value = "/profile/edit/{id}")
     public String editProfile(@PathVariable("id") int cusId, Model model) {
         Customer customer = customerService.getCustomerById(cusId);
-
         model.addAttribute("customer", customer);
         return "profile/edit";
+    }
+
+    @PostMapping("/profile/edit")
+    public String editProfile(@ModelAttribute(name = "customer") Customer customer,
+                              @RequestParam(value = "imgFile") MultipartFile imgFile , Model model) {
+        try {
+            if(customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
+                return "redirect:/customer/profile/edit/" + customer.getCusId();
+            }
+            customerService.updateCustomer(customer, imgFile);
+            return "redirect:/customer/profile/" + customer.getCusId();
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("customer", customer);
+            return "profile/edit";
+        }
     }
 
     @RequestMapping(value = "/profile/changePassword/{id}")
@@ -63,19 +78,5 @@ public class CustomerController {
         }
     }
 
-    @PostMapping("/profile/edit")
-    public String update(@ModelAttribute(name = "customer") Customer customer,
-                         @RequestParam(value = "imgFile") MultipartFile imgFile , Model model) {
-        try {
-            if(customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
-                return "redirect:/customer/profile/edit/" + customer.getCusId();
-            }
-            customerService.updateCustomer(customer, imgFile);
-            return "redirect:/customer/profile/" + customer.getCusId();
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("customer", customer);
-            return "profile/edit";
-        }
-    }
+
 }

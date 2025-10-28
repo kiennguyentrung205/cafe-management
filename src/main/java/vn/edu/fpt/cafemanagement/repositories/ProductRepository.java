@@ -80,4 +80,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("keyword") String keyword,
             Pageable pageable);
 
+    @Query("SELECT p FROM Product p " +
+            "WHERE (:categoryId = 0 OR p.category.cateId = :categoryId) " +
+            "AND (LOWER(p.proName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "AND p.isActive = true)")
+    Page<Product> searchProductsByCategoryAndKeyword(
+            @Param("categoryId") int categoryId,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
 }

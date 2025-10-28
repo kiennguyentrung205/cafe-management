@@ -68,7 +68,6 @@ public class ProductService {
 
     public Page<Product> getAllProductsPaged(Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryIsActiveTrue(pageable);
-
     }
 
     public Page<Product> getActiveProductsPaged(int page, int size) {
@@ -84,7 +83,7 @@ public class ProductService {
         return productRepository.findSearchProductsByAllCriteria(searchText);
     }
 
-    public Page<Product> getSearchProducts(String searchText, Pageable pageable){
+    public Page<Product> getSearchProducts(String searchText, Pageable pageable) {
         return productRepository.findSearchProductsByAllCriteria(searchText, pageable);
     }
 
@@ -136,5 +135,20 @@ public class ProductService {
 
     public Page<Product> searchActiveProductsByCategory(Integer categoryId, String keyword, Pageable pageable) {
         return productRepository.findByCategoryAndNameContainingIgnoreCaseAndActiveTrue(categoryId, keyword, pageable);
+    }
+
+    public Page<Product> searchProductsByCategoryAndKeyword(Integer finalCategoryId, String keyword, Pageable pageable) {
+        String searchKeyword = keyword != null ? keyword.trim() : "";
+
+        // Kiểm tra nếu categoryId = 0, bạn sẽ gọi phương thức tìm kiếm chung hơn.
+        // Tuy nhiên, nếu bạn sử dụng @Query trong Repository (như phương pháp tốt hơn),
+        // bạn chỉ cần gọi 1 hàm duy nhất:
+
+        // Sử dụng phương thức @Query đã định nghĩa:
+        return productRepository.searchProductsByCategoryAndKeyword(finalCategoryId, searchKeyword, pageable);
+    }
+
+    public Page<Product> getActiveProductsByCategory(int categoryId, Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
     }
 }

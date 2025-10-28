@@ -1,195 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${title}">Danh sách sản phẩm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
     <style>
         body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            /*display: flex;*/
-            height: 100vh;
-            overflow: hidden;
+            background-color: #f8f9fa; /* Nền xám nhạt */
+            font-family: 'Poppins', sans-serif;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 120px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
+        .container.mt-4 {
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+
+        h2.text-center.mb-4 {
+            font-weight: 700;
+            color: #343a40; /* Màu chữ đậm */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #007bff; /* Gạch chân màu xanh */
+            display: inline-block;
+        }
+
+        /* --- Bộ lọc và Tìm kiếm --- */
+        .search-filter-area {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 25px;
-            gap: 10px;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: flex-start;
         }
 
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #333;
-            background-color: #f5f5f5;
-            padding: 10px 0;
-            width: 100px;
-            border-radius: 15px;
-            font-size: 12px;
-            transition: 0.25s;
-            text-align: center;
+        .search-box {
+            flex-grow: 1; /* Chiếm phần lớn không gian */
         }
 
-        .menu-item i { font-size: 18px; margin-bottom: 5px; }
-        .menu-item:hover { background-color: #ff4d4d; color: white; transform: scale(1.05); }
-        .menu-item.active { background-color: #ff4d4d; color: white; }
-
-        .sidebar-bottom { margin-top: auto; margin-bottom: 20px; }
-
-        /* Main layout */
-        .main-container { flex: 1; padding: 15px 25px; overflow-y: auto; }
-        h2 { margin-bottom: 10px; font-size: 22px; }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr; /* tăng tỉ lệ hai panel */
-            max-width: 1200px; /* tăng tổng chiều rộng */
-            margin: 0 auto;
-        }
-
-        .menu-panel, .order-panel {
-            background: #fff;
-            border-radius: 10px;
+        .filter-box {
+            width: 300px; /* Độ rộng cố định cho bộ lọc */
             padding: 15px;
-            box-shadow: 0 0 6px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0; /* Không co lại */
         }
 
-        .menu-header { display: flex; justify-content: space-between; align-items: center; }
-
-        .categories select {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px;
-            font-size: 14px;
-            width: 180px;
+        @media (max-width: 992px) {
+            .search-filter-area {
+                flex-direction: column;
+            }
+            .filter-box {
+                width: 100%;
+            }
         }
 
-        .categories button {
-            border: none;
-            background-color: #ff4d4d;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .categories button:hover { background-color: #e60000; }
-
-        .search-bar input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 150px;
-        }
-
-        .menu-grid {
+        /* --- Lưới sản phẩm --- */
+        .product-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Rộng hơn 1 chút */
+            gap: 25px;
         }
 
         .product-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 5px;
+            border: none; /* Bỏ viền cũ */
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
+            background-color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Hiệu ứng mượt mà hơn */
             cursor: pointer;
-            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Bóng đổ nhẹ */
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px); /* Nhấc lên nhiều hơn */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Bóng đổ nổi bật */
         }
 
         .product-card img {
             width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 6px;
+            height: 180px; /* Tăng chiều cao ảnh */
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: #f1f1f1; /* Nền ảnh nhẹ */
         }
 
-        .product-card:hover { background-color: #f0f0f0; }
+        .product-name {
+            font-weight: 600;
+            font-size: 17px;
+            color: #343a40;
+            margin: 8px 0 5px;
+            /* Giới hạn tên sản phẩm 2 dòng */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            height: 40px; /* Đảm bảo chiều cao cố định */
+        }
 
-        /*!* Pagination *!*/
+        .product-price {
+            font-weight: 700;
+            color: #dc3545; /* Màu đỏ nổi bật cho giá */
+            font-size: 18px;
+            margin-top: 8px;
+        }
+
+        /* --- Phân trang --- */
         .pagination {
             display: flex;
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 40px;
         }
 
         .pagination a {
             color: #007bff;
-            padding: 5px 10px;
-            margin: 0 3px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: 1px solid #007bff; /* Viền màu xanh */
+            border-radius: 20px; /* Bo tròn hơn */
             text-decoration: none;
-            font-size: 13px;
+            transition: all 0.3s;
         }
 
-        .pagination a.active { background-color: #007bff; color: white; }
-        .pagination a:hover { background-color: #0056b3; color: white; }
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #e9f5ff; /* Màu nền nhẹ khi hover */
+            color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Tùy chỉnh form-check trong filter-box */
+        .filter-box .form-check-label {
+            cursor: pointer;
+            padding-left: 5px;
+            color: #495057;
+        }
+        .filter-box h5 {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
     </style>
 </head>
 <body>
-<!-- Main Content -->
-<div class="main-container">
-    <h2>MENU</h2>
+<div class="container mt-4">
+    <div class="text-center">
+        <h2 class="mb-4 d-inline-block">MENU</h2>
+    </div>
 
-    <form th:action="@{/menu}" method="post">
-        <div class="container">
+    <div class="search-filter-area">
+        <div class="filter-box">
+            <h5 class="mb-3">Filter by Category:</h5>
+            <form th:action="@{/menu}" method="get">
+                <input type="hidden" name="keyword" th:value="${keyword}"/>
 
-            <!-- LEFT PANEL -->
-            <div class="menu-panel">
-                <div class="menu-header">
-                    <div class="categories">
-                        <h3 style="font-size:17px;">Menu Category</h3>
-                        <div class="d-flex align-items-center gap-2">
-                            <select id="categorySelect" name="categoryId" class="form-select">
-                                <option value="0">-- All Categories --</option>
-                                <option th:each="category : ${categoryList}"
-                                        th:value="${category.cateId}"
-                                        th:text="${category.cateName}"
-                                        th:selected="${category.cateId == selectedCategoryId}">
-                                </option>
-                            </select>
-                            <button type="button" onclick="filterCategory()">Filter</button>
-                        </div>
-                    </div>
-                    <div class="search-bar">
-                        <input type="text" placeholder="Search...">
-                    </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="categoryId" id="category-all" value="0"
+                           th:checked="${selectedCategoryId == null || selectedCategoryId == 0}"
+                           onchange="this.form.submit()">
+                    <label class="form-check-label" for="category-all">
+                        -- All Categories --
+                    </label>
                 </div>
 
-                <!-- Product Grid -->
-                <div class="menu-grid">
-                    <div th:each="product : ${productList}" class="product-card">
-                        <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
-                        <p class="product-name" th:text="${product.proName}"></p>
-                        <p class="product-price"><b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b></p>
-                    </div>
+                <div th:each="category : ${categoryList}" class="form-check">
+                    <input class="form-check-input" type="radio" name="categoryId"
+                           th:id="'category-' + ${category.cateId}"
+                           th:value="${category.cateId}"
+                           th:checked="${category.cateId == selectedCategoryId}"
+                           onchange="this.form.submit()">
+                    <label class="form-check-label"
+                           th:for="'category-' + ${category.cateId}"
+                           th:text="${category.cateName}">
+                        Category Name
+                    </label>
                 </div>
+            </form>
+        </div>
 
-                <!-- Pagination -->
-                <div class="pagination">
-                    <a th:href="@{/menu(page=1)}">&lt;&lt;</a>
-                    <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-                       th:href="@{/menu(page=${i})}"
-                       th:text="${i}"
-                       th:classappend="${i == currentPage} ? 'active' : ''"></a>
-                    <a th:href="@{/menu(page=${totalPages})}">&gt;&gt;</a>
+        <div class="search-box">
+            <form th:action="@{/menu/search}" method="get" class="d-flex mb-3">
+                <input type="text"
+                       name="keyword"
+                       class="form-control me-2 rounded-pill shadow-sm"
+                       placeholder="Enter the product name to search..."
+                       th:value="${keyword}" aria-label="Search">
+                <button class="btn btn-primary rounded-pill" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                    &nbsp; Search
+                </button>
+            </form>
+
+            <div th:if="${pageProduct.isEmpty()}" class="alert alert-info text-center mt-4 p-4 shadow-sm" role="alert">
+                No products found matching the keyword: <strong>"[[${keyword}]]"</strong>.
+            </div>
+
+            <div th:unless="${pageProduct.isEmpty()}">
+                <div class="product-grid">
+                    <div th:each="product : ${pageProduct}"
+                         class="product-card"
+                         th:onclick="|window.location.href='@{/product/{id}(id=${product.proId})}'|">
+
+                        <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image">
+                        <p class="product-name" th:text="${product.proName}">Tên sản phẩm</p>
+                        <p class="product-price"
+                           th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}">
+                            30,000 VND
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
+
+    <nav aria-label="Product Page Navigation">
+        <ul class="list-unstyled pagination">
+            <th:block th:with="
+                isSearch=${keyword != null and !keyword.isEmpty()},
+                currentURL=${isSearch ? '/menu/search' : '/menu'},
+                currentKeyword=${keyword != null ? keyword : ''},
+                currentCategoryId=${selectedCategoryId != null ? selectedCategoryId : 0}
+            ">
+
+                <li class="page-item" th:classappend="${pageProduct.isFirst()} ? 'disabled' : ''">
+                    <a class="page-link" href="#"
+                       th:href="@{${currentURL}(
+                           page=${pageProduct.getNumber()},
+                           keyword=${isSearch ? currentKeyword : null},
+                           categoryId=${isSearch ? null : currentCategoryId}
+                       )}">
+                        &laquo; Previous
+                    </a>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(1,pageProduct.getTotalPages())}"
+                    th:classappend="${i == pageProduct.getNumber()+1} ? 'active':''">
+                    <a class="page-link"
+                       th:href="@{${currentURL}(
+                           page=${i},
+                           keyword=${isSearch ? currentKeyword : null},
+                           categoryId=${isSearch ? null : currentCategoryId}
+                       )}"
+                       th:text="${i}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${pageProduct.isLast()} ? 'disabled'">
+                    <a class="page-link" href="#"
+                       th:href="@{${currentURL}(
+                           page=${pageProduct.getNumber() + 2},
+                           keyword=${isSearch ? currentKeyword : null},
+                           categoryId=${isSearch ? null : currentCategoryId}
+                       )}">
+                        Next &raquo;
+                    </a>
+                </li>
+            </th:block>
+        </ul>
+    </nav>
 </div>
 </body>
 </html>
