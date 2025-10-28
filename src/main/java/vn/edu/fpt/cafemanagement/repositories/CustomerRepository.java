@@ -27,4 +27,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+
+
+//Tặng điểm sinh nhật khách
+    @Query("SELECT c FROM Customer c WHERE MONTH(c.dateOfBirth) = :month AND DAY(c.dateOfBirth) = :day")
+    List<Customer> findCustomersByBirthday(@Param("month") int month, @Param("day") int day);
+
 }

@@ -1,5 +1,7 @@
 package vn.edu.fpt.cafemanagement.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,14 +21,20 @@ public interface ManagerRepository extends JpaRepository<Manager, Integer> {
     Optional<Manager> findByUsername(String username);
     Optional<Manager> findByEmail(String email);
     Optional<Manager> findByPhoneNumber(String phoneNumber);
+
+
+    Page<Manager> findByIsActiveTrue(Pageable pageable);
+    Page<Manager> findByIsActiveFalse(Pageable pageable);
+    // Search có phân trang
     @Query("SELECT m FROM Manager m LEFT JOIN m.role r WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(m.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(r.roleName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<Manager> search(@Param("keyword") String keyword);
+    Page<Manager> search(@Param("keyword") String keyword, Pageable pageable);
 
     // Lấy danh sách nhân viên còn active
     List<Manager> findByIsActiveTrue();
 
     // Lấy danh sách nhân viên đã xóa
     List<Manager> findByIsActiveFalse();
+
 
 
 }
