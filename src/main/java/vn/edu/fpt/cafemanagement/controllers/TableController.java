@@ -31,7 +31,7 @@ public class TableController {
 
     @GetMapping(path = "/management")
     @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
-    public String showTableListForStaff(Model model,
+    public String showTableListManagement(Model model,
                                         @RequestParam(required = false) String status,
                                         @RequestParam(required = false) Integer capacity) {
         List<Table> tables = tableService.getTablesList();
