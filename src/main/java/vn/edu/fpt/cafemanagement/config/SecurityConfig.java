@@ -32,21 +32,22 @@ public class SecurityConfig {
 
         http.csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
-                        .permitAll()
-                        .requestMatchers( "/table/booking/management").hasRole("CASHIER")
-                     
-                        .requestMatchers( "/dashboard/staff/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/admin/vouchers/list").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/admin/vouchers/create").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/admin/vouchers/edit/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/admin/vouchers/deleted-list").hasRole("ADMIN")
-                        .requestMatchers( "/product/list").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/staff").hasRole("ADMIN")
+                                .requestMatchers("/login**", "/assets/**", "/forgot-password", "/set-password**", "/register", "/home")
+                                .permitAll()
+                                .requestMatchers("/table/booking/management").hasRole("CASHIER")
+
+                                .requestMatchers("/dashboard/staff/**").hasRole("ADMIN")
+                                .requestMatchers("/dashboard/admin/vouchers/list").hasRole("ADMIN")
+                                .requestMatchers("/dashboard/admin/vouchers/create").hasRole("ADMIN")
+                                .requestMatchers("/dashboard/admin/vouchers/edit/**").hasRole("ADMIN")
+                                .requestMatchers("/dashboard/admin/vouchers/deleted-list").hasRole("ADMIN")
+                                .requestMatchers("/product/**").hasRole("ADMIN")
+                                .requestMatchers("/dashboard/staff").hasRole("ADMIN")
 //                        .requestMatchers( "/dashboard/staff/delete/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard").hasRole("ADMIN")
-                        .anyRequest()
-                        .authenticated()
+                                .requestMatchers("/category/**").hasRole("ADMIN")
+                                .requestMatchers("/dashboard").hasRole("ADMIN")
+                                .anyRequest()
+                                .authenticated()
                 )
 
                 .exceptionHandling(exc -> exc
@@ -65,7 +66,7 @@ public class SecurityConfig {
                         )
                         .defaultSuccessUrl("/home", true))
 
-                .logout(logout ->logout
+                .logout(logout -> logout
                         .logoutUrl("/logout")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
@@ -95,7 +96,6 @@ public class SecurityConfig {
             }
         };
     }
-
 
 
 }
