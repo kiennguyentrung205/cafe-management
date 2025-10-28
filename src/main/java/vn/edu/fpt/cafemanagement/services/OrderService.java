@@ -117,4 +117,9 @@ public class OrderService {
         LocalDateTime adjustedEndDateTime = endDate.plusDays(1).atStartOfDay();
         return orderRepository.findAllByCreatedAtGreaterThanEqualAndCreatedAtLessThan(startDateTime, adjustedEndDateTime);
     }
+
+    public Page<Order> getServedOrCanceledOrders(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("updatedAt").descending());
+        return orderRepository.findByStatusIn(List.of("Served", "Canceled"), pageable);
+    }
 }

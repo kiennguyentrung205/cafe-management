@@ -74,15 +74,6 @@ public class OrderController {
             productPage = productService.getActiveProductsPaged(pageable);
         }
 
-        int totalPages = productPage.getTotalPages();
-        if (page > totalPages && totalPages > 0) {
-            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                return "error/404 :: content";
-            } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
-            }
-        }
-
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
         model.addAttribute("query", query != null ? query : "");
@@ -106,7 +97,7 @@ public class OrderController {
             @RequestParam(value = "voucherId", required = false) Optional<Integer> voucherId,
             @RequestParam(value = "customerPhone", required = false) String customerPhone,
             @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
-            Model model) {
+            Model model, HttpSession session) {
 
         if ("check".equals(action)) {
             Customer customer = customerService.getCustomerByPhone(customerPhone);
@@ -136,16 +127,19 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
-        Manager manager = managerService.getDefaultManager();
+        Manager manager = (Manager) session.getAttribute("loggedInUser");
         if (manager == null) {
-            model.addAttribute("error", "No manager available!");
+            model.addAttribute("error", "No logged-in manager!");
             return reloadCreatePage(model);
         }
 
         Order order = new Order();
         if (customer != null) order.setCustomer(customer);
-        order.setManager(manager);
+
+        order.setManager(manager);      // người tạo đơn
+        order.setUpdatedBy(manager);    // ban đầu = người tạo đơn
         order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
         order.setStatus("Pending");
         order.setPointsUsed(pointsUsed);
 
@@ -217,10 +211,6 @@ public class OrderController {
         int pageSize = 6;
         Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
-        int totalPages = orderPage.getTotalPages();
-        if (page > totalPages && totalPages > 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
-        }
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -232,11 +222,6 @@ public class OrderController {
     public String viewOrdersHistory(@RequestParam(defaultValue = "1") int page, Model model) {
         int pageSize = 6;
         Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
-
-        int totalPages = orderPage.getTotalPages();
-        if (page > totalPages && totalPages > 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
-        }
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -265,11 +250,6 @@ public class OrderController {
         int pageSize = 6;
         Page<Order> orderPage = orderService.getUnservedOrders(page, pageSize);
 
-        int totalPages = orderPage.getTotalPages();
-        if (page > totalPages && totalPages > 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
-        }
-
         Manager currentUser = (Manager) session.getAttribute("loggedInUser");
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("orders", orderPage.getContent());
@@ -280,6 +260,25 @@ public class OrderController {
         return "order/edit";
     }
 
+    @GetMapping("/edit-history")
+    public String showEditOrderHistoryPage(
+            @RequestParam(defaultValue = "1") int page,
+            Model model,
+            HttpSession session) {
+
+        int pageSize = 6;
+        Page<Order> orderPage = orderService.getServedOrCanceledOrders(page, pageSize);
+
+
+        Manager currentUser = (Manager) session.getAttribute("loggedInUser");
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("title", "Edit Order History");
+
+        return "order/edit-history";
+    }
 
     @PostMapping("/updateStatus")
     @Transactional
