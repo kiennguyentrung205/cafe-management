@@ -25,7 +25,7 @@ public class CategoryService {
     }
 
     public Category getCategoryById(Integer categoryId) {
-        return categoryRepository.findById(categoryId).get();
+        return categoryRepository.findById(categoryId).orElse(null);
     }
 
     public void saveCategory(Category category) {

@@ -34,9 +34,19 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/edit/{id}")
-    public String showEditForm(@PathVariable("id") int id, Model model) {
+    public String showEditForm(@PathVariable("id") String id, Model model) {
+
+        Integer idInt = null;
+        try {
+            idInt = Integer.parseInt(id);
+        } catch (NumberFormatException e) {
+            // ID là chữ! Gán null hoặc -1 để đảm bảo productService trả về null
+            System.err.println("ID nhập vào không phải là số: " + id);
+            idInt = -1; // Hoặc một giá trị chắc chắn không tồn tại
+        }
         model.addAttribute("title", "Edit Category");
-        model.addAttribute("category", categoryService.getCategoryById(id));
+
+        model.addAttribute("category", categoryService.getCategoryById(idInt));
 
         return "category/edit";
     }
@@ -48,9 +58,20 @@ public class CategoryController {
         return "category/deleted-list";
     }
 
-    @PostMapping(value = "/edit")
-    public String editCategory(@ModelAttribute("category") Category category, Model model) {
+    @PostMapping(value = "/edit/{id}")
+    public String editCategory(@ModelAttribute("category") Category category, @PathVariable("id") int cateId, Model model) {
         boolean hasError = false;
+
+        // 1. KIỂM TRA MÂU THUẪN ID
+        if (cateId != category.getCateId()) {
+            System.err.println("SECURITY ALERT: Product ID mismatch. URL ID: " + cateId + ", Form ID: " + category.getCateId());
+
+            // Trả về trang lỗi
+            model.addAttribute("title", "Lỗi Bảo Mật Dữ Liệu");
+            model.addAttribute("errorMessage", "Thông tin ID sản phẩm không nhất quán. Yêu cầu của bạn đã bị từ chối để đảm bảo an toàn hệ thống.");
+            return "error-page"; // Trả về error-page.html
+        }
+        Category originalCategory = categoryService.getCategoryById(cateId);
 
         // Validation Name
         String proName = category.getCateName();
@@ -64,9 +85,9 @@ public class CategoryController {
         if (hasError) {
             // Đảm bảo truyền lại danh sách category nếu có lỗi
             // model.addAttribute("categoryList", categoryService.findAll());
-            model.addAttribute("categoryList", categoryService.getCategories());
             return "/category/edit";
         }
+        originalCategory.setCateName(category.getCateName());
         categoryService.saveCategory(category);
         return "redirect:/category/list";
     }
@@ -80,7 +101,7 @@ public class CategoryController {
     @PostMapping(value = "/create")
     public String createCategory(@ModelAttribute("category") Category category, Model model) {
         boolean hasError = false;
-
+        category.setCateId(0);
         // Validation Name
         String proName = category.getCateName();
         if (proName == null || proName.trim().isEmpty()) {
@@ -92,8 +113,7 @@ public class CategoryController {
         }
         if (hasError) {
             // Đảm bảo truyền lại danh sách category nếu có lỗi
-            // model.addAttribute("categoryList", categoryService.findAll());
-            model.addAttribute("categoryList", categoryService.getCategories());
+
             return "/category/create";
         }
         category.setActive(true);
