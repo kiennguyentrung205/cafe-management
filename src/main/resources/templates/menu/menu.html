@@ -164,7 +164,7 @@
 
     <div class="search-filter-area">
         <div class="filter-box">
-            <h5 class="mb-3">Lọc theo Danh mục:</h5>
+            <h5 class="mb-3">Filter by Category:</h5>
             <form th:action="@{/menu}" method="get">
                 <input type="hidden" name="keyword" th:value="${keyword}"/>
 
@@ -173,7 +173,7 @@
                            th:checked="${selectedCategoryId == null || selectedCategoryId == 0}"
                            onchange="this.form.submit()">
                     <label class="form-check-label" for="category-all">
-                        -- Tất cả sản phẩm --
+                        -- All Categories --
                     </label>
                 </div>
 
@@ -197,18 +197,18 @@
                 <input type="text"
                        name="keyword"
                        class="form-control me-2 rounded-pill shadow-sm"
-                       placeholder="Nhập tên sản phẩm cần tìm..."
+                       placeholder="Enter the product name to search..."
                        th:value="${keyword}" aria-label="Search">
                 <button class="btn btn-primary rounded-pill" type="submit">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                     </svg>
-                    &nbsp;Tìm
+                    &nbsp; Search
                 </button>
             </form>
 
             <div th:if="${pageProduct.isEmpty()}" class="alert alert-info text-center mt-4 p-4 shadow-sm" role="alert">
-                😢 Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.
+                No products found matching the keyword: <strong>"[[${keyword}]]"</strong>.
             </div>
 
             <div th:unless="${pageProduct.isEmpty()}">
@@ -245,7 +245,7 @@
                            keyword=${isSearch ? currentKeyword : null},
                            categoryId=${isSearch ? null : currentCategoryId}
                        )}">
-                        &laquo; Trước
+                        &laquo; Previous
                     </a>
                 </li>
 
@@ -267,7 +267,7 @@
                            keyword=${isSearch ? currentKeyword : null},
                            categoryId=${isSearch ? null : currentCategoryId}
                        )}">
-                        Sau &raquo;
+                        Next &raquo;
                     </a>
                 </li>
             </th:block>
