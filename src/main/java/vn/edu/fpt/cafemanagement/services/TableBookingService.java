@@ -44,7 +44,7 @@ public class TableBookingService {
         return tableBookingRepository.findAll(pageable);
     }
 
-    public Page<TableBooking> findByBookingTimeBetween(Integer cusId, String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+    public Page<TableBooking> findTableBookingCustomer(Integer cusId, String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
         boolean hasDate = start != null && end != null;
         boolean hasStatus = status != null && !status.isBlank();
 
@@ -59,12 +59,11 @@ public class TableBookingService {
         }
     }
 
-    public Page<TableBooking> findByStatusAndDateBetween(String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+    public Page<TableBooking> findTableBookingManager(String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
         boolean hasDate = start != null && end != null;
         boolean hasStatus = status != null && !status.isBlank();
 
         if (!hasDate && !hasStatus) {
-//            return tableBookingRepository.findAll(pageable);
             return tableBookingRepository.findAllByOrderByBookingTimeDesc(pageable);
         } else if (hasDate && !hasStatus) {
             return tableBookingRepository.findByBookingTimeBetweenOrderByBookingTimeDesc(start, end, pageable);

@@ -65,13 +65,13 @@ public class TableBookingController {
         int pageIndex = Math.max(page - 1, 0);
         Pageable pageable = PageRequest.of(pageIndex, size);
 
-        Page<TableBooking> tableBooking = tableBookingService.findByBookingTimeBetween(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
+        Page<TableBooking> tableBooking = tableBookingService.findTableBookingCustomer(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
 
         if (page > tableBooking.getTotalPages()) {
             page = tableBooking.getTotalPages();
             pageIndex = Math.max(page - 1, 0);
             pageable = PageRequest.of(pageIndex, size);
-            tableBooking = tableBookingService.findByBookingTimeBetween(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
+            tableBooking = tableBookingService.findTableBookingCustomer(loggedCustomer.getCusId(), status, startDateTime, endDateTime, pageable);
         }
 //        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
 
@@ -83,6 +83,9 @@ public class TableBookingController {
         model.addAttribute("tableBooking", tableBooking);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startDate", startDateTime);
+        model.addAttribute("endDate", endDateTime);
+        model.addAttribute("status", status);
         return "table-booking/view-table-booking";
     }
 
@@ -186,15 +189,14 @@ public class TableBookingController {
         int pageIndex = Math.max(page - 1, 0);
         Pageable pageable = PageRequest.of(pageIndex, size);
 
-        Page<TableBooking> tableBooking = tableBookingService.findByStatusAndDateBetween( status, startDateTime, endDateTime, pageable);
+        Page<TableBooking> tableBooking = tableBookingService.findTableBookingManager( status, startDateTime, endDateTime, pageable);
 
         if (page > tableBooking.getTotalPages()) {
             page = tableBooking.getTotalPages();
             pageIndex = Math.max(page - 1, 0);
             pageable = PageRequest.of(pageIndex, size);
-            tableBooking = tableBookingService.findByStatusAndDateBetween(status, startDateTime, endDateTime, pageable);
+            tableBooking = tableBookingService.findTableBookingManager(status, startDateTime, endDateTime, pageable);
         }
-//        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
 
         List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in"));
 
@@ -206,36 +208,39 @@ public class TableBookingController {
         model.addAttribute("tableBooking", tableBooking);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startDate", startDateTime);
+        model.addAttribute("endDate", endDateTime);
+        model.addAttribute("status", status);
         return "staff/table-booking/staff-table-booking-history";
     }
 
-    @PostMapping(value="/management/checkin")
-    public String checkInBookingManagement(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
-        TableBooking booking = tableBookingService.findById(bookingId);
-
-        if(booking.getStatus().equals("canceled")) {
-            return "redirect:/table/booking/management?update=failed";
-        }
-
-        booking.setStatus("checked-in");
-        booking.getTable().setStatus("occupied");
-
-        tableBookingService.save(booking);
-        return "redirect:/table/booking/management?update=success";
-    }
-
-    @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
-    @PostMapping(value = "management/cancel")
-    public String cancelBookingManagement(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
-        TableBooking tableBooking = tableBookingService.findById(bookingId);
-
-        tableService.updateTableStatus(tableBooking.getTable().getTableId(), "available");
-
-        tableBooking.setStatus("canceled");
-        tableBookingService.save(tableBooking);
-
-        return "redirect:/table/booking/management?cancel=success";
-    }
+//    @PostMapping(value="/management/checkin")
+//    public String checkInBookingManagement(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
+//        TableBooking booking = tableBookingService.findById(bookingId);
+//
+//        if(booking.getStatus().equals("canceled")) {
+//            return "redirect:/table/booking/management?update=failed";
+//        }
+//
+//        booking.setStatus("checked-in");
+//        booking.getTable().setStatus("occupied");
+//
+//        tableBookingService.save(booking);
+//        return "redirect:/table/booking/management?update=success";
+//    }
+//
+//    @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
+//    @PostMapping(value = "management/cancel")
+//    public String cancelBookingManagement(Model model, @RequestParam("tableBookingId") int bookingId, RedirectAttributes redirectAttributes) {
+//        TableBooking tableBooking = tableBookingService.findById(bookingId);
+//
+//        tableService.updateTableStatus(tableBooking.getTable().getTableId(), "available");
+//
+//        tableBooking.setStatus("canceled");
+//        tableBookingService.save(tableBooking);
+//
+//        return "redirect:/table/booking/management?cancel=success";
+//    }
 
 
     @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
