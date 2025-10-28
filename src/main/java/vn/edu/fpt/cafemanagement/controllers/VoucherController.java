@@ -21,40 +21,40 @@ public class VoucherController {
         this.voucherService = voucherService;
     }
 
-    @GetMapping(value = {"/dashboard/admin/vouchers", "/dashboard/admin/vouchers/list"})
+    @GetMapping(value = {"/dashboard/vouchers", "/dashboard/vouchers/list"})
     public String getVouchers(Model model) {
         List<Voucher> activeVouchers = voucherService.findAll().stream().filter(Voucher::isActive).collect(Collectors.toList());
         activeVouchers.forEach(v -> v.setSignature(SignUtil.sign(String.valueOf(v.getVoucherId())))); //lambda expression
         model.addAttribute("vouchers", activeVouchers);
-        return "/dashboard/admin/vouchers/list";
+        return "/dashboard/vouchers/list";
     }
 
-    @RequestMapping(value = "/dashboard/admin/vouchers/create")
+    @RequestMapping(value = "/dashboard/vouchers/create")
     public String createVoucher(Model model) {
         model.addAttribute("voucher", new Voucher());
-        return "dashboard/admin/vouchers/create";
+        return "dashboard/vouchers/create";
     }
 
-    @RequestMapping(value = "/dashboard/admin/vouchers/edit/{id}")
+    @RequestMapping(value = "/dashboard/vouchers/edit/{id}")
     public String editVoucher(Model model, @PathVariable("id") int id, Voucher voucher) {
         voucher.setVoucherId(id);
         String signature = SignUtil.sign(String.valueOf(voucher.getVoucherId()));
         model.addAttribute("voucher", voucherService.findById(id));
         model.addAttribute("sig", signature);
-        return "dashboard/admin/vouchers/edit";
+        return "dashboard/vouchers/edit";
     }
 
-    @RequestMapping(value = "dashboard/admin/vouchers/save", method = RequestMethod.POST)
+    @RequestMapping(value = "dashboard/vouchers/save", method = RequestMethod.POST)
     public String save(@Validated @ModelAttribute(name = "voucher") Voucher voucher, @RequestParam(name = "sig", required = false) String signature, BindingResult bindingResult, Model model) {
 //        exception data
         if (bindingResult.hasErrors()) {
             model.addAttribute("message", "Error: Invalid! Please try again.");
             if (voucher.getVoucherId() == 0) {
                 //  create
-                return "dashboard/admin/vouchers/create";
+                return "dashboard/vouchers/create";
             } else {
                 //  edit
-                return "dashboard/admin/vouchers/edit";
+                return "dashboard/vouchers/edit";
             }
         }
 //        validate blank
@@ -62,10 +62,10 @@ public class VoucherController {
             model.addAttribute("message", "Error: Please fill all the fields!");
             if (voucher.getVoucherId() == 0) {
                 //  create
-                return "dashboard/admin/vouchers/create";
+                return "dashboard/vouchers/create";
             } else {
                 //  edit
-                return "dashboard/admin/vouchers/edit";
+                return "dashboard/vouchers/edit";
             }
         }
 //        validate voucher name and voucher code
@@ -73,35 +73,35 @@ public class VoucherController {
             model.addAttribute("message", "Error: Voucher Name or Voucher Code is invalid!. EX: VCH123 or DISCOUNT50%");
             if (voucher.getVoucherId() == 0) {
                 //  create
-                return "dashboard/admin/vouchers/create";
+                return "dashboard/vouchers/create";
             } else {
                 //  edit
-                return "dashboard/admin/vouchers/edit";
+                return "dashboard/vouchers/edit";
             }
         }
 //       Validate Date
         if (voucher.getStartDate() == null || voucher.getEndDate() == null) {
             model.addAttribute("message", "Error: Please select both start and end dates!");
-            return voucher.getVoucherId() == 0 ? "dashboard/admin/vouchers/create" : "edit";
+            return voucher.getVoucherId() == 0 ? "dashboard/vouchers/create" : "edit";
         }
         if (voucher.getStartDate().isAfter(voucher.getEndDate())) {
             model.addAttribute("message", "Error: Start Date cannot be after End Date!");
             if (voucher.getVoucherId() == 0) {
                 //  create
-                return "dashboard/admin/vouchers/create";
+                return "dashboard/vouchers/create";
             } else {
                 //  edit
-                return "dashboard/admin/vouchers/edit";
+                return "dashboard/vouchers/edit";
             }
         }
         if (voucher.getEndDate().isBefore(voucher.getStartDate())) {
             model.addAttribute("message", "Error: End Date cannot be before Start Date!");
             if (voucher.getVoucherId() == 0) {
                 //  create
-                return "dashboard/admin/vouchers/create";
+                return "dashboard/vouchers/create";
             } else {
                 //  edit
-                return "dashboard/admin/vouchers/edit";
+                return "dashboard/vouchers/edit";
             }
         }
 //        check duplicate
@@ -110,7 +110,7 @@ public class VoucherController {
             for (Voucher list : voucherService.findAll()) {
                 if (voucher.getVoucherName().equals(list.getVoucherName()) || voucher.getCode().equals(list.getCode())) {
                     model.addAttribute("message", "Error: Voucher Name or Code already exists!");
-                    return "dashboard/admin/vouchers/create";
+                    return "dashboard/vouchers/create";
                 }
             }
         }
@@ -118,20 +118,20 @@ public class VoucherController {
             boolean valid = SignUtil.verify(String.valueOf(voucher.getVoucherId()), signature);
             if (!valid) {
                 model.addAttribute("message", "⚠️DO NOT F12!!!!!!, YEAH I'M TELLING U");
-                return "/dashboard/admin/vouchers/edit";
+                return "/dashboard/vouchers/edit";
             }
         }
 
         voucher.setActive(true);
         voucherService.save(voucher);
-        return "redirect:/dashboard/admin/vouchers/list";
+        return "redirect:/dashboard/vouchers/list";
     }
 
-    @RequestMapping(value = "/dashboard/admin/vouchers/remove", method = RequestMethod.POST)
+    @RequestMapping(value = "/dashboard/vouchers/remove", method = RequestMethod.POST)
     public String remove(@ModelAttribute(name = "voucher") Voucher voucher, @RequestParam("voucherId") int id, @RequestParam("sig") String sig, Model model) {
         if (!SignUtil.verify(String.valueOf(id), sig)) {
             model.addAttribute("error", "⚠️DO NOT F12!!!!!!, YEAH I'M TELLING U");
-            return "/dashboard/admin/vouchers/list";
+            return "/dashboard/vouchers/list";
         }
 
         voucher = voucherService.findById(id);
@@ -140,22 +140,22 @@ public class VoucherController {
             voucherService.save(voucher);
         }
 
-        return "redirect:/dashboard/admin/vouchers/list";
+        return "redirect:/dashboard/vouchers/list";
     }
 
-    @RequestMapping(value = "/dashboard/admin/vouchers/deleted-list")
+    @RequestMapping(value = "/dashboard/vouchers/deleted-list")
     public String trashVoucher(Model model) {
         model.addAttribute("vouchers", voucherService.getNoActiveVouchers());
-        return "dashboard/admin/vouchers/deleted-list";
+        return "dashboard/vouchers/deleted-list";
     }
 
-    @RequestMapping(value = "/dashboard/admin/vouchers/restore")
+    @RequestMapping(value = "/dashboard/vouchers/restore")
     public String restore(Model model, Voucher voucher, @RequestParam(name = "voucherId") int id) {
         System.out.println("HELLLLLL");
         voucher = voucherService.findById(id);
         voucher.setActive(true);
         voucherService.save(voucher);
         model.addAttribute("vouchers", voucherService.getNoActiveVouchers());
-        return "dashboard/admin/vouchers/deleted-list";
+        return "dashboard/vouchers/deleted-list";
     }
 }
