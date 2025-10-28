@@ -3,7 +3,7 @@
 <head th:replace="~{fragment/frag :: head}"></head>
 <body>
 <div th:insert="~{fragment/frag::navbar}"></div><div class="container">
-    <a th:href="@{/dashboard/admin/vouchers/list}">Back</a>
+    <a th:href="@{/dashboard/vouchers/list}">Back</a>
     <table class="table">
         <thead>
         <tr>
@@ -50,7 +50,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <form th:action="@{/dashboard/admin/vouchers/restore}">
+                <form th:action="@{/dashboard/vouchers/restore}">
                     <input type="hidden" name="voucherId" id="deleteVoucherId">
                     <button type="submit" class="btn btn-primary">Restore</button>
                 </form>
