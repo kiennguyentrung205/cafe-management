@@ -1,9 +1,10 @@
 package vn.edu.fpt.cafemanagement.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Manager;
-import vn.edu.fpt.cafemanagement.entities.Role;
 import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
 
 import java.util.List;
@@ -27,17 +28,15 @@ public class ManagerService {
     }
 
     @Transactional
-    public Manager createStaff(Manager staff) {
-        return managerRepository.save(staff);
-    }
-    @Transactional
     //Create, Update
     public Manager save(Manager staff) {
         return managerRepository.save(staff);
     }
+
     public Manager findByUsername(String username) {
         return managerRepository.findByUsername(username).orElse(null);
     }
+
 
     public Manager findByEmail(String email) {
         return managerRepository.findByEmail(email).orElse(null);
@@ -50,6 +49,10 @@ public class ManagerService {
     @Transactional
     public void deleteById(int id) {
         managerRepository.deleteById(id);
+    }
+
+    public Page<Manager> findByIsActiveTrue(Pageable pageable) {
+        return managerRepository.findAll(pageable);
     }
 
     public Manager getDefaultManager() {
@@ -73,13 +76,16 @@ public class ManagerService {
         return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
-    public List<Manager> searchStaff(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) return managerRepository.findAll();
-        return managerRepository.search(keyword.trim());
+    public Page<Manager> getActiveStaffs(Pageable pageable) {
+        return managerRepository.findByIsActiveTrue(pageable);
     }
 
-    public boolean emailExisted(String email) {
-        return managerRepository.findByEmail(email).isPresent();
+    public Page<Manager> getDeletedStaffs(Pageable pageable) {
+        return managerRepository.findByIsActiveFalse(pageable);
+    }
+
+    public Page<Manager> searchStaff(String keyword, Pageable pageable) {
+        return managerRepository.search(keyword.trim(), pageable);
     }
 
 
@@ -90,6 +96,7 @@ public class ManagerService {
     public List<Manager> getDeletedStaffs() {
         return managerRepository.findByIsActiveFalse();
     }
+
     @Transactional
     public void softDelete(int id) {
         Manager staff = managerRepository.findById(id).orElse(null);
@@ -100,6 +107,11 @@ public class ManagerService {
     }
 
     @Transactional
+    public void hardDelete(int id) {
+        managerRepository.deleteById(id);
+    }
+
+    @Transactional
     public void restore(int id) {
         Manager staff = managerRepository.findById(id).orElse(null);
         if (staff != null) {
@@ -107,8 +119,4 @@ public class ManagerService {
             managerRepository.save(staff);
         }
     }
-
-
-
-
 }

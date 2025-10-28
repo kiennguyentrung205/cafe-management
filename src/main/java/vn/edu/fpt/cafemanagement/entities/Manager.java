@@ -49,7 +49,7 @@ public class Manager implements UserDetails {
     private String img;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private boolean isActive = true;
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
     private List<Order> orders;

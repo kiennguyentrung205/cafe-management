@@ -148,46 +148,36 @@
             <th>Order#</th>
             <th>Status</th>
             <th>Note</th>
-            <th>Role</th>
+            <th>Staff</th>
             <th>Updated At</th>
         </tr>
         </thead>
 
         <tbody>
-        <form th:action="@{/order/updateStatus}" method="post" th:each="order : ${orders}">
+        <form th:action="@{/order/updateStatus}" method="post"
+              th:each="order : ${orders}"
+              th:if="${order.status != 'Served' and order.status != 'Canceled'}">
             <tr>
                 <td th:text="${order.orderId}"></td>
 
                 <td>
                     <input type="hidden" name="orderId" th:value="${order.orderId}" />
                     <select name="status" class="form-select form-select-sm me-2">
-                        <option value="pending"
-                                th:selected="${order.status == null or order.status == 'pending'}">
-                            Pending
-                        </option>
-                        <option value="served"
-                                th:selected="${order.status == 'served'}">
-                            Served
-                        </option>
-                        <option value="canceled"
-                                th:selected="${order.status == 'canceled'}">
-                            Canceled
-                        </option>
+                        <option value="Served"
+                                th:selected="${order.status == 'Served'}">Served</option>
+                        <option value="Canceled"
+                                th:selected="${order.status == 'Canceled'}">Canceled</option>
                     </select>
                 </td>
 
                 <td th:text="${order.orderItems != null && !order.orderItems.isEmpty()
-                          ? order.orderItems[0].note : '-'}"></td>
+                  ? order.orderItems[0].note : '-'}"></td>
 
-                <td th:text="${currentUser != null && currentUser.role != null
-                          ? currentUser.role.roleName : 'N/A'}"></td>
+                <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
+
 
                 <td>
-                    <input type="datetime-local"
-                           name="updatedAt"
-                           class="form-control form-control-sm updatedAtInput"
-                           required />
-
+                    <input type="hidden" name="updatedAt" class="updatedAtInput" />
                     <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
                 </td>
             </tr>
@@ -196,15 +186,30 @@
     </table>
 
     <!-- Pagination -->
-    <div class="pagination">
-        <a th:href="@{/order/edit(page=1)}">&lt;&lt;</a>
-        <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-           th:href="@{/order/edit(page=${i})}"
-           th:text="${i}"
-           th:classappend="${i == currentPage ? 'active' : ''}">
-        </a>
-        <a th:href="@{/order/edit(page=${totalPages})}">&gt;&gt;</a>
-    </div>
+    <nav aria-label="Order pagination">
+        <ul class="pagination justify-content-center">
+            <!-- Previous -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/edit(page=${currentPage - 1})}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/order/edit(page=${i})}" th:text="${i}"></a>
+            </li>
+
+            <!-- Next -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/edit(page=${currentPage + 1})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 <script>

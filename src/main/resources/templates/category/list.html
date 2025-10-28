@@ -13,44 +13,51 @@
 
     <a class="btn btn-success mb-3" th:href="@{/category/create}">+ Create new category</a>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-striped table-bordered">
-            <thead class="table-dark">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Active</th>
-                <th scope="col">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="category, iterStat : ${CategoryList}" th:object="${category}">
+    <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
+        There are any category in the system
+    </div>
+    <div th:unless="${CategoryList.isEmpty()}">
 
-                <td th:text="${iterStat.index + 1}">1</td>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered">
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Active</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="category, iterStat : ${CategoryList}" th:object="${category}">
 
-                <td th:text="*{cateName}"></td>
+                    <td th:text="${iterStat.index + 1}">1</td>
 
-                <td>
-                    <span th:if="*{active}" class="badge bg-success">Active</span>
-                    <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
-                </td>
+                    <td th:text="*{cateName}"></td>
 
-                <td>
-                    <a class="btn btn-sm btn-primary" th:href="@{/category/edit/{id}(id=*{cateId})}">Edit</a>
+                    <td>
+                        <span th:if="*{active}" class="badge bg-success">Active</span>
+                        <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
+                    </td>
 
-                    <form th:action="@{/category/delete/{id}(id=*{cateId})}" method="post"
-                          style="display:inline; margin-left: 5px;">
-                        <button class="btn btn-sm btn-danger"
-                                type="submit"
-                                onclick="return confirm('Bạn có chắc muốn xóa Category này không?')">
-                            Delete
-                        </button>
-                    </form>
-                </td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" th:href="@{/category/edit/{id}(id=*{cateId})}">Edit</a>
 
-            </tr>
-            </tbody>
-        </table>
+                        <form th:action="@{/category/delete/{id}(id=*{cateId})}" method="post"
+                              style="display:inline; margin-left: 5px;">
+                            <button class="btn btn-sm btn-danger"
+                                    type="submit"
+                                    onclick="return confirm('Bạn có chắc muốn xóa Category này không?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
 </div>

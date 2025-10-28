@@ -24,7 +24,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
 
-                    <form th:action="@{/category/edit}" method="post" th:object="${category}"
+                    <form th:action="@{/category/edit/{id}(id=*{cateId})}" method="post" th:object="${category}"
                           enctype="multipart/form-data">
 
                         <input type="hidden" th:field="*{cateId}"/>

@@ -2,8 +2,12 @@
 <html lang="en">
 <head th:replace="~{fragment/frag :: head}"></head>
 <body>
-<div th:insert="~{fragment/frag::navbar}"></div><div class="container">
-    <a th:href="@{/admin/vouchers/list}">Back</a>
+<div th:insert="~{fragment/frag::navbar}"></div>
+<h1 th:text="${error}"></h1>
+<!--<a th:href="@{/dashboard}">Back</a>-->
+<div class="container">
+    <a type="button" class="btn btn-success" th:href="@{/dashboard/vouchers/create}">Create</a>
+    <a type="button" class="btn btn-secondary" th:href="@{/dashboard/vouchers/deleted-list}">Trash</a>
     <table class="table">
         <thead>
         <tr>
@@ -13,7 +17,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:if="${vouchers}" th:each="voucher, iterStat : ${vouchers}" th:object="${voucher}">
+        <tr th:if="${voucher.active}" th:each="voucher, iterStat : ${vouchers}" th:object="${voucher}">
             <!--            selection standard expression-->
             <th th:text="${iterStat.count}" scope="row"></th>
             <td th:text="*{voucherName}"></td>
@@ -22,10 +26,13 @@
                         th:onclick="openDetailPopup([[${voucher.voucherId}]], [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.minOrderValue}]], [[${voucher.discountValue}]], [[${voucher.discountType}]], [[${voucher.quantity}]], [[${voucher.startDate}]], [[${voucher.endDate}]], [[${voucher.discountType}]])">
                     Details
                 </button>
+                <!--                <a th:href="@{/admin/{id}(id=*{voucherId})}" type="button" class="btn btn-outline-secondary">Details</a>-->
+                <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
+                   class="btn btn-primary">Edit</a>
                 |
-                <button type="button" class="btn btn-primary"
-                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]])">
-                    Restore
+                <button type="button" class="btn btn-danger"
+                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.signature}]])">
+                    Delete
                 </button>
             </td>
         </tr>
@@ -33,26 +40,27 @@
     </table>
 </div>
 
-<!-- Restore Voucher popup -->
+<!-- Delete Voucher popup -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="deleteModalLabel">Restore Voucher</h5>
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Voucher</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
                 <p><strong>Voucher Code:</strong> <span id="voucherCode"></span></p>
                 <p><strong>Voucher Name:</strong> <span id="voucherName"></span></p>
-                <div class="alert alert-primary mt-3" role="alert">
-                    Are you sure you want to restore this voucher?
+                <div class="alert alert-danger mt-3" role="alert">
+                    Are you sure you want to delete this voucher?
                 </div>
             </div>
             <div class="modal-footer">
-                <form th:action="@{/admin/vouchers/restore}">
+                <form th:action="@{/dashboard/vouchers/remove}" method="post">
                     <input type="hidden" name="voucherId" id="deleteVoucherId">
-                    <button type="submit" class="btn btn-primary">Restore</button>
+                    <input type="hidden" name="sig" id="deleteVoucherSig">
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
@@ -67,7 +75,6 @@
                 <h5 class="modal-title" id="detailLabel">Voucher Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <div class="modal-body">
                 <p><strong>Voucher Code:</strong> <span id="detailCode"></span></p>
                 <p><strong>Voucher Name:</strong> <span id="detailName"></span></p>
@@ -86,13 +93,13 @@
     </div>
 </div>
 
-<!--JS of RestorePopup-->
+<!--JS of DeletePopup-->
 <script>
-    function openDeletePopup(id, code, name) {
+    function openDeletePopup(id, code, name, sig) {
         document.getElementById("voucherCode").textContent = code;
         document.getElementById("voucherName").textContent = name;
         document.getElementById("deleteVoucherId").value = id;
-
+        document.getElementById("deleteVoucherSig").value = sig;
         const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
         modal.show();
     }
