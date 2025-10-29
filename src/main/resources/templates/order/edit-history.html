@@ -196,7 +196,7 @@
             <td>
                 <ul style="list-style:none;padding:0;margin:0;">
                     <li th:each="item : ${order.orderItems}"
-                        th:text="${item.product != null ? item.product.proName + ' ×' + item.quantity : '-'}"></li>
+                        th:text="${item.product != null ? item.product.proName + ' × ' + item.quantity : '-'}"></li>
                 </ul>
             </td>
 
@@ -212,7 +212,7 @@
             <td th:text="${order.status}"></td>
 
             <!-- Updated At -->
-            <td th:text="${#temporals.format(order.updatedAt, 'yyyy/MM/dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
 
             <!-- Updated By -->
             <td th:text="${order.updatedBy != null ? order.updatedBy.name : '-'}"></td>

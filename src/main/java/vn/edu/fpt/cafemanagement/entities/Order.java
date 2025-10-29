@@ -40,7 +40,7 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by")
+    @JoinColumn(name = "updated_by", referencedColumnName = "manager_id")
     private Manager updatedBy;
 
     @ManyToOne
