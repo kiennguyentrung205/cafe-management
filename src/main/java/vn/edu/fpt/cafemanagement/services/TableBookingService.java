@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.TableBooking;
 import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +21,23 @@ public class TableBookingService {
 
     @Transactional
     public TableBooking createBooking(TableBooking tableBooking) {
+        LocalDateTime bookingTime = tableBooking.getBookingTime();
+        LocalDateTime now = LocalDateTime.now();
+
+
+        long diffMinutes = Duration.between(now, bookingTime).toMinutes();
+        if (diffMinutes < 0) {
+            throw new RuntimeException("You cannot book table in the past!");
+        }
+
+        if (diffMinutes > 120) {
+            throw new RuntimeException("You can only book a table within 2 hours before your arrival");
+        }
+
+        if (bookingTime.getHour() >= 22) {
+            throw new RuntimeException("You cannot book table after 22:00!");
+        }
+
         return tableBookingRepository.save(tableBooking);
     }
 
