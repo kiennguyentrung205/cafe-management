@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import vn.edu.fpt.cafemanagement.services.ManagerService;
 import vn.edu.fpt.cafemanagement.services.ShiftScheduleService;
 
 import java.time.LocalDate;
@@ -19,6 +20,8 @@ import java.util.Map;
 public class ScheduleController {
     @Autowired
     private ShiftScheduleService shiftScheduleService;
+    @Autowired
+    private ManagerService managerService;
 
     @GetMapping
     public String viewSchedule(Model model,
@@ -59,6 +62,7 @@ public class ScheduleController {
             });
         });
 
+        model.addAttribute("managers", managerService.getActiveStaffs());
         model.addAttribute("schedule", schedule);
         model.addAttribute("dates", startDate.datesUntil(endDate.plusDays(1)).toList());
 
