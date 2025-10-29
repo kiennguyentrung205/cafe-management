@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <style>
+        .shift-cell {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .role-cell {
+            background-color: #e9ecef;
+        }
+        .week-selector {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .select-label {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 12px;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+            display: inline-block;
+            margin-bottom: -1px;
+        }
+        .year-select, .week-select {
+            border-radius: 0 4px 4px 4px;
+            border: 2px solid #6c757d;
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .year-select {
+            background-color: #ff6b6b;
+            color: white;
+            font-weight: bold;
+        }
+        .week-select {
+            background-color: #ffffff;
+            color: #000000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h2 class="mb-4">Schedule Management</h2>
+
+    <!-- Form chọn tuần theo format mới -->
+    <div class="week-selector">
+        <form th:action="@{/schedule}" method="get" class="row g-3 align-items-end">
+            <!-- Year Selector -->
+            <div class="col-md-3">
+                <div>
+                    <span class="select-label">YEAR</span>
+                </div>
+                <select class="form-select year-select" name="year" id="yearSelect" required>
+                    <option th:each="y : ${#numbers.sequence(currentYear - 2, currentYear)}"
+                            th:value="${y}"
+                            th:text="${y}"
+                            th:selected="${y == selectedYear or (selectedYear == null and y == currentYear)}">
+                    </option>
+                </select>
+
+            </div>
+
+            <!-- Week Selector -->
+            <div class="col-md-4">
+                <div>
+                    <span class="select-label">WEEK</span>
+                </div>
+                <select class="form-select week-select" name="weekRange" id="weekSelect" required>
+                    <!-- Options sẽ được tạo bằng JavaScript -->
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    View Schedule
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-secondary w-100" onclick="setCurrentWeek()">
+                    This Week
+                </button>
+            </div>
+        </form>
+
+        <!-- Hiển thị range đã chọn -->
+        <div th:if="${startDate != null and endDate != null}" class="mt-3">
+            <div class="alert alert-info mb-0">
+                <strong>Viewing:</strong>
+                <span th:text="${#temporals.format(startDate, 'dd/MM/yyyy')}"></span>
+                -
+                <span th:text="${#temporals.format(endDate, 'dd/MM/yyyy')}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng schedule -->
+    <div th:if="${schedule != null and !schedule.isEmpty()}">
+        <table class="table table-bordered text-center align-middle bg-white">
+            <thead class="table-light">
+            <tr>
+                <th>Shift</th>
+                <th>Role</th>
+                <th th:each="date : ${dates}" th:text="${#temporals.format(date, 'EEE (dd/MM)')}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="shiftEntry : ${schedule}">
+                <th:block th:each="roleEntry, roleStat : ${shiftEntry.value}">
+                    <tr>
+                        <td th:if="${roleStat.first}"
+                            th:text="${shiftEntry.key}"
+                            th:rowspan="${shiftEntry.value.size()}"
+                            class="shift-cell"></td>
+
+                        <td th:text="${roleEntry.key}" class="role-cell"></td>
+
+                        <td th:each="date : ${dates}">
+                            <th:block th:if="${roleEntry.value.containsKey(date)}">
+                                <th:block th:if="${!#lists.isEmpty(roleEntry.value.get(date))}">
+                                    <span th:text="${#strings.listJoin(roleEntry.value.get(date), ', ')}"></span>
+                                </th:block>
+                                <th:block th:if="${#lists.isEmpty(roleEntry.value.get(date))}">
+                                    <span class="text-muted">-</span>
+                                </th:block>
+                            </th:block>
+                            <th:block th:unless="${roleEntry.value.containsKey(date)}">
+                                <span class="text-muted">-</span>
+                            </th:block>
+                        </td>
+                    </tr>
+                </th:block>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Message khi không có data -->
+    <div th:if="${schedule == null or schedule.isEmpty()}" class="alert alert-warning">
+        <i class="bi bi-info-circle"></i> No schedule data available for the selected period.
+    </div>
+</div>
+
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Nếu Thymeleaf truyền selectedWeekRange và selectedYear, nó sẽ được nhúng ở đây
+    const selectedWeekRange = /*[[${selectedWeekRange}]]*/ null;
+    const selectedYear = /*[[${selectedYear}]]*/ null;
+
+    function generateWeekOptions(year) {
+        const weekSelect = document.getElementById('weekSelect');
+        weekSelect.innerHTML = '';
+
+        // đảm bảo year là số
+        year = parseInt(year, 10);
+        if (isNaN(year)) {
+            const opt = document.createElement('option');
+            opt.textContent = 'No weeks available';
+            opt.value = '';
+            weekSelect.appendChild(opt);
+            return;
+        }
+
+        // bắt đầu từ 1 Jan của năm
+        let date = new Date(year, 0, 1);
+
+        // tìm thứ Hai đầu tiên (getDay(): 0 = Sun, 1 = Mon)
+        while (date.getDay() !== 1) {
+            date.setDate(date.getDate() + 1);
+            if (date.getFullYear() > year + 1) break;
+        }
+
+        let weekNumber = 1;
+        let currentWeekValue = getCurrentWeekRange();
+
+        while ((date.getFullYear() === year) ||
+        (date.getFullYear() === year + 1 && date.getMonth() === 0 && date.getDate() < 7)) {
+
+            const startDate = new Date(date);
+            const endDate = new Date(date);
+            endDate.setDate(endDate.getDate() + 6);
+
+            const startStr = formatDate(startDate);
+            const endStr = formatDate(endDate);
+            const value = startStr + ' To ' + endStr;
+
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+
+            // nếu có selectedWeekRange từ server, chọn nó
+            if (selectedWeekRange && selectedWeekRange === value) {
+                option.selected = true;
+            }
+
+            // nếu không có selectedWeekRange (lần đầu load) và đây là tuần hiện tại → chọn
+            else if (!selectedWeekRange && value === currentWeekValue && year === new Date().getFullYear()) {
+                option.selected = true;
+            }
+
+            weekSelect.appendChild(option);
+
+            // sang tuần tiếp theo
+            date.setDate(date.getDate() + 7);
+            weekNumber++;
+            if (weekNumber > 53) break;
+        }
+
+        // Nếu không có option nào (phòng trường hợp unexpected), thêm placeholder
+        if (weekSelect.options.length === 0) {
+            const opt = document.createElement('option');
+            opt.textContent = 'No weeks available';
+            opt.value = '';
+            weekSelect.appendChild(opt);
+        }
+    }
+
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return day + '/' + month;
+    }
+
+    // 🟢 Hàm trả về range tuần hiện tại (VD: "28/10 To 03/11")
+    function getCurrentWeekRange() {
+        const now = new Date();
+        let monday = new Date(now);
+        while (monday.getDay() !== 1) {
+            monday.setDate(monday.getDate() - 1);
+        }
+        const sunday = new Date(monday);
+        sunday.setDate(sunday.getDate() + 6);
+        return formatDate(monday) + ' To ' + formatDate(sunday);
+    }
+
+    function setCurrentWeek() {
+        const now = new Date();
+        const year = now.getFullYear();
+
+        document.getElementById('yearSelect').value = year;
+        generateWeekOptions(year);
+
+        const currentWeek = getCurrentWeekRange();
+        const weekSelect = document.getElementById('weekSelect');
+        for (let option of weekSelect.options) {
+            if (option.value === currentWeek) {
+                option.selected = true;
+                break;
+            }
+        }
+    }
+
+    // 🟢 Khởi tạo khi load trang
+    document.addEventListener('DOMContentLoaded', function() {
+        const yearSelect = document.getElementById('yearSelect');
+
+        // nếu không có selectedYear từ server thì dùng năm hiện tại
+        if (!selectedYear) {
+            yearSelect.value = new Date().getFullYear();
+        }
+
+        generateWeekOptions(yearSelect.value);
+
+        yearSelect.addEventListener('change', function() {
+            generateWeekOptions(this.value);
+        });
+    });
+    /*]]>*/
+</script>
+
+
+</body>
+</html>
