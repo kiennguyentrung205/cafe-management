@@ -26,16 +26,27 @@ public class Shift {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+//    @ManyToMany
+//    @JoinTable(
+//            name = "ShiftRole",
+//            joinColumns = @JoinColumn(name = "shift_id"),
+//            inverseJoinColumns = @JoinColumn(name = "role_id")
+//    )
+//    private List<Role> shiftRoles;
+
+//    @ManyToMany(mappedBy = "shiftAssignments")
+//    private List<Manager> managers;
+
     @ManyToMany
     @JoinTable(
-            name = "Shift_Role",
+            name = "ShiftRole",
             joinColumns = @JoinColumn(name = "shift_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private List<Role> shiftRoles;
+    private List<Role> requiredRoles;
 
-    @ManyToMany(mappedBy = "shiftAssignments")
-    private List<Manager> managers;
+    @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL)
+    private List<ShiftAssignment> assignments;
 
     public Shift() {
     }
@@ -48,8 +59,8 @@ public class Shift {
 //        this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.shiftRoles = shiftRoles;
-        this.managers = managers;
+//        this.shiftRoles = shiftRoles;
+//        this.managers = managers;
     }
 
     public int getShiftId() {
@@ -100,19 +111,36 @@ public class Shift {
         this.updatedAt = updatedAt;
     }
 
-    public List<Role> getShiftRoles() {
-        return shiftRoles;
+//    public List<Role> getShiftRoles() {
+//        return shiftRoles;
+//    }
+//
+//    public void setShiftRoles(List<Role> shiftRoles) {
+//        this.shiftRoles = shiftRoles;
+//    }
+
+//    public List<Manager> getManagers() {
+//        return managers;
+//    }
+//
+//    public void setManagers(List<Manager> managers) {
+//        this.managers = managers;
+//    }
+
+
+    public List<Role> getRequiredRoles() {
+        return requiredRoles;
     }
 
-    public void setShiftRoles(List<Role> shiftRoles) {
-        this.shiftRoles = shiftRoles;
+    public void setRequiredRoles(List<Role> requiredRoles) {
+        this.requiredRoles = requiredRoles;
     }
 
-    public List<Manager> getManagers() {
-        return managers;
+    public List<ShiftAssignment> getAssignments() {
+        return assignments;
     }
 
-    public void setManagers(List<Manager> managers) {
-        this.managers = managers;
+    public void setAssignments(List<ShiftAssignment> assignments) {
+        this.assignments = assignments;
     }
 }
