@@ -214,8 +214,8 @@ public class TableBookingController {
         model.addAttribute("tableBooking", tableBooking);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
-        model.addAttribute("startDate", startDateTime);
-        model.addAttribute("endDate", endDateTime);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         model.addAttribute("status", status);
         return "staff/table-booking/staff-table-booking-history";
     }
