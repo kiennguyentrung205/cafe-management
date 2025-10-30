@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.cafemanagement.entities.Manager;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.OrderItem;
 import vn.edu.fpt.cafemanagement.repositories.OrderItemRepository;
@@ -58,7 +59,7 @@ public class OrderService {
 
     // Lấy đơn lịch sử (Served, Canceled)
     public Page<Order> getHistoryOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("orderId").descending());
         return orderRepository.findHistoryOrders(pageable);
     }
 
@@ -116,5 +117,16 @@ public class OrderService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime adjustedEndDateTime = endDate.plusDays(1).atStartOfDay();
         return orderRepository.findAllByCreatedAtGreaterThanEqualAndCreatedAtLessThan(startDateTime, adjustedEndDateTime);
+    }
+
+    public Page<Order> getServedOrCanceledOrders(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("orderId").descending());
+        return orderRepository.findByStatusIn(List.of("Served", "Canceled"), pageable);
+    }
+
+    public void updateOrder(Order order, Manager currentManager) {
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setUpdatedBy(currentManager);
+        orderRepository.save(order);
     }
 }

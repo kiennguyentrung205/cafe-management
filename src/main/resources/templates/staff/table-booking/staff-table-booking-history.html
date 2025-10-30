@@ -1,314 +1,166 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Order History</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 30px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 400;
-            color: #333;
-        }
-
-        /*!*!* Filter Section *!*!*/
-        /*.filter-section {*/
-        /*    padding: 0 30px 30px;*/
-        /*    margin: 0 30px 30px;*/
-        /*}*/
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr) auto auto;
-            gap: 15px;
-            align-items: end;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .filter-label {
-            font-size: 11px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-input, .filter-select {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: white;
-            color: #666;
-        }
-
-        .filter-select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
-
-        /*.btn {*/
-        /*    padding: 10px 25px;*/
-        /*    border: none;*/
-        /*    border-radius: 4px;*/
-        /*    cursor: pointer;*/
-        /*    font-size: 14px;*/
-        /*    text-transform: uppercase;*/
-        /*    letter-spacing: 0.5px;*/
-        /*    font-weight: 500;*/
-        /*}*/
-
-        /*.btn-clear {*/
-        /*    background-color: transparent;*/
-        /*    color: #999;*/
-        /*}*/
-
-        /*.btn-search {*/
-        /*    background-color: #5cb85c;*/
-        /*    color: white;*/
-        /*}*/
-
-        /* Table */
-        /*.table-container {*/
-        /*    padding: 0 30px 30px;*/
-        /*}*/
-
-        /*table {*/
-        /*    width: 100%;*/
-        /*    border-collapse: collapse;*/
-        /*}*/
-
-        /*thead {*/
-        /*    border-bottom: 2px solid #e0e0e0;*/
-        /*}*/
-
-        /*th {*/
-        /*    text-align: left;*/
-        /*    padding: 15px 10px;*/
-        /*    font-size: 11px;*/
-        /*    color: #666;*/
-        /*    text-transform: uppercase;*/
-        /*    letter-spacing: 0.5px;*/
-        /*    font-weight: 600;*/
-        /*}*/
-
-        td {
-            padding: 10px 10px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-        }
-
-        tr:hover {
-            background-color: #fafafa;
-        }
-
-        .id-cell {
-            /*color: #5cb85c;*/
-            font-weight: 500;
-        }
-
-        .date-cell {
-            color: #666;
-        }
-
-        .badge .status-badge {
-            font-size: 1rem;          /* tăng kích thước chữ */
-            padding: 8px 14px;        /* khoảng cách trong */
-            border-radius: 12px;      /* bo tròn mềm hơn */
-        }
-
-        @media (max-width: 768px) {
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .table-container {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 800px;
-            }
-        }
-    </style>
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/assets/js/bootstrap.bundle.min.js"></script>
-
-
-</head>
+<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: tablestaffbook"></header>
 <body>
-<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: header"></header>
+<div th:insert="~{layout/header::navbar-tablestaffbook}"></div>
+
+<!-- Main Content -->
 <main class="container my-5">
     <!-- Header -->
-    <div>
-        <h1>Table Booking Management</h1>
-    </div>
+    <h1 class="text-center mb-4">Table Booking Management</h1>
 
-    <form method="get" th:action="@{/table/booking/management}">
-        <!-- Filter Section -->
-        <div class="container filter-section">
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <label class="filter-label" for="endDate">From Date</label>
-                    <input class="filter-select" id="endDate" name="startDate" type="date">
+    <!-- Filter Section (Re-styled for consistency) -->
+    <div class="card p-4 mb-4">
+        <form method="get" th:action="@{/table/booking/management}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label" for="startDate">From Date</label>
+                    <input class="form-control" id="startDate" name="startDate" type="date">
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label" for="beginDate">To Date</label>
-                    <input class="filter-select" id="beginDate" name="endDate" type="date">
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label" for="endDate">To Date</label>
+                    <input class="form-control" id="endDate" name="endDate" type="date">
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label">Status</label>
-                    <select class="filter-select" name="status">
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label" for="status">Status</label>
+                    <select class="form-select" id="status" name="status">
                         <option value="">Please select status...</option>
                         <option th:each="x : ${bookingStatus}" th:text="${x.toUpperCase()}" th:value="${x}"></option>
                     </select>
                 </div>
-                <button class="btn" type="reset">CLEAR</button>
-                <button class="btn btn-search" type="submit">SEARCH</button>
+                <div class="col-12 col-lg-3 d-flex gap-2 mt-3 mt-lg-0 align-self-end">
+                    <button class="btn btn-secondary w-50" type="reset">CLEAR</button>
+                    <button class="btn btn-brand-primary w-50" type="submit">SEARCH</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <!-- Table shown if not empty -->
+            <div class="table-responsive" th:if="${!tableBooking.isEmpty()}">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th class="p-3">Table</th>
+                        <th class="p-3">Customer Name</th>
+                        <th class="p-3">Phone Number</th>
+                        <th class="p-3">Booking Status</th>
+                        <th class="p-3">Date and Time</th>
+                        <th class="p-3">Note</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="x : ${tableBooking}">
+                        <td class="p-3 text-center" th:text="${x.table.tableId}">${x.table.tableId}</td>
+                        <td class="p-3" th:text="${x.customer.name}">${x.customer.name}</td>
+                        <td class="p-3" th:text="${x.customer.phoneNumber}">${x.customer.phoneNumber}</td>
+                        <td class="p-3">
+                            <!-- Replaced with text-bg-* for better badge styling -->
+                            <span class="badge"
+                                  th:classappend="|${x.status == 'booked' ? 'text-bg-warning' :
+                                                          (x.status == 'checked-in' ? 'text-bg-success' :
+                                                          (x.status == 'canceled' ? 'text-bg-danger' : 'text-bg-secondary'))}|"
+                                  th:text="${x.status}">
+                                </span>
+                        </td>
+                        <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>
+                        <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
+                        <td classs="p-3">
+                            <button class="btn btn-warning btn-sm" th:if="${x.status == 'booked'}"
+                                    th:onclick="openCancelPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"
+                                    type="button">Cancel
+                            </button>
+                            <button class="btn btn-success btn-sm" th:if="${x.status == 'booked'}"
+                                    th:onclick="openCheckinPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"
+                                    type="button">Check in
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty state shown if table is empty -->
+            <div class="empty-state p-4" th:if="${tableBooking.isEmpty()}">
+                <i class="fa-regular fa-folder-open"></i>
+                <h3>No Bookings Found</h3>
+                <p>No bookings match the current filter criteria.</p>
             </div>
         </div>
-    </form>
+    </div>
 
-    <!-- Table -->
-    <table class="table table-hover table-bordered my-4" th:if="${!tableBooking.isEmpty()}">
-        <thead>
-        <tr>
-            <th>Table</th>
-            <th>Customer Name</th>
-            <th>Phone Number</th>
-            <th>Booking Status</th>
-            <th>Date and Time</th>
-            <th>Note</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="x : ${tableBooking}">
-            <td class="id-cell text-center" th:text="${x.table.tableId}">${x.table.tableId}</td>
-            <td class="id-cell" th:text="${x.customer.name}">${x.customer.name}</td>
-            <td class="id-cell" th:text="${x.customer.phoneNumber}">${x.customer.phoneNumber}</td>
-            <td>
-                <span th:classappend="|badge
-                                      ${x.status == 'booked' ? 'bg-success' :
-                                      (x.status == 'checked-in' ? 'bg-primary' :
-                                      (x.status == 'canceled' ? 'bg-warning text-dark' : 'bg-secondary'))} |"
-                      th:text="${x.status}">
-                </span>
-            </td>
-
-            <td class="date-cell" th:text="${x.bookingTime}">${x.bookingTime}</td>
-            <td class="date-cell text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.bookingTime}</td>
-            <td class="text-start">
-                <button class="btn btn-warning" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
-                                 [[${x.bookingTime}]])"
-                        type="button">Cancel
-                </button>
-                <button class="btn btn-primary" th:if="${x.status == 'booked'}" th:onclick="openCheckinPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
-                                 [[${x.bookingTime}]])"
-                        type="button">Check in
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <table th:if="${tableBooking.isEmpty()}">
-        <tr>
-            <td>No Content Found!</td>
-        </tr>
-    </table>
-
-    <nav>
+    <!-- Pagination -->
+    <nav class="mt-4" aria-label="Page navigation">
         <ul class="list-unstyled pagination justify-content-center" th:if="${totalPages > 1}">
             <li class="page-item" th:classappend="${tableBooking.first} ? 'disabled' : ''">
-                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage - 1})}">Previous</a>
+                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage - 1},
+                 startDate=${startDate}, endDate=${endDate}, status=${status})}">Previous</a>
             </li>
-
-
             <li class="page-item" th:each="i : ${#numbers.sequence(1,totalPages)}">
                 <a class="page-link" th:classappend="${i == tableBooking.number + 1} ? 'active' : ''"
-                   th:href="@{/table/booking/management(page=${i})}"
+                   th:href="@{/table/booking/management(page=${i},
+                    startDate=${startDate}, endDate=${endDate}, status=${status})}"
                    th:text="${i}"></a>
             </li>
             <li class="page-item" th:classappend="${tableBooking.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage + 1})}">Next</a>
+                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage + 1},
+                 startDate=${startDate}, endDate=${endDate}, status=${status})}">Next</a>
             </li>
         </ul>
     </nav>
 
 
-    <!-- Cancel booking   -->
+    <!-- Cancel booking Modal -->
     <div aria-hidden="true" aria-labelledby="cancelModalLabel" class="modal fade" id="cancelModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
+            <div class="modal-content" style="border-radius: 0.75rem;">
+                <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title" id="cancelModalLabel">Cancel Table Booking</h5>
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
-
                 <div class="modal-body">
                     <p><strong>Table: </strong> <span id="tableId"></span></p>
                     <p><strong>Booking Date:</strong> <span id="bookingDate"></span></p>
                     <p><strong>Booking Time:</strong> <span id="bookingTime"></span></p>
-                    <div class="alert alert-warning mt-3" role="alert">
-                        Are you sure you want to delete this reservation? This action cannot be undone.
+                    <div class="alert alert-danger mt-3" role="alert">
+                        Are you sure you want to cancel this reservation? This action cannot be undone.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <form method="post" th:action="@{/table/booking/management/updateStatus}">
                         <input id="tableBookingIdCancelled" name="tableBookingId" type="hidden">
                         <input name="action" value="cancel" type="hidden">
-                        <button class="btn btn-danger" type="submit">Cancel</button>
+                        <button class="btn btn-danger" type="submit">Confirm Cancel</button>
                     </form>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ✅ Check-in Modal -->
+    <!-- Check-in Modal -->
     <div aria-hidden="true" aria-labelledby="checkInModalLabel" class="modal fade" id="checkInModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-
+            <div class="modal-content" style="border-radius: 0.75rem;">
                 <!-- Header -->
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="checkInModalLabel">Check-in Table Booking</h5>
-                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                    <button aria-label="Close" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            type="button"></button>
                 </div>
-
                 <!-- Body -->
                 <div class="modal-body">
                     <p><strong>Table:</strong> <span id="checkInTableId"></span></p>
                     <p><strong>Booking Date:</strong> <span id="checkInBookingDate"></span></p>
                     <p><strong>Booking Time:</strong> <span id="checkInBookingTime"></span></p>
-
                     <div class="alert alert-success mt-3" role="alert">
                         Are you sure you want to mark this booking as <strong>Checked-in</strong>?
                     </div>
                 </div>
-
                 <!-- Footer -->
                 <div class="modal-footer">
                     <form method="post" th:action="@{/table/booking/management/updateStatus}">
@@ -316,97 +168,82 @@
                         <input name="action" value="checkin" type="hidden">
                         <button class="btn btn-success" type="submit">Confirm Check-in</button>
                     </form>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
                 </div>
-
             </div>
         </div>
     </div>
-
 </main>
 
-<script>
-    function openCancelPopup(id, tableId, bookingTime) {
-        // const [date,time] = bookingTime.split("T");
-        const dateObt = new Date(bookingTime);
-
-        const date = new Intl.DateTimeFormat("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        }).format(dateObt);
-
-        const time = new Intl.DateTimeFormat("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-        }).format(dateObt)
+<!-- JS -->
+<script th:inline="javascript">
+    // JS functions unified to use 'en-GB' format (dd/mm/yyyy)
+    function openCancelPopup(id, tableId, bookingTimeStr) {
+        const dateObj = new Date(bookingTimeStr);
+        const date = new Intl.DateTimeFormat("en-GB", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+        }).format(dateObj);
+        const time = new Intl.DateTimeFormat("en-GB", {
+            hour: "2-digit", minute: "2-digit",
+        }).format(dateObj);
 
         document.getElementById("tableId").textContent = tableId;
         document.getElementById("bookingDate").textContent = date;
         document.getElementById("bookingTime").textContent = time;
         document.getElementById("tableBookingIdCancelled").value = id;
-        const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
-        modal.show();
+
+        const modalEl = document.getElementById('cancelModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
     }
-</script>
 
-<script>
-    function openCheckinPopup(id, tableId, bookingTime) {
-        // const [date,time] = bookingTime.split("T");
-        const dateObt = new Date(bookingTime);
-
-        const date = new Intl.DateTimeFormat("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        }).format(dateObt);
-
-        const time = new Intl.DateTimeFormat("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-        }).format(dateObt)
+    function openCheckinPopup(id, tableId, bookingTimeStr) {
+        const dateObj = new Date(bookingTimeStr);
+        const date = new Intl.DateTimeFormat("en-GB", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+        }).format(dateObj);
+        const time = new Intl.DateTimeFormat("en-GB", {
+            hour: "2-digit", minute: "2-digit",
+        }).format(dateObj);
 
         document.getElementById("checkInTableId").innerText = tableId;
         document.getElementById("checkInBookingDate").innerText = date;
         document.getElementById("checkInBookingTime").innerText = time;
         document.getElementById("tableBookingIdCheckIn").value = id;
-        const modal = new bootstrap.Modal(document.getElementById('checkInModal'));
-        modal.show();
+
+        const modalEl = document.getElementById('checkInModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
     }
-</script>
 
-<script>
-    function openCheckInModal(bookingId, tableId, bookingDate, bookingTime) {
-        document.getElementById("checkInTableId").innerText = tableId;
-        document.getElementById("checkInBookingDate").innerText = bookingDate;
-        document.getElementById("checkInBookingTime").innerText = bookingTime;
-        document.getElementById("tableBookingIdCheckIn").value = bookingId;
-        const modal = new bootstrap.Modal(document.getElementById('checkInModal'));
-        modal.show();
-    }
-</script>
+    // Cleaned up event listeners
+    document.addEventListener("DOMContentLoaded", function () {
+        const clearButton = document.querySelector('button[type="reset"]');
+        if (clearButton) {
+            clearButton.addEventListener('click', function () {
+                // Reset form fields
+                document.querySelectorAll('.form-control, .form-select').forEach(field => {
+                    if (field.type === 'date') {
+                        field.value = '';
+                    } else if (field.tagName === 'SELECT') {
+                        field.selectedIndex = 0;
+                    }
+                });
+            });
+        }
 
-
-<script>
-    // Add click handlers for buttons
-    document.querySelectorAll('.btn-view').forEach(btn => {
-        btn.addEventListener('click', function () {
-            alert('View order details');
-        });
-    });
-
-    document.querySelector('.btn-clear').addEventListener('click', function () {
-        document.querySelectorAll('.filter-select').forEach(select => {
-            select.selectedIndex = 0;
-        });
-        document.querySelector('.filter-input').value = '';
-    });
-
-    document.querySelector('.btn-search').addEventListener('click', function () {
-        alert('Search functionality would filter the orders');
+        // Removed alert() calls
     });
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 </body>
+</html>
 </html>
