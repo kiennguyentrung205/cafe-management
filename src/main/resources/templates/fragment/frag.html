@@ -1,5 +1,5 @@
 <head th:fragment="head">
-    <title>Cafe Management</title>
+    <title>WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
@@ -8,8 +8,12 @@
 <div th:fragment="navbar">
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand-logo fs-4" th:href="@{/dashboard}">
-                <i class="fa-solid fa-mug-saucer me-2"></i>CafeManagement
+            <a class="navbar-brand-logo fs-4" th:href="@{/dashboard}" sec:authorize="hasRole('ADMIN')">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
+            </a>
+            <a class="navbar-brand-logo fs-4" th:href="@{/home}"
+               sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
                     class="navbar-toggler"
@@ -23,20 +27,25 @@
                         <!-- Set 'Admin' as active -->
                         <a class="nav-link active" th:href="@{/dashboard}">Dashboard</a>
                     </li>
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" th:href="@{/menu}">Menu</a>-->
-<!--                    </li>-->
-<!--                    <li class="nav-item dropdown">-->
-<!--                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"-->
-<!--                           data-bs-toggle="dropdown"-->
-<!--                           href="#" id="tableDropdown" role="button">-->
-<!--                            <span>Table</span>-->
-<!--                        </a>-->
-<!--                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">-->
-<!--                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/table/booking/my}">My Bookings</a></li>-->
-<!--                        </ul>-->
-<!--                    </li>-->
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                        <!-- Set 'Admin' as active -->
+                        <a class="nav-link active" th:href="@{/home}">Home</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                        <a class="nav-link" th:href="@{/menu}">Menu</a>
+                    </li>
+                    <li class="nav-item dropdown"
+                        sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Table</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/booking/my}">My Bookings</a></li>
+                        </ul>
+                    </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
@@ -45,10 +54,10 @@
                             <span sec:authentication="name">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-<!--                            <li><a class="dropdown-item" href="#">Profile</a></li>-->
-<!--                            <li>-->
-<!--                                <hr class="dropdown-divider">-->
-<!--                            </li>-->
+                            <!--                            <li><a class="dropdown-item" href="#">Profile</a></li>-->
+                            <!--                            <li>-->
+                            <!--                                <hr class="dropdown-divider">-->
+                            <!--                            </li>-->
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item">Log out</button>
@@ -67,7 +76,7 @@
 <head th:fragment="dashboard">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Cafe Management</title>
+    <title>Dashboard | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/dashboard/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -78,16 +87,58 @@
 <head th:fragment="staffmanagement">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffs | Cafe Management</title>
+    <title>Staffs | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/dashboard/staff/list.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/create.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/edit.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/trash.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
 </head>
 
+<!--productlist-->
+<head th:fragment="productlist">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product | WIMI RUSTIC</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/list.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/create.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/edit.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/trash.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
+</head>
+
+<!--voucher-->
+<head th:fragment="voucher">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vouchers | WIMI RUSTIC</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/list.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/create.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/edit.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/trash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
+</head>
+<!--sales-->
+<head th:fragment="sales">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report | WIMI RUSTIC</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/sales/sales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
+</head>
 <!--forgot-->
 <head th:fragment="accforgot">
-    <title>Forgot Password | Cafe Management</title>
+    <title>Forgot Password | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/account/forgot-password.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -103,7 +154,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand-logo fs-4" href="#">
-                <i class="fa-solid fa-mug-saucer me-2"></i>CafeManagement
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,7 +181,7 @@
 <head th:fragment="accregister">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Cafe Management</title>
+    <title>Register | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/account/register.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
@@ -151,7 +202,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand-logo fs-4" href="#">
-                <i class="fa-solid fa-mug-saucer me-2"></i>CafeManagement
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -178,7 +229,7 @@
 <head th:fragment="acclogin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Cafe Management</title>
+    <title>WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/account/login.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
@@ -199,7 +250,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand-logo fs-4" href="#">
-                <i class="fa-solid fa-mug-saucer me-2"></i>CafeManagement
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -226,7 +277,7 @@
 <head th:fragment="accsetpw">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password | Cafe Management</title>
+    <title>Reset Password | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/account/set-password.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
@@ -247,7 +298,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand-logo fs-4" href="#">
-                <i class="fa-solid fa-mug-saucer me-2"></i>CafeManagement
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -269,6 +320,7 @@
         </div>
     </nav>
 </div>
+
 
 <!-- Sidebar Fragment cho Order-->
 <div th:fragment="order-sidebar(activePage)">
@@ -314,12 +366,15 @@
         }
 
         .menu-item.logout {
-            color: #dc3545;
+            color: var(--brand-primary, #FF7A00);
             border: none;
         }
 
+        /* Khi hover nút "Logout".
+          Được phủ đè bởi .menu-item:hover, nên text sẽ là màu trắng.
+        */
         .menu-item.logout:hover {
-            color: white;
+            color: var(--brand-white, #FFFFFF);
         }
 
         .menu-item i {
@@ -327,15 +382,21 @@
             margin-bottom: 5px;
         }
 
+        /* Khi hover một item bất kỳ.
+          Đổi nền từ đỏ (#ff4d4d) sang cam.
+        */
         .menu-item:hover {
-            background-color: #ff4d4d;
-            color: white;
+            background-color: var(--brand-primary, #FF7A00);
+            color: var(--brand-white, #FFFFFF);
             transform: scale(1.05);
         }
 
+        /* Khi một item được "active".
+          Đổi nền từ đỏ (#ff4d4d) sang cam.
+        */
         .menu-item.active {
-            background-color: #ff4d4d;
-            color: white;
+            background-color: var(--brand-primary, #FF7A00);
+            color: var(--brand-white, #FFFFFF);
         }
 
         .sidebar-bottom {
@@ -351,7 +412,7 @@
             <span>Dashboard</span>
         </a>
 
-        <a href="/sales" class="menu-item"
+        <a href="/dashboard/sales" class="menu-item"
            th:classappend="${activePage == 'sales'} ? ' active'">
             <i class="bi bi-bar-chart-line"></i>
             <span>Sales Amount</span>
@@ -363,12 +424,17 @@
             <span>Order List</span>
         </a>
 
-        <form th:action="@{/logout}" method="post" class="sidebar-bottom">
-            <button type="submit" class="menu-item logout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Log Out</span>
-            </button>
-        </form>
+        <a href="/home" class="menu-item sidebar-bottom"
+           th:classappend="${activePage == 'home'} ? ' active'">
+            <i class="bi bi-arrow-bar-left"></i>
+            <span>Home</span>
+        </a>
+        <!--        <form th:action="@{/logout}" method="post" class="sidebar-bottom">-->
+        <!--            <button type="submit" class="menu-item logout">-->
+        <!--                <i class="bi bi-box-arrow-right"></i>-->
+        <!--                <span>Log Out</span>-->
+        <!--            </button>-->
+        <!--        </form>-->
     </div>
 </div>
 
@@ -471,7 +537,8 @@
         <!-- Product Grid -->
         <div class="menu-grid">
             <div th:each="product : ${productList}" class="product-card"
-                 th:data-product-id="${product.proId}"> <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
+                 th:data-product-id="${product.proId}"><img th:src="@{/uploads/{img}(img=${product.img})}"
+                                                            alt="Product Image"/>
                 <p class="product-name fw-semibold" th:text="${product.proName}"></p>
                 <p class="product-desc text-muted"
                    th:text="${#strings.abbreviate(product.description, 50)}"></p>

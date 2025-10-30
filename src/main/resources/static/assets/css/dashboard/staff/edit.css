@@ -62,6 +62,17 @@ body {
     color: var(--brand-white);
 }
 
+.btn-outline-secondary {
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--brand-light-gray);
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
 /* --- Form Input Style --- */
 .form-control, .form-select {
     border-radius: 0.5rem; /* 8px */
@@ -81,4 +92,5 @@ body {
     border-radius: 0.5rem; /* 8px */
     object-fit: cover;
     background-color: var(--brand-light-gray);
+    max-width: 150px;
 }

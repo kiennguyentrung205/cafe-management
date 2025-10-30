@@ -34,6 +34,9 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             } else if (role.equals("ROLE_CUSTOMER")) {
                 redirectUrl = "/home";
                 break;
+            } else if (role.equals("ROLE_BARISTA")) {
+                redirectUrl = "/order/edit";
+                break;
             }
         }
 
