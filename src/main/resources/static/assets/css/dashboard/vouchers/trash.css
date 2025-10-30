@@ -47,13 +47,19 @@ body {
     border-radius: 0.5rem; /* 8px */
     font-weight: 600;
     padding: 0.6rem 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.35rem;
 }
 
 .btn-brand-primary {
     background-color: var(--brand-primary);
     border-color: var(--brand-primary);
     color: var(--brand-white);
-    transition: all 0.2s ease-in-out;
 }
 
 .btn-brand-primary:hover {
@@ -62,23 +68,39 @@ body {
     color: var(--brand-white);
 }
 
-/* --- Form Input Style --- */
-.form-control, .form-select {
-    border-radius: 0.5rem; /* 8px */
-    padding: 0.6rem 1rem;
-    border: 1px solid #ced4da;
-    font-size: 1rem;
-    height: auto;
+.btn-outline-secondary {
+    border-color: #ced4da;
+    color: var(--brand-dark);
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
-}
-
-/* --- Image Preview --- */
-#previewPhoto {
-    border-radius: 0.5rem; /* 8px */
-    object-fit: cover;
+.btn-outline-secondary:hover {
     background-color: var(--brand-light-gray);
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
+/* --- Table Style --- */
+.table {
+    vertical-align: middle;
+    border-color: #dee2e6;
+}
+
+.table thead {
+    background-color: var(--brand-light-gray);
+    color: var(--brand-dark);
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: var(--brand-primary-light);
+    color: var(--brand-dark);
+}
+
+/* --- Modal Rounded --- */
+.modal-content {
+    border-radius: 0.75rem; /* 12px */
+    border: none;
 }

@@ -47,13 +47,13 @@ body {
     border-radius: 0.5rem; /* 8px */
     font-weight: 600;
     padding: 0.6rem 1rem;
+    transition: all 0.2s ease-in-out;
 }
 
 .btn-brand-primary {
     background-color: var(--brand-primary);
     border-color: var(--brand-primary);
     color: var(--brand-white);
-    transition: all 0.2s ease-in-out;
 }
 
 .btn-brand-primary:hover {
@@ -62,13 +62,24 @@ body {
     color: var(--brand-white);
 }
 
+.btn-outline-secondary {
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--brand-light-gray);
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
 /* --- Form Input Style --- */
 .form-control, .form-select {
     border-radius: 0.5rem; /* 8px */
     padding: 0.6rem 1rem;
     border: 1px solid #ced4da;
     font-size: 1rem;
-    height: auto;
+    height: auto; /* Allow auto height for textareas etc. */
 }
 
 .form-control:focus, .form-select:focus {
@@ -76,9 +87,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
 }
 
-/* --- Image Preview --- */
-#previewPhoto {
-    border-radius: 0.5rem; /* 8px */
-    object-fit: cover;
-    background-color: var(--brand-light-gray);
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
