@@ -122,12 +122,12 @@
             </thead>
 
             <tbody>
-            <!-- Lap qua tung shift-->
+            <!-- Lap qua tung shift -->
             <th:block th:each="shiftEntry : ${schedule}">
                 <!-- Lap tung role trong shift -->
                 <th:block th:each="roleEntry, roleStat : ${shiftEntry.value}">
                     <tr>
-                        <!-- gop hang theo shift                        -->
+                        <!-- gop hang theo shift -->
                         <td th:if="${roleStat.index == 0}"
                             th:text="${shiftEntry.key}"
                             th:rowspan="${shiftEntry.value.size()}"
