@@ -6,8 +6,8 @@
 <h1 th:text="${error}"></h1>
 <!--<a th:href="@{/dashboard}">Back</a>-->
 <div class="container">
-    <a type="button" class="btn btn-success" th:href="@{/dashboard/admin/vouchers/create}">Create</a>
-    <a type="button" class="btn btn-secondary" th:href="@{/dashboard/admin/vouchers/deleted-list}">Trash</a>
+    <a type="button" class="btn btn-success" th:href="@{/dashboard/vouchers/create}">Create</a>
+    <a type="button" class="btn btn-secondary" th:href="@{/dashboard/vouchers/deleted-list}">Trash</a>
     <table class="table">
         <thead>
         <tr>
@@ -27,7 +27,7 @@
                     Details
                 </button>
                 <!--                <a th:href="@{/admin/{id}(id=*{voucherId})}" type="button" class="btn btn-outline-secondary">Details</a>-->
-                <a th:href="@{/dashboard/admin/vouchers/edit/{id}(id=*{voucherId})}" type="button"
+                <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
                    class="btn btn-primary">Edit</a>
                 |
                 <button type="button" class="btn btn-danger"
@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <form th:action="@{/dashboard/admin/vouchers/remove}" method="post">
+                <form th:action="@{/dashboard/vouchers/remove}" method="post">
                     <input type="hidden" name="voucherId" id="deleteVoucherId">
                     <input type="hidden" name="sig" id="deleteVoucherSig">
                     <button type="submit" class="btn btn-danger">Delete</button>

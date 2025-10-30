@@ -31,7 +31,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <form th:action="@{/product/edit}" method="post" th:object="${product}"
+                        <form th:action="@{/product/edit/{proId}(proId=*{proId})}" method="post" th:object="${product}"
                               enctype="multipart/form-data">
 
                             <input type="hidden" th:field="*{proId}"/>
