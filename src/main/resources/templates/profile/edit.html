@@ -44,14 +44,18 @@
         <p>
             <label>Date of birth: </label>
             <input name="dateOfBirth"
-                   type="date"
+                   th:readonly="${!customer.googleAccount}"
                    th:value="${#temporals.format(customer.dateOfBirth, 'yyyy-MM-dd')}"
-                   th:readonly="${!customer.googleAccount}">
+                   type="date">
 
         </p>
         <p>
             <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
         </p>
+        <p>
+            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+        </p>
+
         <p>
             <button class="btn btn-primary" type="submit">Edit</button>
             <button class="btn btn-dark" type="reset">Cancel</button>

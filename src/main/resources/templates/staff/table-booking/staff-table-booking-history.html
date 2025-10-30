@@ -97,15 +97,18 @@
     <nav class="mt-4" aria-label="Page navigation">
         <ul class="list-unstyled pagination justify-content-center" th:if="${totalPages > 1}">
             <li class="page-item" th:classappend="${tableBooking.first} ? 'disabled' : ''">
-                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage - 1})}">Previous</a>
+                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage - 1},
+                 startDate=${startDate}, endDate=${endDate}, status=${status})}">Previous</a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(1,totalPages)}">
                 <a class="page-link" th:classappend="${i == tableBooking.number + 1} ? 'active' : ''"
-                   th:href="@{/table/booking/management(page=${i})}"
+                   th:href="@{/table/booking/management(page=${i},
+                    startDate=${startDate}, endDate=${endDate}, status=${status})}"
                    th:text="${i}"></a>
             </li>
             <li class="page-item" th:classappend="${tableBooking.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage + 1})}">Next</a>
+                <a class="page-link" th:href="@{/table/booking/management(page=${currentPage + 1},
+                 startDate=${startDate}, endDate=${endDate}, status=${status})}">Next</a>
             </li>
         </ul>
     </nav>

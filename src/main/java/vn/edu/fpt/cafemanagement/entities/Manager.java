@@ -54,13 +54,16 @@ public class Manager implements UserDetails {
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    @ManyToMany
-    @JoinTable(
-            name = "shiftassignment",
-            joinColumns = @JoinColumn(name = "manager_id"),
-            inverseJoinColumns = @JoinColumn(name = "shift_id")
-    )
-    private List<Shift> shiftAssignments;
+//    @ManyToMany
+//    @JoinTable(
+//            name = "shiftassignment",
+//            joinColumns = @JoinColumn(name = "manager_id"),
+//            inverseJoinColumns = @JoinColumn(name = "shift_id")
+//    )
+//    private List<Shift> shiftAssignments;
+
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+    private List<ShiftAssignment> assignments;
 
     public Manager() {
     }
@@ -80,7 +83,7 @@ public class Manager implements UserDetails {
         this.img = img;
         this.isActive = isActive;
         this.orders = orders;
-        this.shiftAssignments = shiftAssignments;
+//        this.shiftAssignments = shiftAssignments;
     }
 
     public int getManagerId() {
@@ -179,11 +182,20 @@ public class Manager implements UserDetails {
         this.orders = orders;
     }
 
-    public List<Shift> getShiftAssignments() {
-        return shiftAssignments;
+//    public List<Shift> getShiftAssignments() {
+//        return shiftAssignments;
+//    }
+//
+//    public void setShiftAssignments(List<Shift> shiftAssignments) {
+//        this.shiftAssignments = shiftAssignments;
+//    }
+
+
+    public List<ShiftAssignment> getAssignments() {
+        return assignments;
     }
 
-    public void setShiftAssignments(List<Shift> shiftAssignments) {
-        this.shiftAssignments = shiftAssignments;
+    public void setAssignments(List<ShiftAssignment> assignments) {
+        this.assignments = assignments;
     }
 }
