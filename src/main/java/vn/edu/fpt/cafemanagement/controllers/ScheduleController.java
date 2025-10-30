@@ -25,22 +25,36 @@ public class ScheduleController {
 
     @GetMapping
     public String viewSchedule(Model model,
-                               @RequestParam("year")int year,
-                               @RequestParam("weekRange") String weekRange) {
-        String[] parts = weekRange.split(" To ");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid weekRange format: " + weekRange);
+                               @RequestParam(value = "year", required = false)Integer year,
+                               @RequestParam(value = "weekRange", required = false) String weekRange) {
+        LocalDate startDate;
+        LocalDate endDate;
+
+        if(year == null){
+            year = LocalDate.now().getYear();
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
+        if (weekRange == null || weekRange.isEmpty()) {
+            LocalDate today = LocalDate.now();
+            startDate = today.with(java.time.DayOfWeek.MONDAY);
+            endDate = today.with(java.time.DayOfWeek.SUNDAY);
+        } else {
+
+            String[] parts = weekRange.split(" To ");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid weekRange format: " + weekRange);
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
 
 
-        MonthDay startMonthDay = MonthDay.parse(parts[0], formatter);
-        MonthDay endMonthDay = MonthDay.parse(parts[1], formatter);
+            MonthDay startMonthDay = MonthDay.parse(parts[0], formatter);
+            MonthDay endMonthDay = MonthDay.parse(parts[1], formatter);
 
 
-        LocalDate startDate = startMonthDay.atYear(year);
-        LocalDate endDate = endMonthDay.atYear(year);
+            startDate = startMonthDay.atYear(year);
+            endDate = endMonthDay.atYear(year);
+        }
 
         // Nếu tuần băng qua năm sau (vd 30/12 -> 05/01)
         if (endDate.isBefore(startDate)) {
