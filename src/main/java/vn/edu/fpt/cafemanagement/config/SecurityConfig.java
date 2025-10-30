@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
                         .permitAll()
                         .requestMatchers( "/table/booking/management").hasRole("CASHIER")
-                     
+
                         .requestMatchers( "/dashboard/staff/**").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/vouchers/list").hasRole("ADMIN")
                         .requestMatchers( "/dashboard/vouchers/create").hasRole("ADMIN")
@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers( "/dashboard/staff").hasRole("ADMIN")
 //                        .requestMatchers( "/dashboard/staff/delete/**").hasRole("ADMIN")
                         .requestMatchers( "/dashboard").hasRole("ADMIN")
+                        .requestMatchers( "/order/create/**").hasRole("CASHIER")
+                        .requestMatchers( "/order/list/**").hasRole("CASHIER")
+                        .requestMatchers( "/order/edit/**").hasRole("BARISTA")
                         .anyRequest()
                         .authenticated()
                 )

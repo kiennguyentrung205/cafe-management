@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Order</title>
+    <title>Order Edit History</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
@@ -91,37 +91,17 @@
             background-color: #f2f2f2;
         }
 
-        table th:nth-child(1),  /* Order# */
-        table td:nth-child(1) {
-            width: 10%;
-        }
-
-        table th:nth-child(2),  /* Status */
-        table td:nth-child(2) {
-            width: 16%;
-        }
 
         table th:nth-child(3),  /* Product */
         table td:nth-child(3) {
-            width: 20%;
             text-align: left;
         }
 
         table th:nth-child(4),  /* Note */
         table td:nth-child(4) {
-            width: 20%;
             text-align: left;
         }
 
-        table th:nth-child(5),  /* Staff */
-        table td:nth-child(5) {
-            width: 20%;
-        }
-
-        table th:nth-child(6),  /* Updated At + Save button */
-        table td:nth-child(6) {
-            width: 20%;
-        }
 
         td ul {
             list-style: none;
@@ -139,15 +119,6 @@
             padding: 6px 10px;
             border-radius: 8px;
         }
-
-        /* ==== Save button ==== */
-        .btn.btn-primary {
-            font-size: 17px;
-            font-weight: 600;
-            padding: 6px 16px;
-            border-radius: 8px;
-        }
-
         .pagination {
             display: flex;
             justify-content: center;
@@ -205,127 +176,91 @@
     </form>
 </div>
 
-<!-- === Main Content === -->
+<!-- Main Content -->
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="m-0">Edit Order</h2>
-        <a href="/order/edit-history" class="btn btn-outline-secondary">
-            History
-        </a>
+        <h2>Edit Order History</h2>
     </div>
-
     <table>
         <thead>
         <tr>
             <th>Order#</th>
             <th>Staff</th>
-            <th>Product</th>
+            <th>Products</th>
             <th>Note</th>
             <th>Status</th>
             <th>Updated At</th>
+            <th>Updated By</th>
         </tr>
         </thead>
 
         <tbody>
-        <!-- Nếu có đơn -->
-        <form th:action="@{/order/updateStatus}" method="post"
-              th:each="order : ${orders}"
-              th:if="${orders != null and !orders.isEmpty() and order.status != 'Served' and order.status != 'Canceled'}">
-            <tr>
-                <td th:text="${order.orderId}"></td>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderId}"></td>
 
-                <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
+            <!-- Staff (creator of order) -->
+            <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
 
-                <td>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li th:each="item : ${order.orderItems}"
-                            th:text="${item.product != null ? item.product.proName + ' × ' + item.quantity : '-'}"></li>
-                    </ul>
-                </td>
+            <!-- Products -->
+            <td>
+                <ul style="list-style:none;padding:0;margin:0;">
+                    <li th:each="item : ${order.orderItems}"
+                        th:text="${item.product != null ? item.product.proName + ' × ' + item.quantity : '-'}"></li>
+                </ul>
+            </td>
 
-                <td>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li th:each="item : ${order.orderItems}"
-                            th:text="${item.note != null && item.note != '' ? item.note : '-'}"></li>
-                    </ul>
-                </td>
+            <!-- Note -->
+            <td>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li th:each="item : ${order.orderItems}"
+                        th:text="${item.note != null && item.note != '' ? item.note : '-'}"></li>
+                </ul>
+            </td>
 
-                <td>
-                    <input type="hidden" name="orderId" th:value="${order.orderId}" />
-                    <select name="status" class="form-select form-select-sm me-2">
-                        <option value="Served"
-                                th:selected="${order.status == 'Served'}">Served</option>
-                        <option value="Canceled"
-                                th:selected="${order.status == 'Canceled'}">Canceled</option>
-                    </select>
-                </td>
+            <!-- Status -->
+            <td th:text="${order.status}"></td>
 
-                <td>
-                    <input type="hidden" name="updatedAt" class="updatedAtInput" />
-                    <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
-                </td>
-            </tr>
-        </form>
+            <!-- Updated At -->
+            <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
 
-        <!-- Nếu không có đơn -->
+            <!-- Updated By -->
+            <td th:text="${order.updatedBy != null ? order.updatedBy.name : '-'}"></td>
+        </tr>
+
         <tr th:if="${orders == null or orders.isEmpty()}">
-            <td colspan="5" class="text-center text-muted py-3">
-                There are not any orders.
+            <td colspan="7" class="text-center text-muted py-3">
+                There are not any history orders.
             </td>
         </tr>
         </tbody>
     </table>
 
-    <!-- Pagination -->
-    <nav aria-label="Order pagination" th:if="${orders != null and !orders.isEmpty() and totalPages > 0}">
+    <nav aria-label="Order pagination"
+         th:if="${orders != null and !orders.isEmpty() and totalPages > 0}">
         <ul class="pagination justify-content-center">
-            <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/order/edit(page=${currentPage - 1})}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
+                <a class="page-link"
+                   th:href="@{/order/edit-history(page=${currentPage - 1})}"
+                   aria-label="Previous">&laquo;</a>
             </li>
 
-            <!-- Page numbers -->
             <li class="page-item"
                 th:each="i : ${#numbers.sequence(1, totalPages)}"
                 th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/order/edit(page=${i})}" th:text="${i}"></a>
+                <a class="page-link"
+                   th:href="@{/order/edit-history(page=${i})}"
+                   th:text="${i}"></a>
             </li>
 
-            <!-- Next -->
-            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                <a class="page-link" th:href="@{/order/edit(page=${currentPage + 1})}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
+            <li class="page-item"
+                th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/order/edit-history(page=${currentPage + 1})}"
+                   aria-label="Next">&raquo;</a>
             </li>
         </ul>
     </nav>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const today = new Date();
-
-        // Lấy phần ngày hôm nay (YYYY-MM-DD)
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, "0");
-        const dd = String(today.getDate()).padStart(2, "0");
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-
-        // Tính thời gian hiện tại để set mặc định
-        const hh = String(today.getHours()).padStart(2, "0");
-        const min = String(today.getMinutes()).padStart(2, "0");
-        const nowStr = `${todayStr}T${hh}:${min}`;
-
-        // Gán giới hạn cho tất cả input datetime-local
-        document.querySelectorAll(".updatedAtInput").forEach(input => {
-            input.min = `${todayStr}T00:00`;
-            input.max = `${todayStr}T23:59`;
-            input.value = nowStr; // set mặc định = giờ hiện tại
-        });
-    });
-</script>
 
 </body>
 </html>
