@@ -1,44 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${title}">Danh sách sản phẩm</title>
-    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
-    <style>
-        /* Thêm CSS cho phần phân trang để nó luôn ở dưới cùng của container chính (nếu cần) */
-        .pagination-container {
-            display: flex;
-            justify-content: center; /* Căn giữa phân trang */
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        /* Tăng độ rộng của cột Tên Sản Phẩm và Thuộc tính (Actions) */
-        .table th:nth-child(3), .table td:nth-child(3) { /* Product Name */
-            width: 25%;
-        }
-
-        /* Cố định chiều rộng cột Actions */
-        .table th:last-child, .table td:last-child { /* Actions */
-            width: 150px; /* Cố định chiều rộng */
-            min-width: 150px; /* Đảm bảo đủ chỗ cho 3 nút */
-        }
-
-        /* Điều chỉnh kích thước và khoảng cách của các nút Actions */
-        .action-buttons {
-            display: flex; /* Sử dụng Flexbox để căn chỉnh */
-            gap: 5px; /* Tạo khoảng cách 5px giữa các nút */
-            justify-content: center; /* Căn giữa các nút trong ô */
-        }
-
-        /* Đảm bảo các nút nhỏ hơn để vừa vặn */
-        .action-buttons .btn {
-            font-size: 0.75rem; /* Kích thước chữ nhỏ hơn */
-            padding: 0.2rem 0.4rem; /* Giảm padding */
-        }
-    </style>
+<head th:replace="fragment/frag :: productlist">
 </head>
-<body>
+<body class="bg-light">
+<div th:replace="fragment/frag :: navbar"></div>
 <div class="container mt-4">
     <h1 class="mb-4" th:text="${title}">Danh sách sản phẩm</h1>
 

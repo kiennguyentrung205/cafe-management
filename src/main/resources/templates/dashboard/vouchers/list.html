@@ -1,43 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head th:replace="~{fragment/frag :: head}"></head>
+<head th:replace="~{fragment/frag :: voucher}"></head>
 <body>
 <div th:insert="~{fragment/frag::navbar}"></div>
-<h1 th:text="${error}"></h1>
-<!--<a th:href="@{/dashboard}">Back</a>-->
-<div class="container">
-    <a type="button" class="btn btn-success" th:href="@{/dashboard/vouchers/create}">Create</a>
-    <a type="button" class="btn btn-secondary" th:href="@{/dashboard/vouchers/deleted-list}">Trash</a>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">N.O</th>
-            <th scope="col">Name</th>
-            <th scope="col">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${voucher.active}" th:each="voucher, iterStat : ${vouchers}" th:object="${voucher}">
-            <!--            selection standard expression-->
-            <th th:text="${iterStat.count}" scope="row"></th>
-            <td th:text="*{voucherName}"></td>
-            <td>
-                <button type="button" class="btn btn-outline-secondary"
-                        th:onclick="openDetailPopup([[${voucher.voucherId}]], [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.minOrderValue}]], [[${voucher.discountValue}]], [[${voucher.discountType}]], [[${voucher.quantity}]], [[${voucher.startDate}]], [[${voucher.endDate}]], [[${voucher.discountType}]])">
-                    Details
-                </button>
-                <!--                <a th:href="@{/admin/{id}(id=*{voucherId})}" type="button" class="btn btn-outline-secondary">Details</a>-->
-                <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
-                   class="btn btn-primary">Edit</a>
-                |
-                <button type="button" class="btn btn-danger"
-                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.signature}]])">
-                    Delete
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+
+<!-- Main Content -->
+<div class="container my-5">
+
+    <h1 class="fw-bold mb-3" th:text="${error}">Voucher Management</h1>
+
+    <!-- Header Card with Actions -->
+    <div class="card mb-4">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <h4 class="fw-bold mb-0">Active Vouchers</h4>
+                <div class="d-flex gap-2 mt-2 mt-md-0">
+                    <a type="button" class="btn btn-brand-primary" th:href="@{/dashboard/vouchers/create}">
+                        <i class="fa-solid fa-plus me-1"></i> Create New
+                    </a>
+                    <a type="button" class="btn btn-outline-secondary" th:href="@{/dashboard/vouchers/deleted-list}">
+                        <i class="fa-solid fa-trash me-1"></i> Trash
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vouchers Table Card -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th class="p-3" scope="col">N.O</th>
+                        <th class="p-3" scope="col">Name</th>
+                        <th class="p-3" scope="col">Code</th>
+                        <th class="p-3" scope="col">Quantity</th>
+                        <th class="p-3" scope="col">End Date</th>
+                        <th class="p-3" scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${voucher.active}" th:each="voucher, iterStat : ${vouchers}" th:object="${voucher}">
+                        <td class="p-3" th:text="${iterStat.count}" scope="row"></td>
+                        <td class="p-3" th:text="*{voucherName}"></td>
+                        <td class="p-3"><span class="badge bg-secondary text-dark bg-opacity-10"
+                                              th:text="*{code}"></span></td>
+                        <td class="p-3" th:text="*{quantity}"></td>
+                        <td class="p-3" th:text="*{endDate}"></td>
+                        <td class="p-3">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        th:onclick="openDetailPopup([[${voucher.voucherId}]], [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.minOrderValue}]], [[${voucher.discountValue}]], [[${voucher.discountType}]], [[${voucher.quantity}]], [[${voucher.startDate}]], [[${voucher.endDate}]], [[${voucher.discountType}]])">
+                                    Details
+                                </button>
+                                <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
+                                   class="btn btn-sm btn-brand-primary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.signature}]])">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Empty State -->
+                    <tr th:if="${vouchers == null or #lists.isEmpty(vouchers)}">
+                        <td colspan="6" class="text-center p-5">
+                            <i class="fa-solid fa-tags fa-2x text-muted mb-3"></i>
+                            <p class="mb-0 text-muted">No active vouchers found.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Delete Voucher popup -->
@@ -46,7 +84,8 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteModalLabel">Delete Voucher</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -62,16 +101,17 @@
                     <input type="hidden" name="sig" id="deleteVoucherSig">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Detail Voucher popup -->
 <div class="modal fade" id="detail" tabindex="-1" aria-labelledby="detailLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="detailLabel">Voucher Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -85,13 +125,17 @@
                 <p><strong>Start Date:</strong> <span id="detailStart"></span></p>
                 <p><strong>End Date:</strong> <span id="detailEnd"></span></p>
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 <!--JS of DeletePopup-->
 <script>
@@ -121,6 +165,6 @@
         modal.show();
     }
 </script>
-<div th:insert="~{fragment/frag :: footer}"></div>
+
 </body>
 </html>

@@ -62,6 +62,17 @@ body {
     color: var(--brand-white);
 }
 
+.btn-outline-secondary {
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--brand-light-gray);
+    border-color: #ced4da;
+    color: var(--brand-dark);
+}
+
 /* --- Form Input Style --- */
 .form-control, .form-select {
     border-radius: 0.5rem; /* 8px */
@@ -76,9 +87,59 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
 }
 
-/* --- Image Preview --- */
-#previewPhoto {
-    border-radius: 0.5rem; /* 8px */
+/* --- Product Details --- */
+.product-image {
+    max-width: 100%;
+    border-radius: 0.75rem; /* 12px */
+    border: 1px solid #dee2e6;
+    background-color: var(--brand-white);
+    aspect-ratio: 1 / 1;
     object-fit: cover;
+}
+
+.price-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+}
+
+.price-text-currency {
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--brand-primary);
+    vertical-align: super;
+    margin-left: 4px;
+}
+
+.detail-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--brand-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-available {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+    border-radius: 0.5rem;
+}
+
+.status-unavailable {
+    background-color: #f8d7da !important;
+    color: #58151c !important;
+    border-radius: 0.5rem;
+}
+
+/* --- Feedback Section --- */
+.feedback-card {
     background-color: var(--brand-light-gray);
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+}
+
+/* --- Modal Rounded --- */
+.modal-content {
+    border-radius: 0.75rem; /* 12px */
+    border: none;
 }

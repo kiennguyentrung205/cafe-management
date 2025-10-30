@@ -76,9 +76,36 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
 }
 
-/* --- Image Preview --- */
-#previewPhoto {
-    border-radius: 0.5rem; /* 8px */
+/* --- Table Photo --- */
+.product-photo {
+    width: 60px;
+    height: 60px;
     object-fit: cover;
+    border-radius: 0.5rem; /* 8px */
     background-color: var(--brand-light-gray);
+}
+
+/* --- Pagination --- */
+.pagination .page-item.active .page-link {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: var(--brand-white);
+    z-index: 1;
+}
+
+.pagination .page-link {
+    color: var(--brand-primary);
+}
+
+.pagination .page-link:hover {
+    color: #E66E00;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--brand-gray);
+}
+
+/* --- Category Filter --- */
+.form-check-label {
+    cursor: pointer;
 }
