@@ -38,7 +38,7 @@ public class SecurityConfig {
         http.csrf(Customizer.withDefaults()).authorizeHttpRequests(auth -> auth.requestMatchers("/login**", "/assets/**", "/forgot-password", "/set-password**", "/register", "/home").permitAll().requestMatchers("/table/booking/management").hasRole("CASHIER")
 
                         .requestMatchers("/dashboard/staff/**").hasRole("ADMIN").requestMatchers("/dashboard/vouchers/list").hasRole("ADMIN").requestMatchers("/dashboard/vouchers/create").hasRole("ADMIN").requestMatchers("/dashboard/vouchers/edit/**").hasRole("ADMIN").requestMatchers("/dashboard/vouchers/deleted-list").hasRole("ADMIN").requestMatchers("/product/list").hasRole("ADMIN").requestMatchers("/dashboard/staff").hasRole("ADMIN")
-//                        .requestMatchers( "/dashboard/staff/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard/staff/delete-forever/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard").hasRole("ADMIN").anyRequest().authenticated())
 
                 .exceptionHandling(exc -> exc.accessDeniedHandler(accessDeniedHandler()))

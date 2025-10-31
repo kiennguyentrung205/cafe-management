@@ -133,7 +133,8 @@
                     <tr th:each="order : ${orders}">
                         <td class="p-3" th:text="${'#' + order.orderId}">#1001</td>
                         <td class="p-3" th:text="${#temporals.format(order.createdAt, 'dd-MMM-yyyy HH:mm')}"></td>
-                        <td class="p-3" th:text="${order.customer.name}">Nguyen Van A</td>
+                        <td class="p-3" th:if="${order.customer == null}">Guest</td>
+                        <td class="p-3" th:unless="${order.customer == null}" th:text="${order.customer.name}"></td>
                         <td class="p-3"
                             th:text="${'VND ' + #numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')}">
                             VND 250,000

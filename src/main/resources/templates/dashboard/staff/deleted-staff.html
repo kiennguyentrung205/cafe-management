@@ -1,6 +1,5 @@
 <html>
 <head th:replace="fragment/frag :: staffmanagement">
-    <title>Deleted Staff</title>
 </head>
 <body class="bg-light">
 <div th:replace="fragment/frag :: navbar"></div>
@@ -126,7 +125,8 @@
                     undone.</p>
             </div>
             <div class="modal-footer">
-                <form id="deleteForm" method="post">
+                <form id="deleteForm" method="get">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <!-- CSRF input will be added by Spring Security, but good to have a hidden field if needed -->
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete Forever</button>
