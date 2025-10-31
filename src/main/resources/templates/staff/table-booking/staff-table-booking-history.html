@@ -67,7 +67,8 @@
                                   th:text="${x.status}">
                                 </span>
                         </td>
-                        <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>
+                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+
                         <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
                         <td classs="p-3">
                             <button class="btn btn-warning btn-sm" th:if="${x.status == 'booked'}"
@@ -180,10 +181,10 @@
     // JS functions unified to use 'en-GB' format (dd/mm/yyyy)
     function openCancelPopup(id, tableId, bookingTimeStr) {
         const dateObj = new Date(bookingTimeStr);
-        const date = new Intl.DateTimeFormat("en-GB", {
+        const date = new Intl.DateTimeFormat("vi-VN", {
             day: "2-digit", month: "2-digit", year: "numeric",
         }).format(dateObj);
-        const time = new Intl.DateTimeFormat("en-GB", {
+        const time = new Intl.DateTimeFormat("vi-VN", {
             hour: "2-digit", minute: "2-digit",
         }).format(dateObj);
 
