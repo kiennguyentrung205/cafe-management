@@ -241,7 +241,7 @@
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link"
                    th:href="@{/order/edit-history(page=${currentPage - 1})}"
-                   aria-label="Previous">&laquo;</a>
+                   aria-label="Previous">Prev</a>
             </li>
 
             <li class="page-item"
@@ -256,7 +256,7 @@
                 th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
                    th:href="@{/order/edit-history(page=${currentPage + 1})}"
-                   aria-label="Next">&raquo;</a>
+                   aria-label="Next">Next</a>
             </li>
         </ul>
     </nav>

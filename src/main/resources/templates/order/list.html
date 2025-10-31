@@ -195,7 +195,7 @@
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${order.pointsUsed}"></td>
             <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
-            <td th:text="${#strings.concat(#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT'), ' VND')}"></td>
+            <td th:text="${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')} + ' VND'"></td>
             <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
             <td>-</td>
         </tr>
@@ -215,7 +215,7 @@
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/list(page=${currentPage - 1})}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <span aria-hidden="true">Prev</span>
                 </a>
             </li>
 
@@ -229,7 +229,7 @@
             <!-- Next -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/list(page=${currentPage + 1})}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
+                    <span aria-hidden="true">Next</span>
                 </a>
             </li>
         </ul>
@@ -330,7 +330,7 @@
                     <td>${o.voucher}</td>
                     <td>${o.totalPrice.toLocaleString()} VND</td>
                     <td>${formatDateTime(o.date)}</td>
-                    <td>${completedAt}</td>
+                    <td>-</td>
                 `;
 
                     // hiển thị customer info
