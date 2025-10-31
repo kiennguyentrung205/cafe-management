@@ -1,18 +1,25 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
-public class Customer {
+public class Customer implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cus_id")
     private int cusId;
+
+//Tăngj điểm cho khách
+    @Column(name = "last_birthday_reward_year")
+    private Integer lastBirthdayRewardYear;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -23,10 +30,10 @@ public class Customer {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Column(name = "point")
-    private int point;
+    @Column(name = "point", nullable = false)
+    private Integer point = 0;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
     @Column(name = "password", nullable = false)
@@ -46,6 +53,8 @@ public class Customer {
 
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
+
+    private boolean isGoogleAccount;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Feedback> feedbacks;
@@ -82,6 +91,46 @@ public class Customer {
         this.orders = orders;
         this.pointHistories = pointHistories;
         this.tableBookings = tableBookings;
+    }
+
+    public Customer(int cusId, String name, String phoneNumber, String email, Integer point, String address, String password, String username, LocalDate dateOfBirth, String img, int failedAttempts, LocalDateTime lockedUntil, boolean isGoogleAccount, List<Feedback> feedbacks, List<Order> orders, List<PointHistory> pointHistories, List<TableBooking> tableBookings) {
+        this.cusId = cusId;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.point = point;
+        this.address = address;
+        this.password = password;
+        this.username = username;
+        this.dateOfBirth = dateOfBirth;
+        this.img = img;
+        this.failedAttempts = failedAttempts;
+        this.lockedUntil = lockedUntil;
+        this.isGoogleAccount = isGoogleAccount;
+        this.feedbacks = feedbacks;
+        this.orders = orders;
+        this.pointHistories = pointHistories;
+        this.tableBookings = tableBookings;
+    }
+
+    public Integer getLastBirthdayRewardYear() {
+        return lastBirthdayRewardYear;
+    }
+
+    public void setLastBirthdayRewardYear(Integer lastBirthdayRewardYear) {
+        this.lastBirthdayRewardYear = lastBirthdayRewardYear;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
+    public boolean isGoogleAccount() {
+        return isGoogleAccount;
+    }
+
+    public void setGoogleAccount(boolean googleAccount) {
+        isGoogleAccount = googleAccount;
     }
 
     public int getCusId() {
@@ -132,6 +181,11 @@ public class Customer {
         this.address = address;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
     }
@@ -142,6 +196,26 @@ public class Customer {
 
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 
     public void setUsername(String username) {

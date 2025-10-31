@@ -1,11 +1,13 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "[Order]")
 public class Order {
 
     @Id
@@ -14,7 +16,7 @@ public class Order {
     private int orderId;
 
     @ManyToOne
-    @JoinColumn(name = "cus_id", nullable = false)
+    @JoinColumn(name = "cus_id")
     private Customer customer;
 
     @ManyToOne
@@ -34,8 +36,15 @@ public class Order {
     @Column(name = "points_used")
     private int pointsUsed;
 
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
     @ManyToOne
-    @JoinColumn(name = "voucher_id", nullable = false)
+    @JoinColumn(name = "updated_by", referencedColumnName = "manager_id")
+    private Manager updatedBy;
+
+    @ManyToOne
+    @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
     private Voucher voucher;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
@@ -49,7 +58,7 @@ public class Order {
 
     public Order(int orderId, Customer customer, Manager manager, String status, double totalPrice,
                  LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories) {
+                 List<PointHistory> pointHistories,  LocalDateTime updatedAt,  Manager updatedBy) {
         this.orderId = orderId;
         this.customer = customer;
         this.manager = manager;
@@ -60,6 +69,8 @@ public class Order {
         this.voucher = voucher;
         this.orderItems = orderItems;
         this.pointHistories = pointHistories;
+        this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
     }
 
     public int getOrderId() {
@@ -140,5 +151,21 @@ public class Order {
 
     public void setPointHistories(List<PointHistory> pointHistories) {
         this.pointHistories = pointHistories;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Manager getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(Manager updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

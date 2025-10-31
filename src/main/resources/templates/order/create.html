@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Order | Cafe Management</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main layout */
+        .main-container {
+            flex: 1;
+            padding: 15px 25px;
+            overflow-y: auto;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr; /* tăng tỉ lệ hai panel */
+            gap: 25px;
+            max-width: 2000px; /* tăng tổng chiều rộng */
+            margin: 0 auto;
+        }
+
+        .categories select {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 14px;
+            width: 180px;
+        }
+
+        .categories button {
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .categories button:hover {
+            background-color: #e60000;
+        }
+
+        .search-bar input {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        /* Order panel */
+        .order-panel h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .order-list {
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0;
+            max-height :100px;
+            overflow-y: auto;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .order-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+            margin-right: 8px;
+        }
+
+        .voucher, .customer-info {
+            margin-top: 12px;
+        }
+
+        .redeem {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .place-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .place-btn {
+            background-color: var(--brand-primary, #FF7A00);
+            color: #fff;
+            padding: 10px 30px;
+            border-radius: 10px;
+            font-size: 15px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: 0.2s ease-in-out;
+        }
+
+        .place-btn:hover {
+            background-color: var(--brand-primary, #FF7A00);
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div th:replace="fragment/frag :: order-sidebar('create')"></div>
+
+
+<!-- Main Content -->
+<div class="main-container">
+    <h2>Create In-Store Order</h2>
+    <div th:if="${warning}" class="alert alert-warning mt-2" th:text="${warning}"></div>
+    <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
+
+    <form th:action="@{/order/create}" method="post" onsubmit="handleOrderSubmit(event)">
+
+        <div class="container">
+
+            <!-- LEFT PANEL -->
+            <div th:replace="fragment/frag :: menu-panel"></div>
+
+
+            <!-- RIGHT PANEL -->
+            <div class="order-panel">
+                <h3>Order Menu</h3>
+                <div class="order-list"></div>
+
+                <div class="customer-info">
+
+                    <div style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Phone Number:</label>
+
+                        <input type="text" name="customerPhone" placeholder="0123456789"
+                               th:value="${customerPhone}"
+                               class="form-control form-control-sm" style="width: 150px;">
+
+                        <button type="button" name="action" value="check" class="btn btn-sm btn-primary">Check
+                        </button>
+                    </div>
+
+
+                    <h4 style="font-size:16px;">Customer Info</h4>
+                    <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
+                    <p>Point: <span th:text="${customer != null ? customer.point : 0}"></span></p>
+
+                    <div class="redeem">
+                        <label>Redeem Points:</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+
+                            <button type="button" class="btn btn-danger btn-sm fw-bold"
+                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
+                                    onclick="redeemPoints(-5)">−
+                            </button>
+
+                            <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
+                                   th:attr="data-max=${customer != null ? customer.point : 0}"
+                                   style="width:60px;text-align:center;font-weight:600;">
+
+                            <button type="button" class="btn btn-success btn-sm fw-bold"
+                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
+                                    onclick="redeemPoints(5)">+
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="voucher" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Voucher:</label>
+
+                        <select name="voucherId" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="" data-type="NONE" data-value="0" data-min-order="0">None</option>
+                            <option th:each="v : ${voucherList}"
+                                    th:value="${v.voucherId}"
+                                    th:text="${v.voucherName}"
+                                    th:data-type="${v.discountType}"
+                                    th:data-value="${v.discountValue}"
+                                    th:data-min-order="${v.minOrderValue}">
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="price-summary" style="margin-top: 15px; font-size: 16px; font-weight: 500;">
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Subtotal:</span>
+                        <span id="totalPrice">0 VND</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Voucher:</span>
+                        <span id="displayVoucherDiscount" class="text-danger">- 0 VND</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Points:</span>
+                        <span id="displayPointsDiscount" class="text-danger">- 0 VND</span>
+                    </div>
+                </div>
+
+                <hr/>
+                <div class="place-container">
+
+                    <div id="hiddenInputs"></div>
+
+                    <button type="submit" class="place-btn" name="action" value="create">
+                        <span style="font-size: 16px; font-weight: 600;">Place</span><br>
+                        <span style="font-size: 13px;">(<span id="finalPrice">0</span> VND)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* ===== Hàm hiển thị modal cảnh báo ===== */
+    function showAlertModal(message, isError = true) {
+        const modalEl = document.getElementById('alertModal');
+        const msgEl = document.getElementById('alertMessage');
+        const header = modalEl.querySelector('.modal-header');
+        const title = modalEl.querySelector('.modal-title');
+
+        msgEl.textContent = message;
+
+        if (isError) {
+            header.classList.remove('bg-success');
+            header.classList.add('bg-danger');
+            title.textContent = 'Warning';
+        } else {
+            header.classList.remove('bg-danger');
+            header.classList.add('bg-success');
+            title.textContent = 'Success';
+        }
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    /* ===== [HÀM MỚI] Dọn dẹp panel sau khi thành công ===== */
+    function resetOrderPanel() {
+        // 1. Xóa danh sách order
+        document.querySelector(".order-list").innerHTML = "";
+
+        // 2. Reset voucher, SĐT, điểm
+        document.querySelector('select[name="voucherId"]').value = "";
+        const phoneInput = document.querySelector('input[name="customerPhone"]');
+        if (phoneInput) phoneInput.value = "";
+
+        const pointsInput = document.getElementById('pointsUsed');
+        if (pointsInput) {
+            pointsInput.value = 0;
+            pointsInput.setAttribute('data-max', 0);
+        }
+
+        // 3. Reset thông tin customer
+        document.querySelector('.customer-info p:nth-of-type(1) span').textContent = '-';
+        document.querySelector('.customer-info p:nth-of-type(2) span').textContent = '0';
+
+        // 4. Reset 4 trường giá trị
+        document.getElementById("totalPrice").textContent = "0 VND"; // Reset Subtotal
+        document.getElementById("finalPrice").textContent = "0";     // Reset Nút Place
+        document.getElementById("displayVoucherDiscount").textContent = "- 0 VND";
+        document.getElementById("displayPointsDiscount").textContent = "- 0 VND";
+
+        document.getElementById("hiddenInputs").innerHTML = "";
+
+        // 5. Mở khóa lại tất cả input
+        updateLockState();
+    }
+
+    function handleOrderSubmit(event) {
+        // 1. Chặn hành vi submit mặc định
+        event.preventDefault();
+
+        // 2. Cập nhật hidden inputs
+        updateHiddenInputs();
+
+        // 3. Lấy form và nút submit
+        const form = event.target;
+        const submitButton = form.querySelector('button[name="action"][value="create"]');
+
+        // 4. Validate (lấy từ hàm validateOrderForm cũ)
+        const orderItems = document.querySelectorAll(".order-item");
+        if (orderItems.length === 0) {
+            showAlertModal('Please select at least one product before placing the order.');
+            return; // Dừng lại
+        }
+        const productInputs = document.querySelectorAll("input[name='productIds']");
+        if (productInputs.length === 0) {
+            showAlertModal('No products found in form. Please re-add items.');
+            return; // Dừng lại
+        }
+
+        // 5. Chuẩn bị FormData để gửi
+        const formData = new FormData(form);
+        // Thêm giá trị của nút submit vào (vì preventDefault đã chặn nó)
+        formData.append(submitButton.name, submitButton.value);
+
+        // 6. Gửi AJAX request
+        fetch(form.getAttribute('action'), {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+        })
+            .then(res => {
+                //Xử lý redirect (hết session)
+                if (res.redirected) {
+                    showAlertModal('Your session may have expired. Reloading page...', true);
+                    // Tự động tải lại trang sau 2 giây
+                    setTimeout(() => window.location.reload(), 2000);
+                    return null; // Dừng xử lý
+                }
+
+                // Xử lý lỗi 500 (Server Error)
+                if (!res.ok) {
+                    showAlertModal(`Server Error (${res.status}). Please check the server log.`, true);
+                    return null; // Dừng xử lý
+                }
+
+                return res.text(); // Mọi thứ OK, tiếp tục
+            })
+            .then(html => {
+                // Nếu là null (do lỗi ở trên), thì không làm gì cả
+                if (html === null) return;
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Kiểm tra lỗi validation (ví dụ: hết hàng)
+                const errorEl = doc.querySelector('.alert-danger');
+                if (errorEl) {
+                    showAlertModal(errorEl.textContent, true);
+                    return;
+                }
+
+                // Kiểm tra thành công
+                const successEl = doc.querySelector('.alert-success');
+                if (successEl) {
+                    showAlertModal(successEl.textContent, false);
+                    resetOrderPanel();
+
+                } else {
+                    showAlertModal('An unknown error occurred. (No alert found)', true);
+                }
+            })
+            .catch(err => {
+                console.error('Submit error:', err);
+                showAlertModal('Failed to submit order. Check connection.', true);
+            });
+    }
+
+    /* ========== Gắn sự kiện cho product cards ========== */
+    function attachProductCardListeners() {
+        // Xóa listener cũ để tránh gọi nhiều lần
+        document.querySelectorAll(".product-card").forEach(card => {
+            card.replaceWith(card.cloneNode(true));
+        });
+
+        // Gắn listener mới
+        document.querySelectorAll(".product-card").forEach(card => {
+            card.addEventListener("click", () => {
+                const name = card.querySelector(".product-name").textContent.trim();
+                const priceText = card.querySelector(".product-price").textContent.trim();
+                const price = parseFloat(priceText.replace(/[^\d.]/g, ""));
+                const img = card.querySelector("img").src;
+                const productId = card.getAttribute("data-product-id"); // Lấy ID
+
+                const orderList = document.querySelector(".order-list");
+
+                let existingItem = Array.from(orderList.querySelectorAll(".order-item"))
+                    .find(item => item.getAttribute("data-product-id") === productId); // Tìm theo ID
+
+                if (existingItem) {
+                    const qtySpan = existingItem.querySelector(".item-qty");
+                    let qty = parseInt(qtySpan.textContent);
+                    qty++;
+                    qtySpan.textContent = qty;
+                } else {
+                    const item = document.createElement("div");
+                    item.classList.add("order-item");
+                    item.setAttribute("data-product-id", productId); // Gán ID vào item
+                    item.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+            <img src="${img}" alt="${name}">
+            <span class="item-name">${name}</span>
+        </div>
+        <div style="text-align:right;">
+            <div style="display:flex;align-items:center;justify-content:flex-start;gap:5px;">
+                <button type="button" class="btn-minus"
+                    style="border:1px solid #aaa; background-color:#e9ecef;
+                           border-radius:5px; width:28px; height:28px;
+                           font-weight:bold; line-height:1;">−</button>
+                <span class="item-qty">1</span>x
+                <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
+            </div>
+            <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:160px;"></div>
+        </div>`;
+                    orderList.appendChild(item);
+
+                    const minusBtn = item.querySelector(".btn-minus");
+                    minusBtn.addEventListener("click", () => {
+                        let qty = parseInt(item.querySelector(".item-qty").textContent);
+                        qty--;
+                        if (qty <= 0) {
+                            item.remove();
+                        } else {
+                            item.querySelector(".item-qty").textContent = qty;
+                        }
+                        updateTotal();
+                    });
+                }
+                updateTotal();
+            });
+        });
+    }
+
+    /* ========== Tính tổng tiền ========== */
+    function updateTotal() {
+        // 1. Tính Subtotal (giá gốc)
+        const orderItems = document.querySelectorAll(".order-item");
+        let subtotal = 0;
+        orderItems.forEach(item => {
+            const qty = parseInt(item.querySelector(".item-qty").textContent);
+            const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
+            subtotal += qty * price;
+        });
+
+        // 2. [SỬA LẠI] Lọc và ẨN Voucher dựa trên Subtotal
+        const voucherSelect = document.querySelector('select[name="voucherId"]');
+        let currentVoucherIsValid = true;
+
+        for (const option of voucherSelect.options) {
+            const minOrder = parseFloat(option.getAttribute('data-min-order')) || 0;
+            if (option.value === "") {
+                option.style.display = 'block';
+                continue;
+            }
+            if (subtotal < minOrder) {
+                option.style.display = 'none';
+            } else {
+                option.style.display = 'block';
+            }
+            if (option.selected && option.style.display === 'none') {
+                currentVoucherIsValid = false;
+            }
+        }
+        if (!currentVoucherIsValid) {
+            voucherSelect.value = "";
+        }
+
+        // 3. Lấy thông tin Voucher (Sau khi đã lọc)
+        const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+
+        // [SỬA 1] Lấy data-type và chuẩn hóa sang chữ hoa (để tránh lỗi 'percent' vs 'PERCENT')
+        const voucherTypeAttr = selectedOption.getAttribute('data-type') || 'NONE';
+        const voucherType = voucherTypeAttr.toUpperCase(); // QUAN TRỌNG
+
+        const voucherValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+
+        let voucherDiscount = 0; // Số tiền thực tế sẽ giảm (để tính finalTotal)
+        let voucherText = "- 0 VND"; // Chuỗi sẽ hiển thị cho khách
+
+        // [SỬA 2] Thay đổi logic hiển thị theo yêu cầu mới của bạn
+        if (voucherType === 'PERCENT' || voucherType === '%') {
+            // Tính số tiền giảm thực tế
+            voucherDiscount = Math.ceil(subtotal * (voucherValue / 100.0));
+            // Hiển thị dạng phần trăm
+            voucherText = `- ${voucherValue}%`;
+
+        } else if (voucherType === 'AMOUNT' || voucherType === 'VND') {
+            // Số tiền giảm chính là value
+            voucherDiscount = voucherValue;
+            // Hiển thị số tiền
+            voucherText = `- ${voucherDiscount.toLocaleString()} VND`;
+        }
+
+        // 4. Lấy thông tin Points (1 điểm = 2000 VND)
+        const pointsInput = document.getElementById('pointsUsed');
+        const pointsUsed = parseInt(pointsInput.value) || 0;
+        const pointsDiscount = pointsUsed * 2000;
+
+        // 5. Tính Final Total
+        // (Phép tính này vẫn đúng, vì 'voucherDiscount' luôn là số tiền, bất kể 'voucherText' hiển thị là gì)
+        let finalTotal = subtotal - voucherDiscount - pointsDiscount;
+        if (finalTotal < 0) {
+            finalTotal = 0;
+        }
+
+        if (finalTotal > 0) { // Chỉ làm tròn nếu lớn hơn 0
+            finalTotal = Math.ceil(finalTotal / 1000) * 1000;
+        }
+
+        // 6. Cập nhật HTML (Gán vào 4 ID ĐÚNG)
+        document.getElementById("totalPrice").textContent = subtotal.toLocaleString() + " VND";
+        document.getElementById("displayVoucherDiscount").textContent = voucherText; // Sẽ hiển thị -10% hoặc -50000 VND
+        document.getElementById("displayPointsDiscount").textContent = `- ${pointsDiscount.toLocaleString()} VND`;
+        document.getElementById("finalPrice").textContent = finalTotal.toLocaleString(); // Cập nhật nút place
+
+        // 7. Cập nhật hidden inputs
+        updateHiddenInputs();
+    }
+
+    /* ========== Điểm thưởng (Được gọi bằng onclick trong HTML) ========== */
+    function redeemPoints(delta) {
+        const input = document.getElementById('pointsUsed');
+        if (!input) return;
+        const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
+        let current = parseInt(input.value) || 0;
+        current += delta;
+        if (current < 0) current = 0;
+        if (current > maxPoint) current = maxPoint;
+        current = Math.floor(current / 5) * 5;
+        input.value = current;
+
+        updateLockState();
+        updateTotal();
+    }
+
+    /* ========== Cập nhật trạng thái Khóa (Disable) của các Input ========== */
+    function updateLockState() {
+        const orderPanel = document.querySelector('.order-panel');
+        if (!orderPanel) return;
+
+        // Lấy tất cả các element điều khiển
+        const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
+        const voucherSelect = orderPanel.querySelector('select[name="voucherId"]');
+        const pointsInput = orderPanel.querySelector('#pointsUsed');
+        const redeemButtons = orderPanel.querySelectorAll('.redeem button, .redeem input');
+
+        if (!phoneInput || !voucherSelect || !pointsInput) return;
+
+        // Lấy trạng thái hiện tại
+        const voucherHasValue = voucherSelect.value !== "";
+        const pointsHaveValue = parseInt(pointsInput.value) > 0;
+        const customerHasPoints = (parseInt(pointsInput.getAttribute('data-max')) || 0) > 0;
+
+        // --- Áp dụng Logic MỚI ---
+
+        // 1. Ô SĐT luôn luôn được bật (KHÔNG BAO GIỜ disable)
+        phoneInput.disabled = false;
+
+        // 2. Mặc định, nút điểm chỉ bật khi khách hàng có điểm
+        let redeemShouldBeDisabled = !customerHasPoints;
+
+        // 3. Mặc định, voucher được bật
+        let voucherShouldBeDisabled = false;
+
+
+        // 4. Áp dụng luật khóa chéo:
+        if (voucherHasValue) {
+            // NẾU ĐÃ CHỌN VOUCHER -> KHÓA NÚT ĐIỂM
+            redeemShouldBeDisabled = true;
+
+        } else if (pointsHaveValue) {
+            // NẾU ĐÃ DÙNG ĐIỂM -> KHÓA VOUCHER
+            voucherShouldBeDisabled = true;
+        }
+
+        // 5. Cập nhật trạng thái cuối cùng cho các nút
+        voucherSelect.disabled = voucherShouldBeDisabled;
+        redeemButtons.forEach(el => el.disabled = redeemShouldBeDisabled);
+    }
+
+    /* ========== AJAX load lại menu + phân trang ========== */
+    function fetchAndReplace(url, categoryId) {
+        fetch(url, {credentials: 'same-origin'})
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newGrid = doc.querySelector('.menu-grid');
+                const newPagination = doc.querySelector('.pagination');
+                const curGrid = document.querySelector('.menu-grid');
+                const curPag = document.querySelector('.pagination');
+
+                if (curGrid && newGrid) curGrid.innerHTML = newGrid.innerHTML;
+                if (curPag && newPagination) curPag.innerHTML = newPagination.innerHTML;
+
+                const products = curGrid ? curGrid.querySelectorAll('.product-card') : [];
+                if (products.length === 0 && curGrid) {
+                    curGrid.innerHTML = `
+        <div class="text-center mt-5" style="font-size: 18px; color: #888;">
+            <i class="bi bi-emoji-frown" style="font-size: 32px;"></i>
+            <p>Not found</p>
+        </div>`;
+                    if (curPag) curPag.innerHTML = '';
+                }
+
+                selectedCategoryId = categoryId ? String(categoryId) : null;
+                document.querySelectorAll('.category-checkbox').forEach(cb => {
+                    cb.checked = selectedCategoryId === cb.value;
+                });
+
+                attachProductCardListeners(); // Gắn lại sự kiện click product
+                rebindLiveSearch(); // Gắn lại sự kiện search
+                history.pushState(null, '', url);
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                window.location.href = url; // Tải lại trang nếu AJAX lỗi
+            });
+    }
+
+    /* ========== Chọn danh mục (Được gọi bằng onchange trong HTML) ========== */
+    let selectedCategoryId = null;
+
+    function handleCategorySelect(checkbox) {
+        const allCheckboxes = document.querySelectorAll('.category-checkbox');
+        if (checkbox.checked) {
+            allCheckboxes.forEach(cb => {
+                if (cb !== checkbox) cb.checked = false;
+            });
+            selectedCategoryId = checkbox.value;
+            fetchAndReplace(`/order/create?categoryId=${selectedCategoryId}&page=1`, selectedCategoryId);
+        } else {
+            selectedCategoryId = null;
+            fetchAndReplace(`/order/create?page=1`, null);
+        }
+    }
+
+    /* ========== Live Search ========== */
+    function rebindLiveSearch() {
+        const searchInput = document.querySelector('.search-bar input');
+        if (!searchInput) return;
+        searchInput.removeEventListener('input', searchInput._handler || (() => {
+        }));
+        const handler = debounce(function () {
+            const query = this.value.trim();
+            let url = '/order/create?page=1';
+            if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
+            if (query) url += `&query=${encodeURIComponent(query)}`;
+            fetchAndReplace(url, selectedCategoryId);
+        }, 300);
+        searchInput._handler = handler;
+        searchInput.addEventListener('input', handler);
+    }
+
+    function debounce(fn, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    /* ========== Phân trang AJAX (Menu) ========== */
+    document.addEventListener('click', function (e) {
+        // Chỉ lắng nghe click trên pagination của menu-panel
+        const menuPanel = e.target.closest('.menu-panel');
+        if (!menuPanel) return;
+
+        const a = e.target.closest('.pagination a');
+        if (!a) return;
+
+        e.preventDefault();
+        const href = a.getAttribute('href');
+        fetchAndReplace(href, selectedCategoryId);
+    });
+
+    /* ========== DOM Ready (Chỉ gọi 1 lần duy nhất) ========== */
+    document.addEventListener('DOMContentLoaded', () => {
+        // Gắn sự kiện cho Menu (bên trái)
+        attachProductCardListeners();
+        rebindLiveSearch();
+
+        // Gắn sự kiện cho Category Checkbox
+        document.querySelectorAll('.category-checkbox').forEach(cb => {
+            cb.removeEventListener('change', cb._handler || (() => {
+            }));
+            const handler = function () {
+                handleCategorySelect(this);
+            };
+            cb._handler = handler;
+            cb.addEventListener('change', handler);
+        });
+
+        // Gắn sự kiện cho nút Back/Forward của trình duyệt
+        window.addEventListener('popstate', function () {
+            fetchAndReplace(location.href, null);
+        });
+
+        // --- SỬ DỤNG EVENT DELEGATION CHO ORDER PANEL ---
+        const orderPanel = document.querySelector('.order-panel');
+        if (!orderPanel) return;
+
+        // 1. SỰ KIỆN CLICK (cho nút "Check")
+        orderPanel.addEventListener('click', function (e) {
+            const checkBtn = e.target.closest('button[name="action"][value="check"]');
+            if (!checkBtn) return; // Click vào thứ khác, bỏ qua
+
+            const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
+            if (!phoneInput) return;
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                showAlertModal('Please enter a phone number.');
+                return;
+            }
+
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('action', 'check');
+            currentUrl.searchParams.set('customerPhone', phone);
+            const url = currentUrl.href;
+
+            fetch(url, {method: 'GET', credentials: 'same-origin'})
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newCustomerInfo = doc.querySelector('.customer-info');
+                    const curCustomerInfo = document.querySelector('.customer-info');
+                    const newVoucher = doc.querySelector('.voucher');
+                    const curVoucher = document.querySelector('.voucher');
+                    const errorAlert = doc.querySelector('.alert-danger');
+                    const curError = document.querySelector('.alert-danger');
+
+                    if (curError) curError.remove();
+                    if (errorAlert) {
+                        showAlertModal(errorAlert.textContent);
+                    }
+                    if (curCustomerInfo && newCustomerInfo) {
+                        curCustomerInfo.innerHTML = newCustomerInfo.innerHTML;
+                    }
+                    if (curVoucher && newVoucher) {
+                        curVoucher.innerHTML = newVoucher.innerHTML;
+                    }
+
+                    const newPhoneVal = doc.querySelector('input[name="customerPhone"]')?.value;
+                    const currentPhoneInput = orderPanel.querySelector('input[name="customerPhone"]');
+                    if (currentPhoneInput && newPhoneVal !== undefined) {
+                        currentPhoneInput.value = newPhoneVal;
+                    }
+
+                    updateLockState();
+                    updateTotal();
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    showAlertModal('Failed to load customer info. Check connection.');
+                });
+        });
+
+        // 2. SỰ KIỆN CHANGE (cho ô Voucher)
+        orderPanel.addEventListener('change', function (e) {
+            const voucherSelect = e.target.closest('select[name="voucherId"]');
+            if (voucherSelect) {
+                // [SỬA] Chỉ cần gọi hàm update
+                updateLockState();
+                updateTotal();
+            }
+        });
+
+        // 3. SỰ KIỆN INPUT (khi gõ SĐT)
+        orderPanel.addEventListener('input', function (e) {
+            const phoneInput = e.target.closest('input[name="customerPhone"]');
+            if (phoneInput) {
+                // [SỬA] Chỉ cần gọi hàm update
+                updateLockState();
+            }
+        });
+
+        updateLockState();
+        updateTotal();
+
+    });
+
+    /* ========== Hidden inputs ========== */
+    function updateHiddenInputs() {
+        const container = document.getElementById("hiddenInputs");
+        container.innerHTML = "";
+        const orderItems = document.querySelectorAll(".order-item");
+        orderItems.forEach(item => {
+            const qty = parseInt(item.querySelector(".item-qty").textContent);
+            const productId = item.getAttribute("data-product-id");
+            const note = item.querySelector(".item-note").value;
+
+            // Lọc ra các ID bị lỗi
+            if (!productId || productId === "null") {
+                console.warn("Skipping item with invalid product ID.");
+                return; // Bỏ qua item này
+            }
+
+            const hiddenProduct = document.createElement("input");
+            hiddenProduct.type = "hidden";
+            hiddenProduct.name = "productIds";
+            hiddenProduct.value = productId;
+
+            const hiddenQty = document.createElement("input");
+            hiddenQty.type = "hidden";
+            hiddenQty.name = "quantities";
+            hiddenQty.value = qty;
+
+            const hiddenNote = document.createElement("input");
+            hiddenNote.type = "hidden";
+            hiddenNote.name = "notes";
+            hiddenNote.value = note;
+
+            container.appendChild(hiddenProduct);
+            container.appendChild(hiddenQty);
+            container.appendChild(hiddenNote);
+        });
+    }
+
+    /* ========== Validate đặt hàng ========== */
+    function validateOrderForm() {
+        // Cập nhật hidden inputs lần cuối trước khi submit
+        updateHiddenInputs();
+
+        const orderItems = document.querySelectorAll(".order-item");
+        if (orderItems.length === 0) {
+            showAlertModal('Please select at least one product before placing the order.');
+            return false;
+        }
+        const productInputs = document.querySelectorAll("input[name='productIds']");
+        if (productInputs.length === 0) {
+            showAlertModal('No products found in form. Please re-add items.');
+            return false;
+        }
+        return true;
+    }
+</script>
+
+
+<!-- Modal cảnh báo -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-black">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold" id="alertModalLabel">
+                    Warning
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center fs-5" id="alertMessage">
+                <!-- JS sẽ chèn nội dung cảnh báo vào đây -->
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

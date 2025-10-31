@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+
+    <title>Title</title>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4 text-primary" th:text="${title}">Category List</h1>
+
+    <a class="btn btn-success mb-3" th:href="@{/category/create}">+ Create new category</a>
+    <div th:if="${categoryList.isEmpty()}" class="alert alert-info" role="alert">
+        There are any category in the system
+    </div>
+
+
+    <div th:unless="${categoryList.isEmpty()}">
+
+
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered">
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Active</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="category, iterStat : ${categoryList}" th:object="${category}">
+
+                    <td th:text="${iterStat.index + 1}">1</td>
+
+                    <td th:text="*{cateName}"></td>
+
+                    <td>
+                        <span th:if="*{active}" class="badge bg-success">Active</span>
+                        <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
+                    </td>
+
+                    <td>
+                        <a class="btn btn-sm btn-primary" th:href="@{/category/edit/{id}(id=*{cateId})}">Edit</a>
+
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+</body>
+</html>

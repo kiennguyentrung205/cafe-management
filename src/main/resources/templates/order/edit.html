@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Order</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 120px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            gap: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 10px 0;
+            width: 100px;
+            border-radius: 15px;
+            font-size: 12px;
+            transition: 0.25s;
+            text-align: center;
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .menu-item:hover {
+            background-color: #ff4d4d;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .menu-item.active {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            background-color: white;
+            overflow: hidden;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+            font-size: 17px;
+        }
+
+        th {
+            background-color: #e6e6e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+            padding: 10px;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table th:nth-child(1),  /* Order# */
+        table td:nth-child(1) {
+            width: 10%;
+        }
+
+        table th:nth-child(2),  /* Status */
+        table td:nth-child(2) {
+            width: 16%;
+        }
+
+        table th:nth-child(3),  /* Product */
+        table td:nth-child(3) {
+            width: 20%;
+            text-align: left;
+        }
+
+        table th:nth-child(4),  /* Note */
+        table td:nth-child(4) {
+            width: 20%;
+            text-align: left;
+        }
+
+        table th:nth-child(5),  /* Staff */
+        table td:nth-child(5) {
+            width: 20%;
+        }
+
+        table th:nth-child(6),  /* Updated At + Save button */
+        table td:nth-child(6) {
+            width: 20%;
+        }
+
+        td ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 10px;
+        }
+
+        td ul li {
+            margin-bottom: 3px;
+            font-size: 18px;
+        }
+
+        select.form-select {
+            font-size: 17px;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* ==== Save button ==== */
+        .btn.btn-primary {
+            font-size: 17px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 8px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .pagination a {
+            color: #007bff;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination a:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .form-control-sm {
+            width: 180px;
+            margin: auto;
+        }
+
+        .menu-item.logout {
+            color: #dc3545;
+            border: none;
+        }
+
+        .menu-item.logout:hover {
+            color:white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- === Sidebar === -->
+<div class="sidebar">
+    <a href="/order/edit" class="menu-item active">
+        <i class="bi bi-house-door"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <form th:action="@{/logout}" method="post" class="sidebar-bottom">
+        <button type="submit" class="menu-item logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Log Out</span>
+        </button>
+    </form>
+</div>
+
+<!-- === Main Content === -->
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Edit Order</h2>
+        <a href="/order/edit-history" class="btn btn-outline-secondary">
+            History
+        </a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Order#</th>
+            <th>Staff</th>
+            <th>Product</th>
+            <th>Note</th>
+            <th>Status</th>
+            <th>Updated At</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <!-- Nếu có đơn -->
+        <form th:action="@{/order/updateStatus}" method="post"
+              th:each="order : ${orders}"
+              th:if="${orders != null and !orders.isEmpty() and order.status != 'Served' and order.status != 'Canceled'}">
+            <tr>
+                <td th:text="${order.orderId}"></td>
+
+                <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
+
+                <td>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${order.orderItems}"
+                            th:text="${item.product != null ? item.product.proName + ' × ' + item.quantity : '-'}"></li>
+                    </ul>
+                </td>
+
+                <td>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${order.orderItems}"
+                            th:text="${item.note != null && item.note != '' ? item.note : '-'}"></li>
+                    </ul>
+                </td>
+
+                <td>
+                    <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                    <select name="status" class="form-select form-select-sm me-2">
+                        <option value="Served"
+                                th:selected="${order.status == 'Served'}">Served</option>
+                        <option value="Canceled"
+                                th:selected="${order.status == 'Canceled'}">Canceled</option>
+                    </select>
+                </td>
+
+                <td>
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
+                </td>
+            </tr>
+        </form>
+
+        <!-- Nếu không có đơn -->
+        <tr th:if="${orders == null or orders.isEmpty()}">
+            <td colspan="5" class="text-center text-muted py-3">
+                There are not any orders.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav aria-label="Order pagination" th:if="${orders != null and !orders.isEmpty() and totalPages > 0}">
+        <ul class="pagination justify-content-center">
+            <!-- Previous -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/edit(page=${currentPage - 1})}" aria-label="Previous">
+                    <span aria-hidden="true">Prev;</span>
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/order/edit(page=${i})}" th:text="${i}"></a>
+            </li>
+
+            <!-- Next -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/edit(page=${currentPage + 1})}" aria-label="Next">
+                    <span aria-hidden="true">Next</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date();
+
+        // Lấy phần ngày hôm nay (YYYY-MM-DD)
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
+        // Tính thời gian hiện tại để set mặc định
+        const hh = String(today.getHours()).padStart(2, "0");
+        const min = String(today.getMinutes()).padStart(2, "0");
+        const nowStr = `${todayStr}T${hh}:${min}`;
+
+        // Gán giới hạn cho tất cả input datetime-local
+        document.querySelectorAll(".updatedAtInput").forEach(input => {
+            input.min = `${todayStr}T00:00`;
+            input.max = `${todayStr}T23:59`;
+            input.value = nowStr; // set mặc định = giờ hiện tại
+        });
+    });
+</script>
+
+</body>
+</html>

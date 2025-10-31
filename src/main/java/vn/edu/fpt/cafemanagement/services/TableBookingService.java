@@ -1,0 +1,96 @@
+package vn.edu.fpt.cafemanagement.services;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.cafemanagement.entities.TableBooking;
+import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class TableBookingService {
+    private final TableBookingRepository tableBookingRepository;
+
+    public TableBookingService(TableBookingRepository tableBookingRepository) {
+        this.tableBookingRepository = tableBookingRepository;
+    }
+
+    @Transactional
+    public TableBooking createBooking(TableBooking tableBooking) {
+        LocalDateTime bookingTime = tableBooking.getBookingTime();
+        LocalDateTime now = LocalDateTime.now();
+
+
+        long diffMinutes = Duration.between(now, bookingTime).toMinutes();
+        if (diffMinutes < 0) {
+            throw new RuntimeException("You cannot book table in the past!");
+        }
+
+        if (diffMinutes > 120) {
+            throw new RuntimeException("You can only book a table within 2 hours before your arrival");
+        }
+
+        if (bookingTime.getHour() >= 22) {
+            throw new RuntimeException("You cannot book table after 22:00!");
+        }
+
+        tableBooking.setStatus("booked");
+
+        return tableBookingRepository.save(tableBooking);
+    }
+
+    @Transactional
+    public TableBooking save(TableBooking tableBooking) {
+        return tableBookingRepository.save(tableBooking);
+    }
+
+    public List<TableBooking> findByCustomerId(int customerId) {
+        return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(customerId);
+    }
+
+    public TableBooking findById(int id) {
+        return tableBookingRepository.findById(id).orElse(null);
+    }
+
+    public Page<TableBooking> findByCustomer_CusId(Integer customerId, Pageable pageable) {
+        return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(customerId, pageable);
+    }
+
+    public Page<TableBooking> findAll(Pageable pageable) {
+        return tableBookingRepository.findAll(pageable);
+    }
+
+    public Page<TableBooking> findTableBookingCustomer(Integer cusId, String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        boolean hasDate = start != null && end != null;
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (!hasDate && !hasStatus) {
+            return tableBookingRepository.findByCustomer_CusIdOrderByBookingTimeDesc(cusId, pageable);
+        } else if (hasDate && !hasStatus) {
+            return tableBookingRepository.findByCustomer_CusIdAndBookingTimeBetweenOrderByBookingTimeDesc(cusId, start, end, pageable);
+        } else if (hasStatus && !hasDate) {
+            return tableBookingRepository.findByCustomer_CusIdAndStatusOrderByBookingTimeDesc(cusId, status, pageable);
+        } else{
+            return tableBookingRepository.findByCustomer_CusIdAndStatusAndBookingTimeBetweenOrderByBookingTimeDesc(cusId, status, start, end, pageable);
+        }
+    }
+
+    public Page<TableBooking> findTableBookingManager(String status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        boolean hasDate = start != null && end != null;
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (!hasDate && !hasStatus) {
+            return tableBookingRepository.findAllByOrderByBookingTimeDesc(pageable);
+        } else if (hasDate && !hasStatus) {
+            return tableBookingRepository.findByBookingTimeBetweenOrderByBookingTimeDesc(start, end, pageable);
+        } else if (hasStatus && !hasDate) {
+            return tableBookingRepository.findByStatusOrderByBookingTimeDesc( status, pageable);
+        } else{
+            return tableBookingRepository.findByStatusAndBookingTimeBetweenOrderByBookingTimeDesc(status, start, end, pageable);
+        }
+    }
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/frag :: productlist">
+</head>
+<body class="bg-light">
+<div th:replace="fragment/frag :: navbar"></div>
+<div class="container mt-4">
+    <h1 class="mb-4" th:text="${title}">Danh sách sản phẩm</h1>
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-4">
+            <a class="btn btn-success mb-4" th:href="@{/product/create}">+ Create new product</a>
+        </div>
+        <div class="col-md-8">
+            <form th:action="@{/product/deleted-list}" method="get" class="d-flex">
+                <input type="text"
+                       name="keyword"
+                       class="form-control me-2"
+                       placeholder="Nhập tên sản phẩm cần tìm..."
+                       th:value="${keyword}" aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <hr>
+
+    <div class="col-md-3">
+        <h5 class="mb-3">Filter by Category:</h5>
+        <form th:action="@{/product/deleted-list}" method="get">
+
+            <input type="hidden" name="keyword" th:value="${keyword}"/>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="categoryId" id="category-all" value="0"
+                       th:checked="${selectedCategoryId == null || selectedCategoryId == 0}"
+                       onchange="this.form.submit()">
+                <label class="form-check-label" for="category-all">
+                    -- All Categories --
+                </label>
+            </div>
+
+            <div th:each="category : ${categoryList}" class="form-check">
+                <input class="form-check-input" type="radio" name="categoryId"
+                       th:id="'category-' + ${category.cateId}"
+                       th:value="${category.cateId}"
+                       th:checked="${category.cateId == selectedCategoryId}"
+                       onchange="this.form.submit()">
+                <label class="form-check-label"
+                       th:for="'category-' + ${category.cateId}"
+                       th:text="${category.cateName}">
+                    Category Name
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-9">
+        <div th:if="${pageProduct.isEmpty()}" class="alert alert-info" role="alert">
+            There are any products in the system
+        </div>
+
+        <div th:unless="${pageProduct.isEmpty()}">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-dark">
+                    <tr>
+                        <th scope="col">#STT</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Active</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product, i : ${pageProduct}" th:object="${product}">
+
+                        <td th:text="${(pageProduct.number * pageProduct.size) + i.index + 1}">STT</td>
+
+                        <td class="text-center">
+                            <img th:src="@{/uploads/{img}(img=*{img})}"
+                                 alt="Product Image"
+                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"/>
+                        </td>
+
+                        <td th:text="*{proName}">Tên Sản Phẩm</td>
+
+                        <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}"
+                            class="text-end text-danger fw-bold">100.000 VNĐ
+                        </td>
+
+                        <td th:text="*{category.cateName}">Category Name</td>
+
+                        <td>
+                                <span th:if="*{status.equalsIgnoreCase('available')}"
+                                      class="badge bg-success">Available</span>
+                            <span th:if="*{status.equalsIgnoreCase('unavailable')}"
+                                  class="badge bg-danger">Unavailable</span>
+                        </td>
+
+                        <td>
+                            <span th:if="*{active}" class="badge bg-success">Yes</span>
+                            <span th:unless="*{active}" class="badge bg-danger">No</span>
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                <a class="btn btn-sm btn-primary" th:href="@{/product/edit/{id}(id=*{proId})}">Edit</a>
+
+                                <form th:action="@{/product/delete/{id}(id=*{proId})}" method="post"
+                                      style="display:inline;">
+                                    <button class="btn btn-sm btn-danger"
+                                            type="submit"
+                                            onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này không?')">
+                                        Delete
+                                    </button>
+                                </form>
+
+                                <a class="btn btn-sm btn-warning"
+                                   th:href="@{/product/{id}(id=*{proId})}">Details</a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pagination-container" th:if="${pageProduct.getTotalPages() > 1}">
+    <nav aria-label="Product Page Navigation">
+        <ul class="pagination">
+            <th:block th:with="
+            currentPage=${pageProduct.getNumber() + 1},
+            totalPages=${pageProduct.getTotalPages()},
+
+
+            currentURL='/product/deleted-list',
+
+
+            keywordParam=${keyword},
+            categoryIdParam=${selectedCategoryId}
+        ">
+
+                <li class="page-item" th:classappend="${pageProduct.isFirst()} ? 'disabled' : ''">
+                    <a class="page-link"
+                       th:href="@{${currentURL}(
+                       page=${currentPage - 1},
+                       keyword=${keywordParam},
+                       categoryId=${categoryIdParam}
+                   )}">Previous</a>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${i == currentPage} ? 'active':''">
+                    <a class="page-link"
+                       th:href="@{${currentURL}(
+                       page=${i},
+                       keyword=${keywordParam},
+                       categoryId=${categoryIdParam}
+                   )}"
+                       th:text="${i}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${pageProduct.isLast()} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{${currentURL}(
+                       page=${currentPage + 1},
+                       keyword=${keywordParam},
+                       categoryId=${categoryIdParam}
+                   )}">Next</a>
+                </li>
+            </th:block>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>
+
+<!--<body>-->
+<!--<div class="container mt-4">-->
+<!--    <h1 class="mb-4" th:text="${title}">Danh sách sản phẩm</h1>-->
+
+
+<!--    <div class="row mb-4">-->
+<!--        <div class="col-md-4">-->
+<!--            <form th:action="@{/product/deleted-list}" method="get">-->
+<!--                <label class="form-label">Filter by Category:</label>-->
+<!--                <div class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="categoryId" id="category-all" value="0"-->
+<!--                           th:checked="${selectedCategoryId == null || selectedCategoryId == 0}"-->
+<!--                           onchange="this.form.submit()"> <label class="form-check-label" for="category-all">-->
+<!--                    &#45;&#45; All Categories &#45;&#45;-->
+<!--                </label>-->
+<!--                </div>-->
+
+<!--                <div th:each="category : ${categoryList}" class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="categoryId"-->
+<!--                           th:id="'category-' + ${category.cateId}"-->
+<!--                           th:value="${category.cateId}"-->
+<!--                           th:checked="${category.cateId == selectedCategoryId}"-->
+<!--                           onchange="this.form.submit()"> <label class="form-check-label"-->
+<!--                                                                 th:for="'category-' + ${category.cateId}"-->
+<!--                                                                 th:text="${category.cateName}">-->
+<!--                    Category Name-->
+<!--                </label>-->
+<!--                </div>-->
+
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+
+
+<!--    <div class="row">-->
+
+<!--        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6" th:each="product : ${productList}" th:object="${product}">-->
+
+<!--            <div class="product-card card shadow-sm">-->
+
+<!--                <div class="card-img-container">-->
+<!--                    <img th:src="@{/uploads/{img}(img=*{img})}" class="card-img" alt="Product Image"/>-->
+<!--                </div>-->
+
+<!--                <div class="card-body">-->
+<!--                    <h5 class="product-name" th:text="*{proName}">Tên Sản Phẩm</h5>-->
+
+<!--                    <p class="product-price mb-2"-->
+<!--                       th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></p>-->
+
+<!--                    <div class="product-info">-->
+<!--                        <p><strong>Category:</strong> <span th:text="*{category.cateName}"></span></p>-->
+<!--                        <p><strong>Status:</strong> <span th:text="*{status}"></span></p>-->
+<!--                        <p><strong>Active:</strong>-->
+<!--                            <span th:if="*{active}" class="badge bg-success">Yes</span>-->
+<!--                            <span th:unless="*{active}" class="badge bg-danger">No</span>-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="card-footer-actions">-->
+<!--                    <a class="btn btn-sm btn-primary" th:href="@{/product/edit/{id}(id=*{proId})}">Edit</a>-->
+<!--                </div>-->
+
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--</div>-->
+<!--</body>-->

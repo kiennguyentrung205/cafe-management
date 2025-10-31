@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<header class="container-fluid bg-dark text-white p-3" th:replace="layout/header :: homepage"></header>
+<body>
+<div th:insert="~{layout/header::navbar-homepage}"></div>
+
+<main class="container py-5">
+    <!-- Welcome Header - Translated and styled -->
+    <div class="p-5 mb-4 text-center welcome-header">
+        <h1 class="display-5 fw-bold">Welcome, <span th:text="${name}">User</span>!</h1>
+        <p class="fs-5 text-muted">We hope you enjoy your experience</p>
+    </div>
+
+    <!-- Menu Links - Styled -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="list-group shadow-sm" style="border-radius: 0.75rem; overflow: hidden;">
+                <a class="list-group-item list-group-item-action p-3" th:href="@{/table/list}"
+                   sec:authorize="hasRole('ROLE_CUSTOMER')">
+                    <i class="fas fa-chair fa-fw me-3 list-icon"></i>
+                    <strong>View Table</strong>
+                </a>
+
+                <a class="list-group-item list-group-item-action p-3" th:href="@{/table/booking/my}"
+                   sec:authorize="hasRole('ROLE_CUSTOMER')">
+                    <i class="fas fa-book-bookmark fa-fw me-3 list-icon"></i>
+                    <strong>Table Booking History</strong>
+                </a>
+
+                <a class="list-group-item list-group-item-action p-3" sec:authorize="hasRole('ROLE_CASHIER')"
+                   th:href="@{/table/booking/management}">
+                    <i class="fas fa-cash-register fa-fw me-3 list-icon"></i>
+                    <strong>Booking History</strong>
+                </a>
+
+                <a class="list-group-item list-group-item-action p-3"
+                   sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER')"
+                   th:href="@{/table/management}">
+                    <i class="fas fa-tasks-alt fa-fw me-3 list-icon"></i>
+                    <strong>Table Management</strong>
+                </a>
+
+                <a class="list-group-item list-group-item-action p-3"
+                   sec:authorize="hasAnyRole('ROLE_CASHIER')"
+                   th:href="@{/order/create}">
+                    <i class="fas fa-tasks-alt fa-fw me-3 list-icon"></i>
+                    <strong>Create Order</strong>
+                </a>
+
+                <!-- Logout Button Styled as List Item -->
+                <form class="list-group-item-form" th:action="@{/logout}" method="post"
+                      sec:authorize="isAuthenticated()">
+                    <button type="submit">
+                        <i class="fas fa-sign-out-alt fa-fw me-3 list-icon"></i>
+                        <strong>Log out</strong>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Success Modal - Fixed to be 'success' (green) instead of 'danger' (red) -->
+<div aria-hidden="true" aria-labelledby="successModalLabel" class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 0.75rem;">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                <button aria-label="Close" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        type="button"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Changed to alert-success -->
+                <div class="alert alert-success mb-0" role="alert">
+                    <span th:text="${completeInfo}">ok</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <!-- Changed to btn-success -->
+                <button class="btn btn-success" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const hasSuccess = /*[[${completeInfo != null}]]*/ false;
+        if (hasSuccess) {
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+        }
+    });
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,10 +1,13 @@
+
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
 
+
 import java.util.List;
 
 @Entity
+@jakarta.persistence.Table(name = "[Table]")
 public class Table {
 
     @Id
@@ -20,15 +23,19 @@ public class Table {
     @Column(name = "status", length = 20)
     private String status;
 
+
+    private int capacity;
+
     @OneToMany(mappedBy = "table", cascade = CascadeType.ALL)
     private List<TableBooking> tableBookings;
 
     public Table() {
     }
 
-    public Table(int tableId, String status, List<TableBooking> tableBookings) {
+    public Table(int tableId, String status, int capacity, List<TableBooking> tableBookings) {
         this.tableId = tableId;
         this.status = status;
+        this.capacity = capacity;
         this.tableBookings = tableBookings;
     }
 
@@ -54,5 +61,13 @@ public class Table {
 
     public void setTableBookings(List<TableBooking> tableBookings) {
         this.tableBookings = tableBookings;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 }
