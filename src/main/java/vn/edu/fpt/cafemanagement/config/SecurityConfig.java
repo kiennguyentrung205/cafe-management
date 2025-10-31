@@ -110,7 +110,7 @@ public class SecurityConfig {
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/customer/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(oidcUserService))
                         .successHandler(customLoginSuccessHandler)
