@@ -179,22 +179,22 @@
 
         <tbody>
         <tr th:each="order : ${orders}"
-            th:if="${order.status == 'Served' or order.status == 'Canceled'}"
-            th:data-cust-id="${order.customer.cusId}"
-            th:data-cust-name="${order.customer.name}"
-            th:data-cust-phone="${order.customer.phoneNumber}"
-            th:data-cust-email="${order.customer.email}"
-            th:data-cust-address="${order.customer.address}"
-            th:data-cust-photo="@{'/uploads/' + ${order.customer.img}}">
+            th:data-cust-id="${order.customer != null ? order.customer.cusId : 'N/A'}"
+            th:data-cust-name="${order.customer != null ? order.customer.name : 'N/A'}"
+            th:data-cust-phone="${order.customer != null ? order.customer.phoneNumber : 'N/A'}"
+            th:data-cust-email="${order.customer != null ? order.customer.email : 'N/A'}"
+            th:data-cust-address="${order.customer != null ? order.customer.address : 'N/A'}"
+            th:data-cust-photo="${order.customer != null ? '/uploads/' + order.customer.img : '/uploads/default-user.jpg'}">
+
             <td th:text="${order.orderId}"></td>
-            <td th:text="${order.customer.name}"></td>
+            <td th:text="${order.customer != null ? order.customer.name : 'Guest'}"></td>
             <td th:text="${order.manager != null ? order.manager.name : 'N/A'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Served'} ? 'status-served' :
                 (${order.status == 'Canceled'} ? 'status-canceled' : '')"></td>
             <td th:text="${order.pointsUsed}"></td>
             <td th:text="${order.voucher != null ? order.voucher.voucherName : 'None'}"></td>
-            <td th:text="${#strings.concat(#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT'), ' VND')}"></td>
+            <td th:text="${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')} + ' VND'"></td>
             <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
             <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
         </tr>
@@ -215,7 +215,7 @@
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/history-list(page=${currentPage - 1})}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <span aria-hidden="true">Prev</span>
                 </a>
             </li>
 
@@ -229,7 +229,7 @@
             <!-- Next -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/history-list(page=${currentPage + 1})}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
+                    <span aria-hidden="true">Next</span>
                 </a>
             </li>
         </ul>
