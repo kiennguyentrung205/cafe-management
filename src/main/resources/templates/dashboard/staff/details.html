@@ -57,7 +57,7 @@
                         </tr>
                         <tr>
                             <th>Date of Birth</th>
-                            <td th:text="${#temporals.format(staff.dateOfBirth, 'dd-MMM-yyyy')}"></td>
+                            <td th:text="${#temporals.format(staff.dateOfBirth, 'dd/MMM/yyyy')}"></td>
                         </tr>
                         <tr>
                             <th>Username</th>
@@ -71,6 +71,7 @@
                     </table>
 
                     <!-- Action Buttons -->
+
                     <div class="d-flex justify-content-end gap-2 mt-4 pt-4 border-top">
                         <a class="btn btn-brand-primary" th:href="@{'/dashboard/staff/edit/' + ${staff.managerId}}">
                             <i class="fa-solid fa-pen-to-square me-1"></i> Edit
@@ -107,6 +108,7 @@
             </div>
             <div class="modal-footer">
                 <form id="deleteForm" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
