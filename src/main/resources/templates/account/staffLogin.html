@@ -18,13 +18,11 @@
                              alt="FPT Logo"
                              style="height: 60px; width: auto;">
                     </div>
-                    <h2 class="text-center auth-card-title mb-2">Welcome Customer</h2>
-                    <p class="text-center auth-card-subtitle mb-4">
-                        Login to your account as Customer
-                    </p>
+                    <h2 class="text-center auth-card-title mb-2">Login Staff</h2>
+
 
                     <!-- Form with Thymeleaf attributes preserved -->
-                    <form th:action="@{/login}" method="post">
+                    <form th:action="@{/staff/login}" method="post">
                         <!-- Username -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
@@ -50,38 +48,14 @@
                         <!-- Submit -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-brand-primary">Login</button>
-                            <a class="btn btn-outline-google w-100"
-                               href="/oauth2/authorization/google">
-                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
-                                     height="20" alt="Google icon">
-                                Log in with Google
-                            </a>
                         </div>
                     </form>
 
-                    <!-- Divider -->
-                    <div class="auth-divider my-4">OR</div>
-
-                    <!-- Google Login -->
-<!--                    <a class="btn btn-outline-google w-100"-->
-<!--                       href="/oauth2/authorization/google">-->
-<!--                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"-->
-<!--                             height="20" alt="Google icon">-->
-<!--                        Log in with Google-->
-<!--                    </a>-->
-<!--                    -->
-                    <a class="btn btn-outline-google w-100"
-                       href="/oauth2/authorization/google">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
-                             height="20" alt="Google icon">
-                        Log in as Manager
-                    </a>
-
                     <!-- Extra links -->
-                    <div class="mt-4 text-center">
-                        <span class="text-muted">Don't have an account?</span>
-                        <a href="/register" class="auth-link ms-1">Create one</a>
-                    </div>
+                    <a class="btn btn-warning"
+                       href="/customer/login">
+                        Log in as Customer
+                    </a>
 
                 </div>
             </div>

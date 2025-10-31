@@ -118,7 +118,12 @@ public class OrderController {
 
         if (productIds == null || productIds.isEmpty() || "null".equals(String.valueOf(productIds.get(0)))) {
             model.addAttribute("error", "No products selected!");
-            return reloadCreatePage(model, null); // <--- SỬA LẠI
+            return reloadCreatePage(model, null);
+        }
+
+        if (quantities == null || quantities.size() != productIds.size()) {
+            model.addAttribute("error", "Data mismatch between products and quantities. Please refresh and try again.");
+            return reloadCreatePage(model, null);
         }
 
         Customer customer = null;
@@ -168,7 +173,7 @@ public class OrderController {
             voucherService.saveVoucher(voucher);
         }
 
-        double totalPrice = 0;
+        double totalPrice = 0; // Đây là Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
             Product product = productService.getProductById(productIds.get(i));
@@ -192,21 +197,35 @@ public class OrderController {
             totalPrice += product.getPrice() * qty;
         }
 
+        double voucherDiscount = 0;
         if (voucher != null) {
-            if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType()))
-                totalPrice -= totalPrice * (voucher.getDiscountValue() / 100.0);
-            else if ("AMOUNT".equalsIgnoreCase(voucher.getDiscountType()))
-                totalPrice -= voucher.getDiscountValue();
+            if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType())) {
+                // [SỬA 1] Làm tròn tiền discount (theo %_giam_gia)
+                voucherDiscount = Math.ceil(totalPrice * (voucher.getDiscountValue() / 100.0));
+            } else if ("AMOUNT".equalsIgnoreCase(voucher.getDiscountType())) {
+                voucherDiscount = voucher.getDiscountValue();
+            }
+        }
+        double pointsDiscount = pointsUsed * 2000;
+
+        // Tính giá trước khi làm tròn 1000
+        double finalPrice = totalPrice - voucherDiscount - pointsDiscount;
+        if (finalPrice < 0) finalPrice = 0;
+
+        // Tính điểm earnedPoints DỰA TRÊN GIÁ TRƯỚC KHI LÀM TRÒN 1000
+        int earnedPoints = (int) (finalPrice / 50000);
+
+        // [SỬA 2] Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
+        if (finalPrice > 0) {
+            finalPrice = Math.ceil(finalPrice / 1000) * 1000;
         }
 
-        totalPrice -= pointsUsed * 2000;
-        if (totalPrice < 0) totalPrice = 0;
-        order.setTotalPrice(totalPrice);
+        order.setTotalPrice(finalPrice); // <-- Lưu giá đã làm tròn
         order.setOrderItems(orderItems);
+        // ------------------------------------------
 
         orderService.saveOrder(order);
 
-        int earnedPoints = (int) (totalPrice / 50000);
         if (customer != null) {
             customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
             customerService.saveCustomer(customer);
@@ -232,6 +251,13 @@ public class OrderController {
         int pageSize = 6;
         Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
+        // [ĐÃ SỬA] Làm tròn giá trước khi gửi sang Thymeleaf
+        // (Đảm bảo các order cũ cũng được làm tròn khi hiển thị)
+        orderPage.getContent().forEach(order -> {
+            double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
+            order.setTotalPrice(roundedPrice);
+        });
+
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -243,6 +269,12 @@ public class OrderController {
     public String viewOrdersHistory(@RequestParam(defaultValue = "1") int page, Model model) {
         int pageSize = 6;
         Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
+
+        // [ĐÃ SỬA] Làm tròn giá trước khi gửi sang Thymeleaf
+        orderPage.getContent().forEach(order -> {
+            double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
+            order.setTotalPrice(roundedPrice);
+        });
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -334,6 +366,8 @@ public class OrderController {
         // Lấy customer ra và kiểm tra null
         Customer customer = order.getCustomer();
 
+        double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
+
         response.put("success", true);
         response.put("order", Map.of(
                 "id", order.getOrderId(),
@@ -343,7 +377,7 @@ public class OrderController {
                 "status", order.getStatus(),
                 "pointsUsed", order.getPointsUsed(),
                 "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
-                "totalPrice", order.getTotalPrice(),
+                "totalPrice", roundedPrice,
                 "date", order.getCreatedAt(),
                 "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-" ,
                 "products", items.stream()

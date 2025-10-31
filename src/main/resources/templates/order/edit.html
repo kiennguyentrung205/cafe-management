@@ -261,7 +261,6 @@
                 </td>
 
                 <td>
-                    <input type="hidden" name="updatedAt" class="updatedAtInput" />
                     <button type="submit" class="btn btn-sm btn-primary mt-1">Save</button>
                 </td>
             </tr>
@@ -282,7 +281,7 @@
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/edit(page=${currentPage - 1})}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <span aria-hidden="true">Prev;</span>
                 </a>
             </li>
 
@@ -296,7 +295,7 @@
             <!-- Next -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link" th:href="@{/order/edit(page=${currentPage + 1})}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
+                    <span aria-hidden="true">Next</span>
                 </a>
             </li>
         </ul>

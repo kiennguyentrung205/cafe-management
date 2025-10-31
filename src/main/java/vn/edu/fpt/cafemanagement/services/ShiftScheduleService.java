@@ -56,15 +56,36 @@ public class ShiftScheduleService {
             }
             schedule.put(shift, roleMap);
         }
-
-        // Fill dữ liệu từ database
         for (ShiftScheduleDTO dto : list) {
-            schedule
-                    .get(dto.getShiftPeriod())
-                    .get(dto.getRoleName())
-                    .get(dto.getShiftDate())
-                    .add(dto.getManagerName());
+            String shift = dto.getShiftPeriod();
+            String role = dto.getRoleName();
+            LocalDate date = dto.getShiftDate();
+
+            if (!schedule.containsKey(shift)) {
+                System.out.println("⚠ Unknown shift: " + shift);
+                continue;
+            }
+            if (!schedule.get(shift).containsKey(role)) {
+                System.out.println("⚠ Unknown role: " + role);
+                continue;
+            }
+            if (!schedule.get(shift).get(role).containsKey(date)) {
+                System.out.println("⚠ Date out of range: " + date);
+                continue;
+            }
+
+            schedule.get(shift).get(role).get(date).add(dto.getManagerName());
         }
+
+
+//        // Fill dữ liệu từ database
+//        for (ShiftScheduleDTO dto : list) {
+//            schedule
+//                    .get(dto.getShiftPeriod())
+//                    .get(dto.getRoleName())
+//                    .get(dto.getShiftDate())
+//                    .add(dto.getManagerName());
+//        }
 
         return schedule;
     }
