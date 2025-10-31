@@ -1,19 +1,20 @@
 <!--homepage-->
 <head th:fragment="homepage">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Home Page | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/home/home.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/home/home.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -51,7 +52,7 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -66,25 +67,21 @@
                         <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/register}">Register</a>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasRole('admin')">
-                        <a class="nav-link" th:href="@{/invoice}">Invoice</a>
-                    </li>
-
                     <!-- Example: User profile/logout link when authenticated -->
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type.submit class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type.submit>Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -100,19 +97,20 @@
 <!--tablelist-->
 <head th:fragment="tablelist">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Table List | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/table/table-list.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/table/table-list.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -143,7 +141,7 @@
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
@@ -151,7 +149,7 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -171,19 +169,19 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type.submit class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type.submit>Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -198,19 +196,20 @@
 <!--tablebook-->
 <head th:fragment="tablebook">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>My Booking | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/table-booking/tbk.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/table-booking/tbk.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -249,7 +248,7 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -269,19 +268,19 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type.submit class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type.submit>Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -295,19 +294,20 @@
 <!--tablestaffbook-->
 <head th:fragment="tablestaffbook">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>History Booking | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/staff/tbk.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/staff/tbk.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -338,7 +338,7 @@
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
@@ -346,7 +346,7 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -366,19 +366,19 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type.submit class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type.submit>Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -392,21 +392,22 @@
 <!--tablemanage-->
 <head th:fragment="tablemanage">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Table Management | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/staff/tbm.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/staff/tbm.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -437,7 +438,7 @@
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
@@ -445,7 +446,7 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -465,19 +466,19 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type.submit class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type.submit>Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -492,21 +493,22 @@
 <!--menu-->
 <head th:fragment="menu">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Menu | WIMI RUSTIC</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/menu/menu.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/menu/menu.css" rel="stylesheet">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
     <!-- Font Awesome 6.5.1 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer"
+          rel="stylesheet"
+          xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="/>
 
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -534,13 +536,13 @@
                         <!-- Set 'Menu' as active -->
                         <a class="nav-link active" th:href="@{/menu}">Menu</a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
                            href="#" id="tableDropdown" role="button">
                             <span>Table</span>
                         </a>
-                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                        <ul  aria-labelledby="tableDropdown" class="dropdown-menu">
                             <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
@@ -559,19 +561,19 @@
                     </li>
                     <!-- User Dropdown -->
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                           id="userDropdown" role="button">
                             <i class="fa-solid fa-user-circle me-1"></i>
-                            <span sec:authentication="name">User</span>
+                            <span sec:authentication="principal.fullName">User</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type="submit" class="dropdown-item">Log out</button>
+                                <form class="d-inline" method="post" th:action="@{/logout}">
+                                    <button class="dropdown-item" type="submit">Log out</button>
                                 </form>
                             </li>
                         </ul>

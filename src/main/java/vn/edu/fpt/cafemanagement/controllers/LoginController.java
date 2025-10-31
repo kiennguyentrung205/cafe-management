@@ -10,4 +10,14 @@ public class LoginController {
     public String login() {
         return "account/login";
     }
+
+    @GetMapping(path="/customer/login")
+    public String customerLogin() {
+        return  "account/customerLogin";
+    }
+
+    @GetMapping(path="/staff/login")
+    public String staffLogin() {
+        return  "account/staffLogin";
+    }
 }
