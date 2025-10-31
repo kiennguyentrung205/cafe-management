@@ -259,9 +259,16 @@ public class ProductController {
     // private ProductService productService;
 
     @PostMapping("/edit/{id}")
-    public String updateProduct(@ModelAttribute("product") Product product, BindingResult bindingResult, @PathVariable("id") int proId, @RequestParam("file") MultipartFile file, Model model) { // Tên "file" phải khớp với name="file" trong HTML
+    public String updateProduct(@ModelAttribute("product") Product product, BindingResult bindingResult, @PathVariable("id") int proId, @RequestParam(value = "file", required = false) MultipartFile file, Model model) { // Tên "file" phải khớp với name="file" trong HTML
 
         boolean hasError = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isBarista = auth.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ROLE_BARISTA"));
+
+        // Kiểm tra vai trò Admin (có thể dùng isBarista || isAdmin)
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
         // 1. KIỂM TRA MÂU THUẪN ID
         if (proId != product.getProId()) {
@@ -275,105 +282,116 @@ public class ProductController {
 
 
         Product originalProduct = productService.getProductById(proId);
+        if (isBarista && !isAdmin) {
+            // 1. Chỉ cập nhật Status (và các trường liên quan đến trạng thái)
+            originalProduct.setStatus(product.getStatus());
+            productService.saveProduct(originalProduct);
+            return "redirect:/menu";
+            // 2. Không cho phép Barista sửa các trường khác
+            // (Đảm bảo các giá trị khác của product từ form KHÔNG được gán)
+            // Validation Name
+        } else if (isAdmin) {
 
-        // Validation Name
-        String proName = product.getProName();
-        if (proName == null || proName.trim().isEmpty()) {
-            model.addAttribute("nameError", "Product name cant be empty");
-            hasError = true;
-        } else if (!proName.matches(VIETNAMESE_NAME_PATTERN)) {
-            model.addAttribute("nameError", "Name just can contain letters!");
-            hasError = true;
-        }
-
-        //Validation price
-        if (bindingResult.hasFieldErrors("price")) {
-            // Lỗi xảy ra khi Spring KHÔNG THỂ chuyển chuỗi từ form thành double (ví dụ: nhập chữ, bỏ trống)
-            // Lấy thông báo lỗi cụ thể (thường là TypeMismatch)
-            FieldError priceError = bindingResult.getFieldError("price");
-
-            // Trường hợp lỗi binding là do nhập chữ hoặc bỏ trống.
-            model.addAttribute("priceError", "Giá sản phẩm không hợp lệ. Vui lòng nhập một số.");
-            hasError = true;
-        }
-        if (!hasError) {
-            double priceValue = product.getPrice(); // Lấy giá trị double
-
-            // Kiểm tra giá trị tối thiểu
-            if (priceValue < 1000) {
-                // Lỗi này bao gồm cả trường hợp người dùng nhập 0 (vì 0 < 1000)
-                model.addAttribute("priceError", "Giá sản phẩm phải tối thiểu 1000.");
+            String proName = product.getProName();
+            if (proName == null || proName.trim().isEmpty()) {
+                model.addAttribute("nameError", "Product name cant be empty");
                 hasError = true;
-            }
-        }
-
-
-        //Validation Description
-
-        String description = product.getDescription();
-        if (!description.matches(VIETNAMESE_NAME_PATTERN) && description.trim().length() > 0) {
-            model.addAttribute("descriptionError", "Description just can contain letters!");
-            hasError = true;
-        }
-
-
-        // BƯỚC 1: Xử lý file ảnh mới (nếu người dùng có chọn)
-        if (!file.isEmpty()) {
-
-            // --- BẮT ĐẦU VALIDATION FILE ---
-
-            // 1. Kiểm tra Kích thước file (ví dụ: Max 5MB)
-            final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-            if (file.getSize() > MAX_FILE_SIZE) {
-                model.addAttribute("fileError", "Kích thước file vượt quá giới hạn cho phép (5MB).");
+            } else if (!proName.matches(VIETNAMESE_NAME_PATTERN)) {
+                model.addAttribute("nameError", "Name just can contain letters!");
                 hasError = true;
             }
 
-            // 2. Kiểm tra Loại file (MIME Type)
-            List<String> allowedContentTypes = Arrays.asList("image/jpeg", "image/png", "image/gif");
-            if (!allowedContentTypes.contains(file.getContentType())) {
-                model.addAttribute("fileError", "File không phải là định dạng hình ảnh hợp lệ (JPEG, PNG, GIF).");
+            //Validation price
+            if (bindingResult.hasFieldErrors("price")) {
+                // Lỗi xảy ra khi Spring KHÔNG THỂ chuyển chuỗi từ form thành double (ví dụ: nhập chữ, bỏ trống)
+                // Lấy thông báo lỗi cụ thể (thường là TypeMismatch)
+                FieldError priceError = bindingResult.getFieldError("price");
+
+                // Trường hợp lỗi binding là do nhập chữ hoặc bỏ trống.
+                model.addAttribute("priceError", "Giá sản phẩm không hợp lệ. Vui lòng nhập một số.");
                 hasError = true;
             }
-
-            // --- KẾT THÚC VALIDATION FILE ---
-
-            // Chỉ tiếp tục lưu file nếu KHÔNG có lỗi validation (hasError vẫn là false)
             if (!hasError) {
-                try {
-                    // 1. Tạo tên file mới và duy nhất (để tránh trùng lặp)
-                    String originalFileName = file.getOriginalFilename();
-                    // Lấy phần mở rộng (extension) của file, ví dụ: .jpg, .png
-                    String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                    // Tạo tên file mới bằng UUID
-                    String newFileName = UUID.randomUUID().toString() + extension;
+                double priceValue = product.getPrice(); // Lấy giá trị double
 
-                    // 2. Định nghĩa đường dẫn file trên ổ đĩa
-                    Path targetPath = Paths.get(UPLOAD_DIR, newFileName);
-
-                    // 3. **Lưu file** vào thư mục bên ngoài project
-                    file.transferTo(targetPath);
-
-                    product.setImg(newFileName);
-
-                } catch (IOException e) {
-                    // Xử lý lỗi khi lưu file (lỗi I/O, lỗi hệ thống)
-                    model.addAttribute("fileError", "Lỗi hệ thống khi lưu file ảnh lên ổ đĩa.");
-                    hasError = true; // Đánh dấu lỗi hệ thống
-                    e.printStackTrace();
+                // Kiểm tra giá trị tối thiểu
+                if (priceValue < 1000) {
+                    // Lỗi này bao gồm cả trường hợp người dùng nhập 0 (vì 0 < 1000)
+                    model.addAttribute("priceError", "Giá sản phẩm phải tối thiểu 1000.");
+                    hasError = true;
                 }
             }
-        }
-        // ELSE: Nếu file.isEmpty() (người dùng không chọn file mới),
-        // thì trường product.getImg() vẫn giữ lại tên file CŨ
-        // nhờ vào input hidden trong form. KHÔNG CẦN làm gì thêm.
 
-        if (hasError) {
-            // Đảm bảo truyền lại danh sách category nếu có lỗi
-            // model.addAttribute("categoryList", categoryService.findAll());
-            model.addAttribute("categoryList", categoryService.getCategories());
-            return "/product/edit";
+
+            //Validation Description
+
+            String description = product.getDescription();
+            if (!description.matches(VIETNAMESE_NAME_PATTERN) && description.trim().length() > 0) {
+                model.addAttribute("descriptionError", "Description just can contain letters!");
+                hasError = true;
+            }
+
+
+            // BƯỚC 1: Xử lý file ảnh mới (nếu người dùng có chọn)
+            if (file != null && !file.isEmpty()) {
+
+                // --- BẮT ĐẦU VALIDATION FILE ---
+
+                // 1. Kiểm tra Kích thước file (ví dụ: Max 5MB)
+                final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+                if (file.getSize() > MAX_FILE_SIZE) {
+                    model.addAttribute("fileError", "Kích thước file vượt quá giới hạn cho phép (5MB).");
+                    hasError = true;
+                }
+
+                // 2. Kiểm tra Loại file (MIME Type)
+                List<String> allowedContentTypes = Arrays.asList("image/jpeg", "image/png", "image/gif");
+                if (!allowedContentTypes.contains(file.getContentType())) {
+                    model.addAttribute("fileError", "File không phải là định dạng hình ảnh hợp lệ (JPEG, PNG, GIF).");
+                    hasError = true;
+                }
+
+                // --- KẾT THÚC VALIDATION FILE ---
+
+                // Chỉ tiếp tục lưu file nếu KHÔNG có lỗi validation (hasError vẫn là false)
+                if (!hasError) {
+                    try {
+                        // 1. Tạo tên file mới và duy nhất (để tránh trùng lặp)
+                        String originalFileName = file.getOriginalFilename();
+                        // Lấy phần mở rộng (extension) của file, ví dụ: .jpg, .png
+                        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                        // Tạo tên file mới bằng UUID
+                        String newFileName = UUID.randomUUID().toString() + extension;
+
+                        // 2. Định nghĩa đường dẫn file trên ổ đĩa
+                        Path targetPath = Paths.get(UPLOAD_DIR, newFileName);
+
+                        // 3. **Lưu file** vào thư mục bên ngoài project
+                        file.transferTo(targetPath);
+
+                        product.setImg(newFileName);
+
+                    } catch (IOException e) {
+                        // Xử lý lỗi khi lưu file (lỗi I/O, lỗi hệ thống)
+                        model.addAttribute("fileError", "Lỗi hệ thống khi lưu file ảnh lên ổ đĩa.");
+                        hasError = true; // Đánh dấu lỗi hệ thống
+                        e.printStackTrace();
+                    }
+                }
+            }
+            // ELSE: Nếu file.isEmpty() (người dùng không chọn file mới),
+            // thì trường product.getImg() vẫn giữ lại tên file CŨ
+            // nhờ vào input hidden trong form. KHÔNG CẦN làm gì thêm.
+
+            if (hasError) {
+                // Đảm bảo truyền lại danh sách category nếu có lỗi
+                // model.addAttribute("categoryList", categoryService.findAll());
+                model.addAttribute("categoryList", categoryService.getCategories());
+                return "/product/edit";
+            }
+
         }
+
 
         originalProduct.setProName(product.getProName());
         originalProduct.setPrice(product.getPrice());
@@ -383,7 +401,7 @@ public class ProductController {
         originalProduct.setImg(product.getImg());
         originalProduct.setCategory(product.getCategory());
         originalProduct.setStatus(product.getStatus());
-
+        System.out.println("Product nay la: " + originalProduct.isActive());
         // ELSE: Nếu file.isEmpty() (người dùng không chọn file mới),
         // thì trường product.getImg() vẫn giữ lại tên file CŨ
         // nhờ vào input hidden trong form. KHÔNG CẦN làm gì thêm.

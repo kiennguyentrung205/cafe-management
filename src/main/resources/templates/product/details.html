@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragment/frag :: productlist">
 </head>
 <body class="bg-light">
@@ -81,6 +81,13 @@
                                                   class="badge status-unavailable fs-6 px-3 py-2">Unavailable</span>
                                         </p>
                                     </div>
+
+                                    <a class="btn btn-sm btn-brand-primary"
+                                       sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_BARISTA')"
+                                       th:href="@{/product/edit/{id}(id=${product.proId})}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+
                                 </div>
 
                                 <hr class="my-4">
