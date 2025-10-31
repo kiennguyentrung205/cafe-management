@@ -289,7 +289,7 @@ public class ProductController {
             return "redirect:/menu";
             // 2. Không cho phép Barista sửa các trường khác
             // (Đảm bảo các giá trị khác của product từ form KHÔNG được gán)
-            // Validation Name
+            // Validation Namejkjkj
         } else if (isAdmin) {
 
             String proName = product.getProName();
