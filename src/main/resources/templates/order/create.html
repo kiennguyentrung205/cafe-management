@@ -74,7 +74,7 @@
             border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
             padding: 8px 0;
-            max-height: 200px;
+            max-height :100px;
             overflow-y: auto;
         }
 
@@ -158,23 +158,20 @@
                 <h3>Order Menu</h3>
                 <div class="order-list"></div>
 
-                <div class="voucher">
-                    <label>Voucher:</label>
-                    <select name="voucherId">
-                        <option value="">None</option>
-                        <option th:each="v : ${voucherList}" th:value="${v.voucherId}"
-                                th:text="${v.voucherName}"></option>
-                    </select>
-                </div>
-
                 <div class="customer-info">
-                    <label>Phone Number:</label>
-                    <div style="display:flex;gap:8px;align-items:center;">
+
+                    <div style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Phone Number:</label>
+
                         <input type="text" name="customerPhone" placeholder="0123456789"
-                               th:value="${customerPhone}">
-                        <button type="button" name="action" value="check" class="btn btn-secondary btn-sm">Check
+                               th:value="${customerPhone}"
+                               class="form-control form-control-sm" style="width: 150px;">
+
+                        <button type="button" name="action" value="check" class="btn btn-sm btn-primary">Check
                         </button>
                     </div>
+
 
                     <h4 style="font-size:16px;">Customer Info</h4>
                     <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
@@ -183,20 +180,57 @@
                     <div class="redeem">
                         <label>Redeem Points:</label>
                         <div style="display:flex;align-items:center;gap:8px;">
+
                             <button type="button" class="btn btn-danger btn-sm fw-bold"
-                                    style="width:32px;height:32px;"
+                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
                                     onclick="redeemPoints(-5)">−
                             </button>
+
                             <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
                                    th:attr="data-max=${customer != null ? customer.point : 0}"
                                    style="width:60px;text-align:center;font-weight:600;">
+
                             <button type="button" class="btn btn-success btn-sm fw-bold"
-                                    style="width:32px;height:32px;"
+                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
                                     onclick="redeemPoints(5)">+
                             </button>
                         </div>
                     </div>
 
+                    <div class="voucher" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Voucher:</label>
+
+                        <select name="voucherId" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="" data-type="NONE" data-value="0" data-min-order="0">None</option>
+                            <option th:each="v : ${voucherList}"
+                                    th:value="${v.voucherId}"
+                                    th:text="${v.voucherName}"
+                                    th:data-type="${v.discountType}"
+                                    th:data-value="${v.discountValue}"
+                                    th:data-min-order="${v.minOrderValue}">
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="price-summary" style="margin-top: 15px; font-size: 16px; font-weight: 500;">
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Subtotal:</span>
+                        <span id="totalPrice">0 VND</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Voucher:</span>
+                        <span id="displayVoucherDiscount" class="text-danger">- 0 VND</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Points:</span>
+                        <span id="displayPointsDiscount" class="text-danger">- 0 VND</span>
+                    </div>
                 </div>
 
                 <hr/>
@@ -206,7 +240,7 @@
 
                     <button type="submit" class="place-btn" name="action" value="create">
                         <span style="font-size: 16px; font-weight: 600;">Place</span><br>
-                        <span style="font-size: 13px;">(<span id="totalPrice">0</span> VND)</span>
+                        <span style="font-size: 13px;">(<span id="finalPrice">0</span> VND)</span>
                     </button>
                 </div>
             </div>
@@ -259,8 +293,12 @@
         document.querySelector('.customer-info p:nth-of-type(1) span').textContent = '-';
         document.querySelector('.customer-info p:nth-of-type(2) span').textContent = '0';
 
-        // 4. Reset tổng tiền và hidden inputs
-        document.getElementById("totalPrice").textContent = "0";
+        // 4. Reset 4 trường giá trị
+        document.getElementById("totalPrice").textContent = "0 VND"; // Reset Subtotal
+        document.getElementById("finalPrice").textContent = "0";     // Reset Nút Place
+        document.getElementById("displayVoucherDiscount").textContent = "- 0 VND";
+        document.getElementById("displayPointsDiscount").textContent = "- 0 VND";
+
         document.getElementById("hiddenInputs").innerHTML = "";
 
         // 5. Mở khóa lại tất cả input
@@ -301,8 +339,27 @@
             credentials: 'same-origin',
             body: formData
         })
-            .then(res => res.text()) // Nhận về HTML (dù là trang success hay trang lỗi)
+            .then(res => {
+                //Xử lý redirect (hết session)
+                if (res.redirected) {
+                    showAlertModal('Your session may have expired. Reloading page...', true);
+                    // Tự động tải lại trang sau 2 giây
+                    setTimeout(() => window.location.reload(), 2000);
+                    return null; // Dừng xử lý
+                }
+
+                // Xử lý lỗi 500 (Server Error)
+                if (!res.ok) {
+                    showAlertModal(`Server Error (${res.status}). Please check the server log.`, true);
+                    return null; // Dừng xử lý
+                }
+
+                return res.text(); // Mọi thứ OK, tiếp tục
+            })
             .then(html => {
+                // Nếu là null (do lỗi ở trên), thì không làm gì cả
+                if (html === null) return;
+
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
@@ -316,14 +373,11 @@
                 // Kiểm tra thành công
                 const successEl = doc.querySelector('.alert-success');
                 if (successEl) {
-                    // 1. Hiển thị popup thành công
                     showAlertModal(successEl.textContent, false);
-
-                    // 2. Dọn dẹp và reset panel đặt hàng (thay vì tải lại trang)
                     resetOrderPanel();
 
                 } else {
-                    showAlertModal('An unknown error occurred.', true);
+                    showAlertModal('An unknown error occurred. (No alert found)', true);
                 }
             })
             .catch(err => {
@@ -368,7 +422,7 @@
             <span class="item-name">${name}</span>
         </div>
         <div style="text-align:right;">
-            <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;">
+            <div style="display:flex;align-items:center;justify-content:flex-start;gap:5px;">
                 <button type="button" class="btn-minus"
                     style="border:1px solid #aaa; background-color:#e9ecef;
                            border-radius:5px; width:28px; height:28px;
@@ -376,7 +430,7 @@
                 <span class="item-qty">1</span>x
                 <span class="item-price" data-price="${price}">${price.toLocaleString()} VND</span>
             </div>
-            <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:120px;"></div>
+            <div><input type="text" class="item-note form-control form-control-sm mt-1" placeholder="Note..." style="width:160px;"></div>
         </div>`;
                     orderList.appendChild(item);
 
@@ -399,21 +453,94 @@
 
     /* ========== Tính tổng tiền ========== */
     function updateTotal() {
+        // 1. Tính Subtotal (giá gốc)
         const orderItems = document.querySelectorAll(".order-item");
-        let total = 0;
+        let subtotal = 0;
         orderItems.forEach(item => {
             const qty = parseInt(item.querySelector(".item-qty").textContent);
             const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
-            total += qty * price;
+            subtotal += qty * price;
         });
-        document.getElementById("totalPrice").textContent = total.toLocaleString();
+
+        // 2. [SỬA LẠI] Lọc và ẨN Voucher dựa trên Subtotal
+        const voucherSelect = document.querySelector('select[name="voucherId"]');
+        let currentVoucherIsValid = true;
+
+        for (const option of voucherSelect.options) {
+            const minOrder = parseFloat(option.getAttribute('data-min-order')) || 0;
+            if (option.value === "") {
+                option.style.display = 'block';
+                continue;
+            }
+            if (subtotal < minOrder) {
+                option.style.display = 'none';
+            } else {
+                option.style.display = 'block';
+            }
+            if (option.selected && option.style.display === 'none') {
+                currentVoucherIsValid = false;
+            }
+        }
+        if (!currentVoucherIsValid) {
+            voucherSelect.value = "";
+        }
+
+        // 3. Lấy thông tin Voucher (Sau khi đã lọc)
+        const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+
+        // [SỬA 1] Lấy data-type và chuẩn hóa sang chữ hoa (để tránh lỗi 'percent' vs 'PERCENT')
+        const voucherTypeAttr = selectedOption.getAttribute('data-type') || 'NONE';
+        const voucherType = voucherTypeAttr.toUpperCase(); // QUAN TRỌNG
+
+        const voucherValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+
+        let voucherDiscount = 0; // Số tiền thực tế sẽ giảm (để tính finalTotal)
+        let voucherText = "- 0 VND"; // Chuỗi sẽ hiển thị cho khách
+
+        // [SỬA 2] Thay đổi logic hiển thị theo yêu cầu mới của bạn
+        if (voucherType === 'PERCENT' || voucherType === '%') {
+            // Tính số tiền giảm thực tế
+            voucherDiscount = Math.ceil(subtotal * (voucherValue / 100.0));
+            // Hiển thị dạng phần trăm
+            voucherText = `- ${voucherValue}%`;
+
+        } else if (voucherType === 'AMOUNT' || voucherType === 'VND') {
+            // Số tiền giảm chính là value
+            voucherDiscount = voucherValue;
+            // Hiển thị số tiền
+            voucherText = `- ${voucherDiscount.toLocaleString()} VND`;
+        }
+
+        // 4. Lấy thông tin Points (1 điểm = 2000 VND)
+        const pointsInput = document.getElementById('pointsUsed');
+        const pointsUsed = parseInt(pointsInput.value) || 0;
+        const pointsDiscount = pointsUsed * 2000;
+
+        // 5. Tính Final Total
+        // (Phép tính này vẫn đúng, vì 'voucherDiscount' luôn là số tiền, bất kể 'voucherText' hiển thị là gì)
+        let finalTotal = subtotal - voucherDiscount - pointsDiscount;
+        if (finalTotal < 0) {
+            finalTotal = 0;
+        }
+
+        if (finalTotal > 0) { // Chỉ làm tròn nếu lớn hơn 0
+            finalTotal = Math.ceil(finalTotal / 1000) * 1000;
+        }
+
+        // 6. Cập nhật HTML (Gán vào 4 ID ĐÚNG)
+        document.getElementById("totalPrice").textContent = subtotal.toLocaleString() + " VND";
+        document.getElementById("displayVoucherDiscount").textContent = voucherText; // Sẽ hiển thị -10% hoặc -50000 VND
+        document.getElementById("displayPointsDiscount").textContent = `- ${pointsDiscount.toLocaleString()} VND`;
+        document.getElementById("finalPrice").textContent = finalTotal.toLocaleString(); // Cập nhật nút place
+
+        // 7. Cập nhật hidden inputs
         updateHiddenInputs();
     }
 
     /* ========== Điểm thưởng (Được gọi bằng onclick trong HTML) ========== */
     function redeemPoints(delta) {
         const input = document.getElementById('pointsUsed');
-        if (!input) return; // Thoát nếu input không tồn tại
+        if (!input) return;
         const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
         let current = parseInt(input.value) || 0;
         current += delta;
@@ -423,6 +550,7 @@
         input.value = current;
 
         updateLockState();
+        updateTotal();
     }
 
     /* ========== Cập nhật trạng thái Khóa (Disable) của các Input ========== */
@@ -648,6 +776,7 @@
                     }
 
                     updateLockState();
+                    updateTotal();
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
@@ -661,6 +790,7 @@
             if (voucherSelect) {
                 // [SỬA] Chỉ cần gọi hàm update
                 updateLockState();
+                updateTotal();
             }
         });
 
@@ -674,6 +804,7 @@
         });
 
         updateLockState();
+        updateTotal();
 
     });
 

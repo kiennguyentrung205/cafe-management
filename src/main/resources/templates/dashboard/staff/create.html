@@ -82,6 +82,7 @@
                                     <select class="form-select" id="role" name="roleId" required>
                                         <option value="" selected disabled>-- Select Role --</option>
                                         <option th:each="r : ${roles}"
+                                                th:if="${r.roleId !=1}"
                                                 th:value="${r.roleId}"
                                                 th:text="${r.roleName}"
                                                 th:selected="${staff.role != null and r.roleId == staff.role.roleId}">

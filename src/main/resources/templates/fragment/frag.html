@@ -43,7 +43,9 @@
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
                             <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/booking/my}">My Bookings</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                               th:href="@{/table/booking/my}">My
+                                Bookings</a></li>
                         </ul>
                     </li>
 
@@ -87,6 +89,8 @@
 <head th:fragment="staffmanagement">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Staffs | WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/dashboard/staff/list.css">
@@ -556,7 +560,7 @@
                     <a class="page-link"
                        th:href="@{/order/create(page=${currentPage - 1}, categoryId=${selectedCategoryId}, query=${query})}"
                        aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
+                        <span aria-hidden="true">Prev</span>
                     </a>
                 </li>
 
@@ -574,7 +578,7 @@
                     <a class="page-link"
                        th:href="@{/order/create(page=${currentPage + 1}, categoryId=${selectedCategoryId}, query=${query})}"
                        aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
+                        <span aria-hidden="true">Next</span>
                     </a>
                 </li>
             </ul>

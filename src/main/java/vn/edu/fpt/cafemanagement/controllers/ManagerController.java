@@ -80,7 +80,7 @@ public class ManagerController {
         List<Role> roles = roleService.getAllRoles();
         model.addAttribute("staff", s);
         model.addAttribute("roles", roles);
-        return "dashboard/staff/detail";
+        return "dashboard/staff/details";
     }
 
 
@@ -194,7 +194,7 @@ public class ManagerController {
                     }
 
                     file.transferTo(new java.io.File(uploadDir + fileName));
-                    staff.setImg("/img/staff/" + fileName);
+                    staff.setImg("/img/staff/" + fileName);//
 
                 } catch (Exception e) {
                     e.printStackTrace();

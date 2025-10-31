@@ -24,7 +24,7 @@
                     </p>
 
                     <!-- Form with Thymeleaf attributes preserved -->
-                    <form th:action="@{/login}" method="post">
+                    <form th:action="@{/customer/login}" method="post">
                         <!-- Username -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
@@ -62,18 +62,9 @@
                     <!-- Divider -->
                     <div class="auth-divider my-4">OR</div>
 
-                    <!-- Google Login -->
-<!--                    <a class="btn btn-outline-google w-100"-->
-<!--                       href="/oauth2/authorization/google">-->
-<!--                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"-->
-<!--                             height="20" alt="Google icon">-->
-<!--                        Log in with Google-->
-<!--                    </a>-->
-<!--                    -->
-                    <a class="btn btn-outline-google w-100"
-                       href="/oauth2/authorization/google">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
-                             height="20" alt="Google icon">
+
+                    <a class="btn btn-warning"
+                       href="/staff/login">
                         Log in as Manager
                     </a>
 

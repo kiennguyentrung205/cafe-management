@@ -1,9 +1,8 @@
-<html>
-<head th:replace="fragment/frag :: staffmanagement">
-    <title>Deleted Staff</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragment/frag :: staffmanagement}">
 </head>
 <body class="bg-light">
-<div th:replace="fragment/frag :: navbar"></div>
+<div th:replace="~{fragment/frag :: navbar}"></div>
 
 <!-- Main Content -->
 <div class="container my-5">
@@ -126,8 +125,10 @@
                     undone.</p>
             </div>
             <div class="modal-footer">
-                <form id="deleteForm" method="post">
+                <form id="deleteForm" method="get">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <!-- CSRF input will be added by Spring Security, but good to have a hidden field if needed -->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete Forever</button>
                 </form>
