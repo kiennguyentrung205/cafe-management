@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragment/frag :: productlist">
 </head>
 <body class="bg-light">
@@ -16,12 +16,14 @@
     </div>
 
     <!-- Main Form Content -->
-    <div th:unless="${product == null}">
+    <div th:unless="${product == null}" th:object="${product}">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-
+                <p>
+                    <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                </p>
                 <!-- Header Card -->
-                <div class="card mb-4">
+                <div class="card mb-4" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center">
                             <h2 class="fw-bold mb-0" th:text="${title}">Edit Product</h2>
@@ -35,17 +37,21 @@
                 <!-- Form Card -->
                 <div class="card shadow-sm">
                     <div class="card-body p-4 p-md-5">
-                        <form th:action="@{/product/edit/{proId}(proId=*{proId})}" method="post" th:object="${product}"
+                        <form th:action="@{/product/edit/{proId}(proId=*{proId})}" method="post"
                               enctype="multipart/form-data">
                             <input type="hidden" th:field="*{proId}"/>
                             <input type="hidden" th:field="*{img}" id="imgField"/>
-
+                            <input type="hidden" th:field="*{proName}" sec:authorize="hasRole('ROLE_BARISTA')"/>
+                            <input type="hidden" th:field="*{price}" sec:authorize="hasRole('ROLE_BARISTA')"/>
+                            <input type="hidden" th:field="*{category}" sec:authorize="hasRole('ROLE_BARISTA')"/>
+                            <input type="hidden" th:field="*{description}" sec:authorize="hasRole('ROLE_BARISTA')"/>
+                            <input type="hidden" th:field="*{active}" sec:authorize="hasRole('ROLE_BARISTA')"/>
                             <div class="row g-4">
                                 <!-- Column 1: Product Details -->
                                 <div class="col-lg-7">
                                     <h5 class="fw-bold border-bottom pb-2 mb-3">Product Information</h5>
 
-                                    <div class="mb-3">
+                                    <div class="mb-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                         <label for="proName" class="form-label fw-bold">Name:</label>
                                         <input type="text" id="proName" th:field="*{proName}" class="form-control"
                                                required/>
@@ -54,7 +60,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
+                                    <div class="mb-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                         <label for="price" class="form-label fw-bold">Price (VND):</label>
                                         <input type="number" id="price" th:field="*{price}" min="1000"
                                                class="form-control"/>
@@ -63,7 +69,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
+                                    <div class="mb-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                         <label for="categorySelect" class="form-label fw-bold">Category:</label>
                                         <select id="categorySelect" th:field="*{category}" class="form-select">
                                             <option th:each="category : ${categoryList}"
@@ -73,7 +79,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="mb-3">
+                                    <div class="mb-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                         <label for="description" class="form-label fw-bold">Description:</label>
                                         <textarea id="description" th:field="*{description}" class="form-control"
                                                   rows="4"></textarea>
@@ -91,10 +97,12 @@
                                                 <option value="Unavailable">Unavailable</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6 mb-3 d-flex align-items-end">
+                                        <div class="col-md-6 mb-3 d-flex align-items-end"
+                                             sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                             <div class="form-check form-switch fs-5">
                                                 <!-- Hidden field for 'false' value -->
-                                                <input type="hidden" name="active" value="false"/>
+
+
                                                 <input type="checkbox" id="activeCheckbox" th:field="*{active}"
                                                        class="form-check-input" role="switch"/>
                                                 <label class="form-check-label" for="activeCheckbox">Active</label>
@@ -104,7 +112,7 @@
                                 </div>
 
                                 <!-- Column 2: Image Management -->
-                                <div class="col-lg-5">
+                                <div class="col-lg-5" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                     <h5 class="fw-bold border-bottom pb-2 mb-3">Image Management</h5>
 
                                     <div class-="mb-3">

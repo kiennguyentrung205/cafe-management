@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/dashboard/**").hasRole("ADMIN")
                         .requestMatchers("/table/booking/management").hasRole("CASHIER")
                         .requestMatchers("/orders/management").hasRole("WAITER")
+                        .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
                         .anyRequest().authenticated())
 
                 .formLogin(form -> form
