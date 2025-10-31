@@ -37,10 +37,53 @@ public class CustomUserDetails implements UserDetails {
         return this.manager;
     }
 
+    // Thêm method để lấy ID
+    public Integer getId() {
+        if (customer != null) {
+            return customer.getCusId();
+        }
+        if (manager != null) {
+            return manager.getManagerId();
+        }
+        return null;
+    }
+
+    // Thêm method để lấy email
+    public String getEmail() {
+        if (customer != null) {
+            return customer.getEmail();
+        }
+        if (manager != null) {
+            return manager.getEmail();
+        }
+        return null;
+    }
+
+    public String getFullName() {
+        if (customer != null) {
+            return customer.getName();
+        }
+        if (manager != null) {
+            return manager.getName();
+        }
+        return null;
+    }
+
+    // Thêm method để lấy user type
+    public String getUserType() {
+        return customer != null ? "CUSTOMER" : "MANAGER";
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = (customer != null) ? "CUSTOMER" : manager.getRole().getRoleName();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+        if (customer != null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        }
+        if (manager != null) {
+            String roleName = manager.getRole().getRoleName();
+            return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase()));
+        }
+        return List.of();
     }
 
     @Override
@@ -55,21 +98,27 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        if (customer != null) {
+            return customer.isEnabled(); // Nếu Customer có field enabled
+        }
+        if (manager != null) {
+            return manager.isEnabled(); // Nếu Manager có field enabled
+        }
+        return true;
     }
 }
