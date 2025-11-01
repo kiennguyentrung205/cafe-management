@@ -14,11 +14,11 @@ public class ShiftService {
         this.shiftRepository = shiftRepository;
     }
 
-    public List<Shift> getShiftByDate(LocalDate date){
-        return shiftRepository.getShiftByShiftDate(date);
-    }
-
-    public Shift getShiftById(int id){
-        return shiftRepository.getShiftByShiftId(id);
-    }
+//    public List<Shift> getShiftByDate(LocalDate date){
+//        return shiftRepository.getShiftByShiftDate(date);
+//    }
+//
+//    public Shift getShiftById(int id){
+//        return shiftRepository.getShiftByShiftId(id);
+//    }
 }

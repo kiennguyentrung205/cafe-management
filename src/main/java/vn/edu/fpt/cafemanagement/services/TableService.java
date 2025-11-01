@@ -13,21 +13,22 @@ public class TableService {
     public TableService(TableRepository tableRepository) {
         this.tableRepository = tableRepository;
     }
-    public List<Table> getTablesList(){
+
+    public List<Table> getTablesList() {
         return tableRepository.getTablesList();
     }
 
-    public Table findById(int id){
+    public Table findById(int id) {
         return tableRepository.findById(id).orElse(null);
     }
 
-    public Table updateTableStatus(int id,String status){
+    public Table updateTableStatus(int id, String status) {
         Table table = tableRepository.findById(id).orElse(null);
         table.setStatus(status);
         return tableRepository.save(table);
     }
 
-    public List<Integer> getCapacityList(){
+    public List<Integer> getCapacityList() {
         return tableRepository.capacityList();
     }
 }

@@ -4,22 +4,39 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import vn.edu.fpt.cafemanagement.security.CustomLoginSuccessHandler;
 import vn.edu.fpt.cafemanagement.services.CustomOidcUserService;
+import vn.edu.fpt.cafemanagement.services.CustomerUserDetailsService;
+import vn.edu.fpt.cafemanagement.services.StaffUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    //    private final CustomLoginFailureHandler customLoginFailureHandler;
+    private final CustomerUserDetailsService customerUserDetailsService;
+    private final StaffUserDetailsService staffUserDetailsService;
+
+    public SecurityConfig(CustomLoginSuccessHandler customLoginSuccessHandler,
+                          CustomerUserDetailsService customerUserDetailsService,
+                          StaffUserDetailsService staffUserDetailsService) {
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
+//        this.customLoginFailureHandler = customLoginFailureHandler;
+        this.customerUserDetailsService = customerUserDetailsService;
+        this.staffUserDetailsService = staffUserDetailsService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -27,54 +44,109 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext applicationContext) throws Exception {
-        CustomOidcUserService oidcUserService = applicationContext.getBean(CustomOidcUserService.class);
-
-        http.csrf(Customizer.withDefaults())
+    @Order(1)
+    public SecurityFilterChain staffFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/staff/**", "/dashboard/**", "/table/booking/management", "/orders/management")
+                .authenticationProvider(staffAuthenticationProvider())
+                .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/login**", "/assets/**","/forgot-password", "/set-password**", "/register", "/home")
-                        .permitAll()
-                        .requestMatchers( "/table/booking/management").hasRole("CASHIER")
-                     
-                        .requestMatchers( "/dashboard/staff/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/vouchers/list").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/vouchers/create").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/vouchers/edit/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/vouchers/deleted-list").hasRole("ADMIN")
-                        .requestMatchers( "/product/list").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard/staff").hasRole("ADMIN")
-//                        .requestMatchers( "/dashboard/staff/delete/**").hasRole("ADMIN")
-                        .requestMatchers( "/dashboard").hasRole("ADMIN")
-                        .anyRequest()
-                        .authenticated()
-                )
+                        .requestMatchers("/staff/login", "/assets/**").permitAll()
+                        .requestMatchers("/dashboard/staff/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard/vouchers/**").hasRole("ADMIN")
+                        .requestMatchers("/product/list").hasRole("ADMIN")
+                        .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "CASHIER")
+                        .requestMatchers("/table/booking/management").hasRole("CASHIER")
+                        .requestMatchers("/orders/management").hasRole("WAITER")
+                        .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
+                        .requestMatchers("/product/delete/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
 
-                .exceptionHandling(exc -> exc
-                        .accessDeniedHandler(accessDeniedHandler())
-                )
-
-                .formLogin(form -> form.loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
+                .formLogin(form -> form
+                        .loginPage("/staff/login")
+                        .loginProcessingUrl("/staff/login")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler(customLoginSuccessHandler)
+                        .failureUrl("/staff/login?error=true")
+//                        .failureHandler(customLoginFailureHandler)
                         .permitAll())
 
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(oidcUserService)
-                        )
-                        .defaultSuccessUrl("/home", true))
-
-                .logout(logout ->logout
-                        .logoutUrl("/logout")
-                        .deleteCookies("JSESSIONID")
+                .logout(logout -> logout
+                        .logoutUrl("/staff/logout")
+                        .logoutSuccessUrl("/staff/login?logout=success")
                         .invalidateHttpSession(true)
-                        .logoutSuccessUrl("/login?logout=success")
-                        .permitAll()
-                );
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+
+                .exceptionHandling(exc -> exc
+                        .accessDeniedHandler(accessDeniedHandler()));
 
         return http.build();
     }
+
+    // Filter chain cho Customer
+    @Bean
+    @Order(2)
+    public SecurityFilterChain customerFilterChain(HttpSecurity http, ApplicationContext applicationContext) throws Exception {
+        CustomOidcUserService oidcUserService = applicationContext.getBean(CustomOidcUserService.class);
+
+        http
+                .securityMatcher("/**")
+                .authenticationProvider(customerAuthenticationProvider())
+                .csrf(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login**", "/assets/**", "/forgot-password",
+                                "/set-password**", "/register", "/home", "/customer/login")
+                        .permitAll()
+                        .anyRequest().authenticated())
+
+                .formLogin(form -> form
+                        .loginPage("/customer/login")
+                        .loginProcessingUrl("/customer/login")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler(customLoginSuccessHandler)
+//                        .failureHandler(customLoginFailureHandler)
+                        .permitAll())
+
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/customer/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(oidcUserService))
+                        .successHandler(customLoginSuccessHandler)
+                        .failureUrl("/customer/login?error=true")
+                )
+
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/customer/login?logout=success")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+
+                .exceptionHandling(exc -> exc
+                        .accessDeniedHandler(accessDeniedHandler()));
+
+        return http.build();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider customerAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(customerUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public DaoAuthenticationProvider staffAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(staffUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -83,8 +155,7 @@ public class SecurityConfig {
             String accept = request.getHeader("Accept");
             String xrw = request.getHeader("X-Requested-With");
 
-            if ("XMLHttpRequest".equalsIgnoreCase(xrw) ||
-                    (accept != null && accept.contains("application/json"))) {
+            if ("XMLHttpRequest".equalsIgnoreCase(xrw) || (accept != null && accept.contains("application/json"))) {
 
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json;charset=UTF-8");
@@ -95,7 +166,6 @@ public class SecurityConfig {
             }
         };
     }
-
 
 
 }
