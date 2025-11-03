@@ -55,10 +55,11 @@ public class SecurityConfig {
                         .requestMatchers("/dashboard/staff/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard/vouchers/**").hasRole("ADMIN")
                         .requestMatchers("/product/list").hasRole("ADMIN")
-                        .requestMatchers("/dashboard/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "CASHIER")
                         .requestMatchers("/table/booking/management").hasRole("CASHIER")
                         .requestMatchers("/orders/management").hasRole("WAITER")
                         .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
+                        .requestMatchers("/product/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
                 .formLogin(form -> form

@@ -62,7 +62,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                 redirectUrl = "/order/edit";
                 break;
             } else if (role.equals("ROLE_WAITER")) {
-                redirectUrl = "/orders/management";
+                redirectUrl = "/home";
                 break;
             }
         }

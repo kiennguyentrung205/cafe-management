@@ -17,11 +17,12 @@ public class TableService {
         this.tableRepository = tableRepository;
         this.tableBookingRepository = tableBookingRepository;
     }
-    public List<Table> getTablesList(){
+
+    public List<Table> getTablesList() {
         return tableRepository.getTablesList();
     }
 
-    public Table findById(int id){
+    public Table findById(int id) {
         return tableRepository.findById(id).orElse(null);
     }
 
@@ -50,7 +51,7 @@ public class TableService {
         }
     }
 
-    public List<Integer> getCapacityList(){
+    public List<Integer> getCapacityList() {
         return tableRepository.capacityList();
     }
 }
