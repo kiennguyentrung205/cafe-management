@@ -1,21 +1,19 @@
 package vn.edu.fpt.cafemanagement.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Optional;
 
 @Controller
 public class RegisterService {
     private CustomerService customerService;
-    private ManagerService managerService;
+    private StaffService staffService;
 
-    public RegisterService(CustomerService customerService, ManagerService managerService) {
+    public RegisterService(CustomerService customerService, StaffService staffService) {
         this.customerService = customerService;
-        this.managerService = managerService;
+        this.staffService = staffService;
     }
 
     public Customer createCustomer(Customer customer) throws Exception {
@@ -41,7 +39,7 @@ public class RegisterService {
             throw new IllegalArgumentException("Username can only contain letters, digits, and underscores");
         }
         boolean usernameExists =
-                managerService.findByUsername(username) != null ||
+                staffService.findByUsername(username) != null ||
                         customerService.findByUsername(username) != null;
         if (usernameExists) {
             throw new IllegalStateException("Username is already in use");
@@ -54,7 +52,7 @@ public class RegisterService {
         if (!email.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
             throw new IllegalArgumentException("Invalid email format");
         }
-        boolean emailExists = managerService.findByEmail(email) != null || customerService.findByEmail(email) != null;
+        boolean emailExists = staffService.findByEmail(email) != null || customerService.findByEmail(email) != null;
         if (emailExists) {
             throw new Exception("Email already exists");
         }

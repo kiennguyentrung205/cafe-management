@@ -77,16 +77,13 @@ public class OrderController {
         if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
             // tìm theo cả tên + category
             productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
-        }
-        else if (query != null && !query.trim().isEmpty()) {
+        } else if (query != null && !query.trim().isEmpty()) {
             // chỉ tìm theo tên
             productPage = productService.searchActiveProducts(query.trim(), pageable);
-        }
-        else if (categoryId != null && categoryId > 0) {
+        } else if (categoryId != null && categoryId > 0) {
             // chỉ lọc theo category
             productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
-        }
-        else {
+        } else {
             productPage = productService.getActiveProductsPaged(pageable);
         }
 
@@ -145,9 +142,9 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
-        Manager manager = loggedUser.getLoggedManager();
-        if (manager == null) {
-            model.addAttribute("error", "No logged-in manager! Please login again.");
+        Staff staff = loggedUser.getLoggedManager();
+        if (staff == null) {
+            model.addAttribute("error", "No logged-in staff! Please login again.");
             // Chuyển về trang login nếu không tìm thấy user
             return "redirect:/login";
         }
@@ -155,7 +152,7 @@ public class OrderController {
         Order order = new Order();
         if (customer != null) order.setCustomer(customer);
 
-        order.setManager(manager);      // người tạo đơn
+        order.setStaff(staff);      // người tạo đơn
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
         order.setStatus("Pending");
@@ -324,8 +321,8 @@ public class OrderController {
             @RequestParam("status") String status
     ) {
 
-        // 1. Lấy Manager (Barista) đang đăng nhập từ LoggedUser service
-        Manager currentUser = loggedUser.getLoggedManager();
+        // 1. Lấy Staff (Barista) đang đăng nhập từ LoggedUser service
+        Staff currentUser = loggedUser.getLoggedManager();
         if (currentUser == null) {
             // Nếu không có ai đăng nhập, chuyển về trang login
             return "redirect:/login";
@@ -373,13 +370,13 @@ public class OrderController {
                 "id", order.getOrderId(),
                 // Kiểm tra null
                 "customer", customer != null ? customer.getName() : "N/A",
-                "manager", order.getManager() != null ? order.getManager().getName() : "N/A",
+                "manager", order.getStaff() != null ? order.getStaff().getName() : "N/A",
                 "status", order.getStatus(),
                 "pointsUsed", order.getPointsUsed(),
                 "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
                 "totalPrice", roundedPrice,
                 "date", order.getCreatedAt(),
-                "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-" ,
+                "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-",
                 "products", items.stream()
                         .map(i -> Map.of(
                                 "name", i.getProduct().getProName(),
@@ -413,7 +410,6 @@ public class OrderController {
 
         return response;
     }
-
 
 
     private String reloadCreatePage(Model model, Customer customer) {

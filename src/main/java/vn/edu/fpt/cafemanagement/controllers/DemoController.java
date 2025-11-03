@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import vn.edu.fpt.cafemanagement.entities.Customer;
-import vn.edu.fpt.cafemanagement.entities.Manager;
+import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 
 @Controller
@@ -33,10 +33,10 @@ public class DemoController {
         }
 
         if(!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
-            Manager manager= loggedUser.getLoggedManager();
-            System.out.println(manager.getName());
-            model.addAttribute("manager", manager);
-            model.addAttribute("name", manager.getName());
+            Staff staff = loggedUser.getLoggedManager();
+            System.out.println(staff.getName());
+            model.addAttribute("manager", staff);
+            model.addAttribute("name", staff.getName());
         }
         return "home/home";
     }

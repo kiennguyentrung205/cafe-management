@@ -8,31 +8,37 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
-import vn.edu.fpt.cafemanagement.entities.Manager;
-import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
+import vn.edu.fpt.cafemanagement.entities.Staff;
+import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 
 @Service
 public class StaffUserDetailsService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(StaffUserDetailsService.class);
 
-    private final ManagerRepository managerRepository;
+    private final StaffRepository staffRepository;
 
-    public StaffUserDetailsService(ManagerRepository managerRepository) {
-        this.managerRepository = managerRepository;
+    public StaffUserDetailsService(StaffRepository staffRepository) {
+        this.staffRepository = staffRepository;
     }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         try {
-            Manager manager = managerRepository.findByUsername(username)
+            Staff staff = staffRepository.findByUsername(username)
                     .orElseThrow(() -> {
-                        return new UsernameNotFoundException("Manager not found with username: " + username);
+
+                        return new UsernameNotFoundException("Staff not found with username: " + username);
                     });
 
-            return new CustomUserDetails(manager);
+
+            CustomUserDetails userDetails = new CustomUserDetails(staff);
+
+            return userDetails;
         } catch (Exception e) {
+
             throw e;
         }
     }
