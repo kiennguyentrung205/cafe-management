@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import vn.edu.fpt.cafemanagement.security.CustomLoginSuccessHandler;
 import vn.edu.fpt.cafemanagement.services.CustomOidcUserService;
 import vn.edu.fpt.cafemanagement.services.CustomerUserDetailsService;
@@ -72,6 +73,7 @@ public class SecurityConfig {
 
                 .logout(logout -> logout
                         .logoutUrl("/staff/logout")
+                        .addLogoutHandler(new SecurityContextLogoutHandler())
                         .logoutSuccessUrl("/staff/login?logout=success")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
@@ -117,6 +119,7 @@ public class SecurityConfig {
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")
+                        .addLogoutHandler(new SecurityContextLogoutHandler())
                         .logoutSuccessUrl("/customer/login?logout=success")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
