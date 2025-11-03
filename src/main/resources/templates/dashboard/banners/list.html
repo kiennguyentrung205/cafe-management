@@ -43,7 +43,7 @@
                 <tr th:each="banner : ${banners}">
                     <td th:text="${banner.id}">1</td>
                     <td>
-                        <img th:src="${banner.imagePath}" alt="Banner Image" style="max-height: 50px; width: auto;">
+                        <img th:src="@{${banner.imagePath}}" alt="Banner" style="max-height: 50px; width: auto;">
                     </td>
                     <td th:text="${banner.title}">Promotion Title</td>
 

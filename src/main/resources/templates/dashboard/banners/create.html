@@ -25,9 +25,10 @@
                         <input type="hidden" th:field="*{imagePath}" />
                         <!-- Photo -->
                         <div class="mb-3">
-                            <label for="photo" class="form-label fw-bold">Photo</label>
-                            <input class="form-control" type="file" id="photo" name="photo" accept="image/*"
+                            <label for="imageFile" class="form-label fw-bold">Photo</label>
+                            <input class="form-control" type="file" id="imageFile" name="imageFile" accept="image/*"
                                    onchange="previewImage(event)">
+
                             <img id="previewPhoto" class="img-thumbnail mt-2"
                                  style="max-width: 150px; display: none;">
                         </div>

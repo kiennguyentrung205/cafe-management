@@ -37,7 +37,7 @@
                         <div class="mb-3">
                             <label for="imageFile" class="form-label fw-bold">Banner Image</label>
                             <input class="form-control" type="file" id="imageFile" name="imageFile" accept="image/*"
-                                   onchange="previewImage(event)" th:required="${banner.id == 0}">
+                                   onchange="previewImage(event)">
 
                             <div th:if="*{imagePath}" class="mt-2">
                                 <p>Current Image:</p>

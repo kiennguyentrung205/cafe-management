@@ -3,6 +3,7 @@ package vn.edu.fpt.cafemanagement.controllers;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.repositories.BannerRepository;
@@ -46,15 +47,34 @@ public class BannerController {
     }
 
     @PostMapping("/save")
-    public String saveBanner(@ModelAttribute Banner banner, RedirectAttributes redirectAttributes) {
+    public String saveBanner(@ModelAttribute Banner banner,
+                             @RequestParam("imageFile") MultipartFile imageFile,
+                             RedirectAttributes redirectAttributes) {
         try {
+            if (!imageFile.isEmpty()) {
+                // Tạo thư mục nếu chưa tồn tại
+                String uploadDir = "D:/uploads/banners/";
+                java.io.File dir = new java.io.File(uploadDir);
+                if (!dir.exists()) dir.mkdirs();
+
+                // Lưu file
+                String fileName = imageFile.getOriginalFilename();
+                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
+                imageFile.transferTo(path.toFile());
+
+                // Lưu tên file vào DB
+                banner.setImagePath("/uploads/banners/" + fileName);
+            }
+
             bannerService.save(banner);
             redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorInfo", "Error saving banners: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorInfo", "Error saving banner: " + e.getMessage());
         }
+
         return "redirect:/dashboard/banners";
     }
+
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
