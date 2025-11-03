@@ -5,13 +5,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.cafemanagement.entities.Manager;
+import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.OrderItem;
 import vn.edu.fpt.cafemanagement.repositories.OrderItemRepository;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -124,9 +123,9 @@ public class OrderService {
         return orderRepository.findByStatusIn(List.of("Served", "Canceled"), pageable);
     }
 
-    public void updateOrder(Order order, Manager currentManager) {
+    public void updateOrder(Order order, Staff currentStaff) {
         order.setUpdatedAt(LocalDateTime.now());
-        order.setUpdatedBy(currentManager);
+        order.setUpdatedBy(currentStaff);
         orderRepository.save(order);
     }
 }

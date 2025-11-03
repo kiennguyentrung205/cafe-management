@@ -190,7 +190,7 @@
 
             <td th:text="${order.orderId}"></td>
             <td th:text="${order.customer != null ? order.customer.name : 'Guest'}"></td>
-            <td th:text="${order.manager != null ? order.manager.name : 'N/A'}"></td>
+            <td th:text="${order.staff != null ? order.staff.name : 'N/A'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${order.pointsUsed}"></td>
@@ -323,7 +323,7 @@
                     document.getElementById("order-detail-row").innerHTML = `
                     <td>${o.id}</td>
                     <td>${o.customer}</td>
-                    <td>${o.manager}</td>
+                    <td>${o.staff}</td>
                     <td>${o.status}</td>
                     <td>${productNames}</td>
                     <td>${o.pointsUsed}</td>

@@ -2,6 +2,8 @@ package vn.edu.fpt.cafemanagement.services;
 
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Table;
+import vn.edu.fpt.cafemanagement.entities.TableBooking;
+import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 import vn.edu.fpt.cafemanagement.repositories.TableRepository;
 
 import java.util.List;
@@ -9,9 +11,11 @@ import java.util.List;
 @Service
 public class TableService {
     private final TableRepository tableRepository;
+    private final TableBookingRepository tableBookingRepository;
 
-    public TableService(TableRepository tableRepository) {
+    public TableService(TableRepository tableRepository, TableBookingRepository tableBookingRepository) {
         this.tableRepository = tableRepository;
+        this.tableBookingRepository = tableBookingRepository;
     }
 
     public List<Table> getTablesList() {
@@ -22,10 +26,29 @@ public class TableService {
         return tableRepository.findById(id).orElse(null);
     }
 
-    public Table updateTableStatus(int id, String status) {
+    public void updateTableStatus(int id,String status){
         Table table = tableRepository.findById(id).orElse(null);
         table.setStatus(status);
-        return tableRepository.save(table);
+        tableRepository.save(table);
+
+        System.out.println("status: " + status);
+
+        if ("available".equals(status)){
+            System.out.println("trigger");
+            autoCompleteBookingOfTable(table.getTableId());
+        }
+    }
+
+    public void autoCompleteBookingOfTable (int tableId){
+        TableBooking  booking = tableBookingRepository.findActiveBookingByTable(tableId);
+
+        if (booking != null &&
+                (booking.getStatus().equalsIgnoreCase("CHECKED-IN"))) {
+
+            booking.setStatus("completed");
+//            booking.setCheckoutTime(LocalDateTime.now());
+            tableBookingRepository.save(booking);
+        }
     }
 
     public List<Integer> getCapacityList() {
