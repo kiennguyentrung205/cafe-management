@@ -20,8 +20,8 @@ public class Order {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id", nullable = false)
-    private Manager manager;
+    @JoinColumn(name = "staff_id", nullable = false)
+    private Staff staff;
 
     //Canceled, Served, Pending, Paid
     @Column(name = "status", length = 20)
@@ -40,8 +40,8 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by", referencedColumnName = "manager_id")
-    private Manager updatedBy;
+    @JoinColumn(name = "updated_by", referencedColumnName = "staff_id")
+    private Staff updatedBy;
 
     @ManyToOne
     @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
@@ -56,12 +56,12 @@ public class Order {
     public Order() {
     }
 
-    public Order(int orderId, Customer customer, Manager manager, String status, double totalPrice,
+    public Order(int orderId, Customer customer, Staff staff, String status, double totalPrice,
                  LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories,  LocalDateTime updatedAt,  Manager updatedBy) {
+                 List<PointHistory> pointHistories, LocalDateTime updatedAt, Staff updatedBy) {
         this.orderId = orderId;
         this.customer = customer;
-        this.manager = manager;
+        this.staff = staff;
         this.status = status;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
@@ -89,12 +89,12 @@ public class Order {
         this.customer = customer;
     }
 
-    public Manager getManager() {
-        return manager;
+    public Staff getStaff() {
+        return staff;
     }
 
-    public void setManager(Manager manager) {
-        this.manager = manager;
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 
     public String getStatus() {
@@ -161,11 +161,10 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    public Manager getUpdatedBy() {
+    public Staff getUpdatedBy() {
         return updatedBy;
     }
-
-    public void setUpdatedBy(Manager updatedBy) {
+    public void setUpdatedBy(Staff updatedBy) {
         this.updatedBy = updatedBy;
     }
 }

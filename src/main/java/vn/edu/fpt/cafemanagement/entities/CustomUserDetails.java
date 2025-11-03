@@ -9,15 +9,15 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
     private final Customer customer;
-    private final Manager manager;
+    private final Staff staff;
 
     public CustomUserDetails(Customer customer) {
         this.customer = customer;
-        this.manager = null;
+        this.staff = null;
     }
 
-    public CustomUserDetails(Manager manager) {
-        this.manager = manager;
+    public CustomUserDetails(Staff staff) {
+        this.staff = staff;
         this.customer = null;
     }
 
@@ -26,15 +26,15 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public boolean isManager() {
-        return this.manager != null;
+        return this.staff != null;
     }
 
     public Customer getCustomer() {
         return this.customer;
     }
 
-    public Manager getManager() {
-        return this.manager;
+    public Staff getManager() {
+        return this.staff;
     }
 
     // Thêm method để lấy ID
@@ -42,8 +42,8 @@ public class CustomUserDetails implements UserDetails {
         if (customer != null) {
             return customer.getCusId();
         }
-        if (manager != null) {
-            return manager.getManagerId();
+        if (staff != null) {
+            return staff.getManagerId();
         }
         return null;
     }
@@ -53,8 +53,8 @@ public class CustomUserDetails implements UserDetails {
         if (customer != null) {
             return customer.getEmail();
         }
-        if (manager != null) {
-            return manager.getEmail();
+        if (staff != null) {
+            return staff.getEmail();
         }
         return null;
     }
@@ -63,8 +63,8 @@ public class CustomUserDetails implements UserDetails {
         if (customer != null) {
             return customer.getName();
         }
-        if (manager != null) {
-            return manager.getName();
+        if (staff != null) {
+            return staff.getName();
         }
         return null;
     }
@@ -79,8 +79,8 @@ public class CustomUserDetails implements UserDetails {
         if (customer != null) {
             return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         }
-        if (manager != null) {
-            String roleName = manager.getRole().getRoleName();
+        if (staff != null) {
+            String roleName = staff.getRole().getRoleName();
             return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase()));
         }
         return List.of();
@@ -88,12 +88,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return (customer != null) ? customer.getPassword() : manager.getPassword();
+        return (customer != null) ? customer.getPassword() : staff.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return (customer != null) ? customer.getUsername() : manager.getUsername();
+        return (customer != null) ? customer.getUsername() : staff.getUsername();
     }
 
     @Override
@@ -116,8 +116,8 @@ public class CustomUserDetails implements UserDetails {
         if (customer != null) {
             return customer.isEnabled(); // Nếu Customer có field enabled
         }
-        if (manager != null) {
-            return manager.isEnabled(); // Nếu Manager có field enabled
+        if (staff != null) {
+            return staff.isEnabled(); // Nếu Staff có field enabled
         }
         return true;
     }
