@@ -30,4 +30,8 @@ public class BannerService {
     public List<Banner> findActiveBannersForHome() {
         return bannerRepository.findByIsActiveOrderByOrderNumberAsc(true);
     }
+
+    public void  delete(Integer id) {
+        bannerRepository.deleteById(id);
+    }
 }

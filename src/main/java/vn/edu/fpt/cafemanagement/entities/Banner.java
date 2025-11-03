@@ -25,27 +25,18 @@ public class Banner {
     private int orderNumber;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private boolean isActive  = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 
     public Banner() {
     }
 
-    public Banner(int id, String title, String imagePath, int orderNumber, boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Banner(int id, String title, String imagePath, int orderNumber, boolean isActive) {
         this.id = id;
         this.title = title;
         this.imagePath = imagePath;
         this.orderNumber = orderNumber;
         this.isActive = isActive;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public int getId() {
@@ -89,19 +80,5 @@ public class Banner {
         isActive = active;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

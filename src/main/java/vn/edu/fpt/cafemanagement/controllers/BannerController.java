@@ -48,9 +48,6 @@ public class BannerController {
     @PostMapping("/save")
     public String saveBanner(@ModelAttribute Banner banner, RedirectAttributes redirectAttributes) {
         try {
-            // **LƯU Ý quan trọng về file upload: Bạn cần thêm logic xử lý upload file ảnh ở đây
-            // (Ví dụ: lưu file vào thư mục và cập nhật imagePath)
-
             bannerService.save(banner);
             redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
         } catch (Exception e) {
@@ -58,6 +55,20 @@ public class BannerController {
         }
         return "redirect:/dashboard/banners";
     }
-}
+
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        // 1. Thực hiện logic xóa
+        bannerService.delete(id);
+
+        // 2. (Tùy chọn) Thêm thông báo thành công
+        redirectAttributes.addFlashAttribute("completeInfo", "Banner: " + id + " đã được xóa thành công.");
+
+        // 3. Chuyển hướng trở lại trang danh sách (Banner Manager)
+        return "redirect:/dashboard/banners"; // <--- ĐÃ SỬA THÀNH ĐƯỜNG DẪN HIỂN THỊ DANH SÁCH
+    }
+
+    }
+
 
 
