@@ -25,28 +25,14 @@ public class StaffUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("=== STAFF LOGIN ATTEMPT ===");
-        logger.info("Attempting to load user: {}", username);
-
         try {
             Manager manager = managerRepository.findByUsername(username)
                     .orElseThrow(() -> {
-                        logger.error("Manager not found with username: {}", username);
                         return new UsernameNotFoundException("Manager not found with username: " + username);
                     });
 
-            logger.info("Manager found: {}", manager.getUsername());
-            logger.info("Manager ID: {}", manager.getManagerId());
-            logger.info("Manager Role: {}", manager.getRole() != null ? manager.getRole().getRoleName() : "NULL");
-            logger.info("Password from DB: {}", manager.getPassword() != null ? "EXISTS" : "NULL");
-
-            CustomUserDetails userDetails = new CustomUserDetails(manager);
-            logger.info("CustomUserDetails created successfully");
-            logger.info("Authorities: {}", userDetails.getAuthorities());
-
-            return userDetails;
+            return new CustomUserDetails(manager);
         } catch (Exception e) {
-            logger.error("Error loading user: {}", e.getMessage(), e);
             throw e;
         }
     }

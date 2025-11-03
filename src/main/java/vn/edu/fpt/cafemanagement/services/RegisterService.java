@@ -79,8 +79,8 @@ public class RegisterService {
         }
         LocalDate today = LocalDate.now();
         int age = Period.between(dob, today).getYears();
-        if (age <= 0 || age > 100) {
-            throw new IllegalArgumentException("Age must be between 1 and 100 years old");
+        if (age < 15 || age > 100) {
+            throw new IllegalArgumentException("Age must be between 15 and 100 years old");
         }
 
 
