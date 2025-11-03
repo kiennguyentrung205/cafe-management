@@ -1,17 +1,17 @@
 <html>
-<head th:replace="~{fragment/frag :: staffmanagement}">
-</head>
-<body class="bg-light">
-<div th:insert="~{fragment/frag :: navbar}"></div>
+                    <head th:replace="~{fragment/frag :: staffmanagement}">
+                    </head>
+                    <body class="bg-light">
+                    <div th:insert="~{fragment/frag :: navbar}"></div>
 
-<!-- Main Content -->
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <!-- Changed to col-lg-10 for a wider, more professional layout -->
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-body p-4 p-md-5">
-                    <h2 class="card-title mb-4 fw-bold">Add New Staff</h2>
+                    <!-- Main Content -->
+                    <div class="container my-5">
+                        <div class="row justify-content-center">
+                            <!-- Changed to col-lg-10 for a wider, more professional layout -->
+                            <div class="col-lg-10">
+                                <div class="card shadow-sm">
+                                    <div class="card-body p-4 p-md-5">
+                                        <h2 class="card-title mb-4 fw-bold">Add New Staff</h2>
 
                     <!-- Error Message -->
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
