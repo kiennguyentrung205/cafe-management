@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-public class Manager implements UserDetails {
+public class Staff implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
@@ -18,7 +18,7 @@ public class Manager implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "manager_id")
+    @Column(name = "staff_id")
     private int managerId;
 
     @Column(name = "name", nullable = false, length = 100)
@@ -53,26 +53,16 @@ public class Manager implements UserDetails {
     @Column(name = "is_active")
     private boolean isActive = true;
 
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "shiftassignment",
-//            joinColumns = @JoinColumn(name = "manager_id"),
-//            inverseJoinColumns = @JoinColumn(name = "shift_id")
-//    )
-//    private List<Shift> shiftAssignments;
 
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
-    private List<ShiftAssignment> assignments;
-
-    public Manager() {
+    public Staff() {
     }
 
-    public Manager(int managerId, String name, String phoneNumber, String email, String address, String password,
-                   String username, Role role, LocalDate dateOfBirth, String img, boolean isActive,
-                   List<Order> orders, List<Shift> shiftAssignments) {
+    public Staff(int managerId, String name, String phoneNumber, String email, String address, String password,
+                 String username, Role role, LocalDate dateOfBirth, String img, boolean isActive,
+                 List<Order> orders) {
         this.managerId = managerId;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -184,20 +174,5 @@ public class Manager implements UserDetails {
         this.orders = orders;
     }
 
-//    public List<Shift> getShiftAssignments() {
-//        return shiftAssignments;
-//    }
-//
-//    public void setShiftAssignments(List<Shift> shiftAssignments) {
-//        this.shiftAssignments = shiftAssignments;
-//    }
 
-
-    public List<ShiftAssignment> getAssignments() {
-        return assignments;
-    }
-
-    public void setAssignments(List<ShiftAssignment> assignments) {
-        this.assignments = assignments;
-    }
 }

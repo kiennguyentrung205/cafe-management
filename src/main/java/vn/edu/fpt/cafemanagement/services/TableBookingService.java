@@ -24,6 +24,12 @@ public class TableBookingService {
         LocalDateTime bookingTime = tableBooking.getBookingTime();
         LocalDateTime now = LocalDateTime.now();
 
+        int count = tableBookingRepository.countByCustomerAndDate(tableBooking.getCustomer().getCusId(), bookingTime.toLocalDate() );
+
+        if(count > 2){
+            throw new IllegalArgumentException("You are allowed to book 2 tables per day");
+        }
+
 
         long diffMinutes = Duration.between(now, bookingTime).toMinutes();
         if (diffMinutes < 0) {
@@ -92,5 +98,9 @@ public class TableBookingService {
         } else{
             return tableBookingRepository.findByStatusAndBookingTimeBetweenOrderByBookingTimeDesc(status, start, end, pageable);
         }
+    }
+
+    public TableBooking findActiveBookingByTable(int tableId){
+        return tableBookingRepository.findActiveBookingByTable(tableId);
     }
 }

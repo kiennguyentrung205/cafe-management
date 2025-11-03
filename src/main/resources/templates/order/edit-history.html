@@ -199,7 +199,7 @@
             <td th:text="${order.orderId}"></td>
 
             <!-- Staff (creator of order) -->
-            <td th:text="${order.manager != null ? order.manager.name : '-'}"></td>
+            <td th:text="${order.staff != null ? order.staff.name : '-'}"></td>
 
             <!-- Products -->
             <td>

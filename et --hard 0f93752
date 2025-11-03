@@ -67,7 +67,7 @@
 [33m85ae7ca[m update home.html
 [33m000ab1f[m add Login function login by username login with google ( chưa hoàn thành lưu thông tin khách vào database)
 [33m4675647[m add demo homepage
-[33mc835716[m Update relation mapping of Role and Manager Entity 1 role - N manager 1 manager - 1 role
+[33mc835716[m Update relation mapping of Role and Manager Entity 1 role - N staff 1 staff - 1 role
 [33m2174dd1[m Merge commit
 [33m44849f2[m change column name of voucher
 [33ma45e4ef[m update import in productController
@@ -76,7 +76,7 @@
 [33m77c4fb0[m merge commit
 [33mdd1d26f[m add customer entity
 [33mba2b1eb[m add login.html
-[33m88ddccf[m add customer, manager repository
+[33m88ddccf[m add customer, staff repository
 [33m46ed850[m add login, table Controller
 [33m03e0745[m Merge pull request #14 from kiennguyentrung205/kenz
 [33mc1e097e[m Merge branch 'main' into kenz
