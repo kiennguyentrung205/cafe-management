@@ -1,6 +1,7 @@
 package vn.edu.fpt.cafemanagement.entities;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +31,11 @@ public class TableBooking {
     private LocalDateTime bookingTime;
 
     private String note;
+
+    private LocalDateTime checkinTime;
+
+    @CreatedDate
+    private LocalDateTime createAt;
 
     public TableBooking() {
     }

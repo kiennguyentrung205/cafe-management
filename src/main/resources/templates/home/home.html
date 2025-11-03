@@ -48,8 +48,17 @@
                 </a>
 
                 <!-- Logout Button Styled as List Item -->
+                <form class="list-group-item-form" th:action="@{/staff/logout}" method="post"
+                      sec:authorize="isAuthenticated() && !hasRole('CUSTOMER')">
+                    <button type="submit">
+                        <i class="fas fa-sign-out-alt fa-fw me-3 list-icon"></i>
+                        <strong>Log out</strong>
+                    </button>
+                </form>
+
+                <!-- Logout Button Styled as List Item -->
                 <form class="list-group-item-form" th:action="@{/logout}" method="post"
-                      sec:authorize="isAuthenticated()">
+                      sec:authorize="hasRole('CUSTOMER')">
                     <button type="submit">
                         <i class="fas fa-sign-out-alt fa-fw me-3 list-icon"></i>
                         <strong>Log out</strong>
