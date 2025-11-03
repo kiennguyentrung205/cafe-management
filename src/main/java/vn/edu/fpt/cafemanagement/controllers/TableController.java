@@ -60,7 +60,6 @@ public class TableController {
     @PostMapping(path = "/management/update-status")
     @ResponseBody
     public String updateTableStatus(@RequestBody Table table) {
-//        System.out.println(table.getStatus());
         tableService.updateTableStatus(table.getTableId(), table.getStatus());
         return "Status updated successfully";
     }

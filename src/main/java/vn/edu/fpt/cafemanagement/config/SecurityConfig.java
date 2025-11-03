@@ -5,6 +5,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,7 +27,6 @@ import vn.edu.fpt.cafemanagement.services.StaffUserDetailsService;
 public class SecurityConfig {
 
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
-//    private final CustomLoginFailureHandler customLoginFailureHandler;
     private final CustomerUserDetailsService customerUserDetailsService;
     private final StaffUserDetailsService staffUserDetailsService;
 
@@ -33,7 +34,6 @@ public class SecurityConfig {
                           CustomerUserDetailsService customerUserDetailsService,
                           StaffUserDetailsService staffUserDetailsService) {
         this.customLoginSuccessHandler = customLoginSuccessHandler;
-//        this.customLoginFailureHandler = customLoginFailureHandler;
         this.customerUserDetailsService = customerUserDetailsService;
         this.staffUserDetailsService = staffUserDetailsService;
     }
@@ -68,7 +68,6 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .successHandler(customLoginSuccessHandler)
                         .failureUrl("/staff/login?error=true")
-//                        .failureHandler(customLoginFailureHandler)
                         .permitAll())
 
                 .logout(logout -> logout
@@ -106,7 +105,6 @@ public class SecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(customLoginSuccessHandler)
-//                        .failureHandler(customLoginFailureHandler)
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
@@ -150,7 +148,6 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            // Nếu là AJAX hoặc REST API (trả JSON)
             String accept = request.getHeader("Accept");
             String xrw = request.getHeader("X-Requested-With");
 
