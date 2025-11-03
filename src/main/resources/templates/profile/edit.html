@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <form action="/customer/profile/edit" enctype="multipart/form-data" method="post">
+    <form action="/profile/edit" enctype="multipart/form-data" method="post">
         <h1>Edit Profile</h1>
         <div style="color: red; font-weight: bold;" th:if="${errorMessage}">
             <p th:text="${errorMessage}"></p>
@@ -21,6 +21,10 @@
                  width="80"/>
             <label for="imgFile">Change avatar:</label>
             <input accept="image/*" id="imgFile" name="imgFile" type="file">
+        </p>
+        <p>
+            <label>Username: </label>
+            <input name="username" th:value="${customer.username}" type="text">
         </p>
         <p>
             <label>Name: </label>
@@ -37,17 +41,11 @@
                    type="text">
         </p>
         <p>
-            <label>Point: </label>
-            <input name="point" readonly th:value="${customer.point}" type="text">
-        </p>
-
-        <p>
             <label>Date of birth: </label>
             <input name="dateOfBirth"
                    th:readonly="${!customer.googleAccount}"
                    th:value="${#temporals.format(customer.dateOfBirth, 'yyyy-MM-dd')}"
                    type="date">
-
         </p>
         <p>
             <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
