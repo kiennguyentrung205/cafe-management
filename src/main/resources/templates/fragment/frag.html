@@ -544,8 +544,8 @@
                  th:data-product-id="${product.proId}"><img th:src="@{/uploads/{img}(img=${product.img})}"
                                                             alt="Product Image"/>
                 <p class="product-name fw-semibold" th:text="${product.proName}"></p>
-                <p class="product-desc text-muted"
-                   th:text="${#strings.abbreviate(product.description, 50)}"></p>
+<!--                <p class="product-desc text-muted"-->
+<!--                   th:text="${#strings.abbreviate(product.description, 50)}"></p>-->
                 <p class="product-price mb-0">
                     <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
                 </p>

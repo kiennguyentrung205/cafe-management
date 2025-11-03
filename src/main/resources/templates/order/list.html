@@ -333,13 +333,26 @@
                     <td>-</td>
                 `;
 
-                    // hiển thị customer info
-                    document.getElementById("cust-id").textContent = c.id || "N/A";
-                    document.getElementById("cust-name").textContent = c.name || "N/A";
-                    document.getElementById("cust-phone").textContent = c.phone || "N/A";
-                    document.getElementById("cust-email").textContent = c.email || "N/A";
-                    document.getElementById("cust-address").textContent = c.address || "N/A";
-                    document.getElementById("cust-photo").src = c.img ? `/uploads/${c.img}` : "/uploads/default-user.jpg";
+                    if (c.id === "N/A") {
+                        // --- TRƯỜNG HỢP 1: KHÁCH VÃNG LAI (Guest) ---
+                        // (Vì backend trả về id="N/A" cho Guest)
+                        document.getElementById("cust-id").textContent = "N/A";
+                        document.getElementById("cust-name").textContent = "N/A";
+                        document.getElementById("cust-phone").textContent = "N/A";
+                        document.getElementById("cust-email").textContent = "N/A";
+                        document.getElementById("cust-address").textContent = "N/A";
+                        document.getElementById("cust-photo").src = "/uploads/avatar.jpeg";
+                    } else {
+                        // --- TRƯỜNG HỢP 2: KHÁCH HÀNG ĐÃ ĐĂNG KÝ ---
+                        document.getElementById("cust-id").textContent = c.id;
+                        document.getElementById("cust-name").textContent = c.name;
+
+                        // Dùng (?? "") để biến giá trị null (từ JSON) thành chuỗi rỗng ""
+                        document.getElementById("cust-phone").textContent = c.phone ?? "";
+                        document.getElementById("cust-email").textContent = c.email ?? "";
+                        document.getElementById("cust-address").textContent = c.address ?? "";
+                        document.getElementById("cust-photo").src = c.img ? `/uploads/${c.img}` : "/uploads/avatar.jpeg";
+                    }
 
                     new bootstrap.Modal(document.getElementById("orderDetailModal")).show();
                 })

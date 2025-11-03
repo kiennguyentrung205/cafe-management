@@ -74,7 +74,7 @@
             border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
             padding: 8px 0;
-            max-height :100px;
+            max-height: 100px;
             overflow-y: auto;
         }
 
@@ -541,12 +541,64 @@
     function redeemPoints(delta) {
         const input = document.getElementById('pointsUsed');
         if (!input) return;
-        const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
+
+        // 1. Lấy tổng điểm khách CÓ (Giới hạn tuyệt đối)
+        const customerMaxPoints = parseInt(input.getAttribute('data-max')) || 0;
+
+        // 2. Tính Subtotal và Voucher Discount (để tìm priceToPay)
+        const orderItems = document.querySelectorAll(".order-item");
+        let subtotal = 0;
+        orderItems.forEach(item => {
+            const qty = parseInt(item.querySelector(".item-qty").textContent);
+            const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
+            subtotal += qty * price;
+        });
+
+        const voucherSelect = document.querySelector('select[name="voucherId"]');
+        const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+        const voucherTypeAttr = selectedOption.getAttribute('data-type') || 'NONE';
+        const voucherType = voucherTypeAttr.toUpperCase();
+        const voucherValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+        let voucherDiscount = 0;
+        if (voucherType === 'PERCENT' || voucherType === '%') {
+            voucherDiscount = Math.ceil(subtotal * (voucherValue / 100.0));
+        } else if (voucherType === 'AMOUNT' || voucherType === 'VND') {
+            voucherDiscount = voucherValue;
+        }
+
+        // 4. Tính số tiền còn lại PHẢI TRẢ (Ví dụ: 28.000đ)
+        let priceToPay = subtotal - voucherDiscount;
+        if (priceToPay < 0) priceToPay = 0;
+
+        // 5. Tính số điểm TỐI ĐA CẦN DÙNG (Ví dụ: ceil(28000 / 2000) = 14)
+        const orderMaxPointsNeeded = Math.ceil(priceToPay / 2000.0);
+
+        // 6. TÍNH GIỚI HẠN UI (làm tròn LÊN bội 5)
+        // (Ví dụ: ceil(14 / 5) * 5 = 15)
+        // (Ví dụ: ceil(16 / 5) * 5 = 20)
+        // (Ví dụ: ceil(25 / 5) * 5 = 25)
+        const uiMaxPoints = Math.ceil(orderMaxPointsNeeded / 5) * 5;
+
+        // 7. Tìm giới hạn THỰC SỰ (so sánh với điểm khách CÓ)
+        // (Ví dụ: Khách có 100, UI max 15 -> trueMax = 15)
+        // (Ví dụ: Khách có 12, UI max 15 -> trueMax = 12)
+        const trueMaxPoints = Math.min(customerMaxPoints, uiMaxPoints);
+
+        // 8. Tính giá trị điểm mới (delta là +5 hoặc -5)
         let current = parseInt(input.value) || 0;
         current += delta;
+
+        // 9. Áp dụng các giới hạn
         if (current < 0) current = 0;
-        if (current > maxPoint) current = maxPoint;
-        current = Math.floor(current / 5) * 5;
+
+        // 10. Giới hạn trên (KHÔNG cho phép vượt quá trueMaxPoints)
+        // (Ví dụ: trueMax = 15, nhấn + lên 20 -> bị gán lại 15)
+        // (Ví dụ: trueMax = 14, nhấn + lên 15 -> bị gán lại 14)
+        if (current > trueMaxPoints) {
+            current = trueMaxPoints;
+        }
+
+        // 11. Cập nhật input và giao diện
         input.value = current;
 
         updateLockState();

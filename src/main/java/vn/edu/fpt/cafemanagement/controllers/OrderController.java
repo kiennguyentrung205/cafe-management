@@ -54,7 +54,7 @@ public class OrderController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model, HttpServletRequest request) {
 
-        int pageSize = 10;
+        int pageSize = 15;
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
 
@@ -206,13 +206,35 @@ public class OrderController {
                 voucherDiscount = voucher.getDiscountValue();
             }
         }
-        double pointsDiscount = pointsUsed * 2000;
 
-        // Tính giá trước khi làm tròn 1000
-        double finalPrice = totalPrice - voucherDiscount - pointsDiscount;
+        // 1. Tính giá trị còn lại PHẢI TRẢ (sau khi trừ voucher)
+        double priceToPay = totalPrice - voucherDiscount;
+        if (priceToPay < 0) priceToPay = 0;
+
+        // 2. Tính số điểm TỐI ĐA CẦN DÙNG (1 điểm = 2000đ)
+        // (Ví dụ: 18.000đ / 2000 = 9 điểm)
+        // (Ví dụ: 16.000đ / 2000 = 8 điểm)
+        int maxPointsNeeded = (int) Math.ceil(priceToPay / 2000.0);
+
+        // 3. Lấy số điểm khách MUỐN DÙNG (từ form, là bội số của 5)
+        // (Ví dụ: 10 điểm)
+        int pointsUsed_Input = pointsUsed;
+
+        // 4. Tính số điểm THỰC TẾ SẼ TRỪ
+        // (Là số nhỏ hơn: số khách CHỌN hoặc số CẦN)
+        // (Ví dụ: min(10, 9) = 9 điểm)
+        // (Ví dụ: min(10, 8) = 8 điểm)
+        int actualPointsUsed = Math.min(pointsUsed_Input, maxPointsNeeded);
+
+        // 5. Tính số tiền giảm giá THỰC TẾ (e.g., 9 * 2000 = 18000)
+        double pointsDiscount = actualPointsUsed * 2000.0;
+
+        // 6. Tính giá cuối cùng (sẽ không bao giờ âm)
+        double finalPrice = priceToPay - pointsDiscount;
         if (finalPrice < 0) finalPrice = 0;
 
-        // Tính điểm earnedPoints DỰA TRÊN GIÁ TRƯỚC KHI LÀM TRÒN 1000
+        // 7. Tính điểm tích lũy (earnedPoints)
+        // (Tính trên giá sau khi đã trừ điểm)
         int earnedPoints = (int) (finalPrice / 50000);
 
         // [SỬA 2] Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
@@ -220,24 +242,41 @@ public class OrderController {
             finalPrice = Math.ceil(finalPrice / 1000) * 1000;
         }
 
-        order.setTotalPrice(finalPrice); // <-- Lưu giá đã làm tròn
+        //Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
+        if (finalPrice > 0) {
+            finalPrice = Math.ceil(finalPrice / 1000) * 1000;
+        }
+
+        order.setTotalPrice(finalPrice);
         order.setOrderItems(orderItems);
         // ------------------------------------------
 
         orderService.saveOrder(order);
 
         if (customer != null) {
-            customer.setPoint(customer.getPoint() - pointsUsed + earnedPoints);
+            customer.setPoint(customer.getPoint() - actualPointsUsed + earnedPoints);
             customerService.saveCustomer(customer);
 
-            if (pointsUsed > 0) {
+            // 1. GHI LỊCH SỬ NẾU DÙNG ĐIỂM
+            if (actualPointsUsed > 0) {
                 PointHistory ph = new PointHistory();
                 ph.setCustomer(customer);
                 ph.setOrder(order);
-                ph.setAmount(-pointsUsed);
+                ph.setAmount(-actualPointsUsed); // <-- Dùng actualPointsUsed
                 ph.setTypeOfChange("Redeemed in order");
                 ph.setChangeTime(LocalDateTime.now());
                 pointHistoryService.saveHistory(ph);
+            }
+
+            // 2. GHI LỊCH SỬ NẾU NHẬN ĐIỂM
+            if (earnedPoints > 0) {
+                PointHistory phEarned = new PointHistory();
+                phEarned.setCustomer(customer);
+                phEarned.setOrder(order);
+                phEarned.setAmount(earnedPoints);
+                phEarned.setTypeOfChange("Earned from order");
+                phEarned.setChangeTime(LocalDateTime.now());
+                pointHistoryService.saveHistory(phEarned);
             }
         }
 
@@ -391,23 +430,28 @@ public class OrderController {
 
         // Kiểm tra null cho toàn bộ
         if (customer != null) {
-            response.put("customer", Map.of(
-                    "id", customer.getCusId(),
-                    "name", customer.getName(),
-                    "phone", customer.getPhoneNumber(),
-                    "email", customer.getEmail(),
-                    "address", customer.getAddress(),
-                    "img", customer.getImg()
-            ));
+            // SỬA LỖI: Dùng HashMap thay vì Map.of()
+            // HashMap cho phép giá trị (value) là null
+            Map<String, Object> customerMap = new HashMap<>();
+            customerMap.put("id", customer.getCusId());
+            customerMap.put("name", customer.getName());
+            customerMap.put("phone", customer.getPhoneNumber()); // Sẽ là null nếu DB là null
+            customerMap.put("email", customer.getEmail());       // Sẽ là null nếu DB là null
+            customerMap.put("address", customer.getAddress());   // Sẽ là null nếu DB là null
+            customerMap.put("img", customer.getImg());         // Sẽ là null nếu DB là null
+
+            response.put("customer", customerMap);
+
         } else {
             // Trả về một đối tượng customer rỗng nếu không có
+            // Khối 'else' này của bạn đã đúng, không cần sửa
             response.put("customer", Map.of(
                     "id", "N/A",
                     "name", "N/A",
                     "phone", "N/A",
                     "email", "N/A",
-                    "address", "N/A",
-                    "img", "" // Hoặc "default-user.jpg"
+                    "address", "",
+                    "img", ""
             ));
         }
 
