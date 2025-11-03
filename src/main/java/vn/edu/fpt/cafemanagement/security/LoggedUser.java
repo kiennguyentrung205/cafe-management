@@ -6,7 +6,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 import vn.edu.fpt.cafemanagement.entities.Customer;
-import vn.edu.fpt.cafemanagement.entities.Manager;
+import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.services.CustomerService;
 
 @Component
@@ -52,7 +52,7 @@ public class LoggedUser {
         return null;
     }
 
-    public Manager getLoggedManager() {
+    public Staff getLoggedManager() {
         CustomUserDetails userDetails = getLoggedUser();
 
         if (userDetails != null && userDetails.isManager()) {
