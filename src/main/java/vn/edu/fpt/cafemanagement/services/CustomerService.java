@@ -10,31 +10,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
 import vn.edu.fpt.cafemanagement.repositories.PointHistoryRepository;
-import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
 
 
 @Service
 public class CustomerService {
     CustomerRepository customerRepository;
     PointHistoryRepository pointHistoryRepository;
-    ManagerService managerService;
-    public CustomerService(CustomerRepository customerRepository, ManagerService managerService, PointHistoryRepository pointHistoryRepository) {
+    StaffService staffService;
+    public CustomerService(CustomerRepository customerRepository, StaffService staffService, PointHistoryRepository pointHistoryRepository) {
         this.customerRepository = customerRepository;
-        this.managerService = managerService;
+        this.staffService = staffService;
         this.pointHistoryRepository = pointHistoryRepository;
     }
 

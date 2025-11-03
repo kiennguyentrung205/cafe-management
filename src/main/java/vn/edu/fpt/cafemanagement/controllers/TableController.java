@@ -32,8 +32,8 @@ public class TableController {
     @GetMapping(path = "/management")
     @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
     public String showTableListManagement(Model model,
-                                        @RequestParam(required = false) String status,
-                                        @RequestParam(required = false) Integer capacity) {
+                                          @RequestParam(required = false) String status,
+                                          @RequestParam(required = false) Integer capacity) {
         List<Table> tables = tableService.getTablesList();
 
         List<Integer> capacityList = tableService.getCapacityList();
@@ -44,9 +44,9 @@ public class TableController {
                     .collect(Collectors.toList());
         }
 
-        if(capacity != null) {
+        if (capacity != null) {
             tables = tables.stream().filter(
-                    t -> t.getCapacity() == capacity)
+                            t -> t.getCapacity() == capacity)
                     .collect(Collectors.toList());
         }
         model.addAttribute("status", status);

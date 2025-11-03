@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
-import vn.edu.fpt.cafemanagement.repositories.ManagerRepository;
+import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 
 @Service
@@ -14,16 +14,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return customerRepository.findByUsername(username).<UserDetails>map(CustomUserDetails::new)
                 .orElseGet(() ->
-                managerRepository.findByUsername(username).map(CustomUserDetails::new)
+                staffRepository.findByUsername(username).map(CustomUserDetails::new)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username)));
     }
 
     private final CustomerRepository customerRepository;
-    private final ManagerRepository managerRepository;
+    private final StaffRepository staffRepository;
 
-    public CustomUserDetailsService(CustomerRepository customerRepository, ManagerRepository managerRepository) {
+    public CustomUserDetailsService(CustomerRepository customerRepository, StaffRepository staffRepository) {
         this.customerRepository = customerRepository;
-        this.managerRepository = managerRepository;
+        this.staffRepository = staffRepository;
     }
 
 
