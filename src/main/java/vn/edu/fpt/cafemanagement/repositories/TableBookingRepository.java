@@ -42,8 +42,7 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
 
     @Query("SELECT COUNT(b) FROM TableBooking b " +
             "WHERE b.customer.cusId = :customerId " +
-            "AND CAST(b.bookingTime AS date) = :date" +
-            " and b.status = 'booked' ")
+            "AND CAST(b.bookingTime AS date) = :date")
     int countByCustomerAndDate(@Param("customerId") int customerId,
                                @Param("date") LocalDate date);
 
