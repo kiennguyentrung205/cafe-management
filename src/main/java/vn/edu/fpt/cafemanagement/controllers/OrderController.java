@@ -142,7 +142,7 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
-        Staff staff = loggedUser.getLoggedManager();
+        Staff staff = loggedUser.getLoggedStaff();
         if (staff == null) {
             model.addAttribute("error", "No logged-in staff! Please login again.");
             // Chuyển về trang login nếu không tìm thấy user
@@ -361,7 +361,7 @@ public class OrderController {
     ) {
 
         // 1. Lấy Staff (Barista) đang đăng nhập từ LoggedUser service
-        Staff currentUser = loggedUser.getLoggedManager();
+        Staff currentUser = loggedUser.getLoggedStaff();
         if (currentUser == null) {
             // Nếu không có ai đăng nhập, chuyển về trang login
             return "redirect:/login";
@@ -409,7 +409,7 @@ public class OrderController {
                 "id", order.getOrderId(),
                 // Kiểm tra null
                 "customer", customer != null ? customer.getName() : "N/A",
-                "manager", order.getStaff() != null ? order.getStaff().getName() : "N/A",
+                "staff", order.getStaff() != null ? order.getStaff().getName() : "N/A",
                 "status", order.getStatus(),
                 "pointsUsed", order.getPointsUsed(),
                 "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",

@@ -33,7 +33,7 @@ public class DemoController {
         }
 
         if(!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
-            Staff staff = loggedUser.getLoggedManager();
+            Staff staff = loggedUser.getLoggedStaff();
             System.out.println(staff.getName());
             model.addAttribute("manager", staff);
             model.addAttribute("name", staff.getName());

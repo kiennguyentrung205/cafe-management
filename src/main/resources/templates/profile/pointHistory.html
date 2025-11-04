@@ -19,7 +19,7 @@
             </thead>
             <tbody>
             <tr th:each="list : ${pointHistoryList}">
-                <td th:text="${list.changeTime}"></td>
+                <td th:text="${#temporals.format(list.changeTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
                 <td th:text="${list.typeOfChange}"></td>
                 <td th:text="${list.amount >= 0 ? '+' + list.amount : list.amount}"
                     th:classappend="${list.amount >= 0 ? 'text-success' : 'text-danger'}"></td>
