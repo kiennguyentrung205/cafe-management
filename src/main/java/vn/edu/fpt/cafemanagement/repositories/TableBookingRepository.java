@@ -37,12 +37,13 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
     @Query(value="select * from TableBooking where table_id = :tableId and status = 'checked-in'", nativeQuery = true)
     TableBooking findActiveBookingByTable(int tableId);
 
-    @Query(value="select * from tablebooking where booking_time < :expiredTime", nativeQuery = true)
+    @Query(value="select * from tablebooking where booking_time < :expiredTime and status = 'booked'", nativeQuery = true)
     List<TableBooking> findExpiredBooking(LocalDateTime expiredTime);
 
     @Query("SELECT COUNT(b) FROM TableBooking b " +
             "WHERE b.customer.cusId = :customerId " +
-            "AND CAST(b.bookingTime AS date) = :date")
+            "AND CAST(b.bookingTime AS date) = :date" +
+            " and b.status = 'booked' ")
     int countByCustomerAndDate(@Param("customerId") int customerId,
                                @Param("date") LocalDate date);
 
