@@ -1,0 +1,390 @@
+<head th:fragment="common-head(pageTitle, pageSpecificCss)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${pageTitle} + ' | WIMI RUSTIC'">WIMI RUSTIC</title>
+
+    <th:block th:if="${_csrf != null}">
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </th:block>
+
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <th:block th:replace="${pageSpecificCss} ?: ~{}"></th:block>
+</head>
+
+
+<div th:fragment="navbar-main">
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand-logo fs-4" th:href="@{/dashboard}" sec:authorize="hasRole('ADMIN')">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
+            </a>
+            <a class="navbar-brand-logo fs-4" th:href="@{/home}"
+               sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
+            </a>
+            <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler"
+                    data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link active" th:href="@{/dashboard}">Dashboard</a>
+                    </li>
+
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_WAITER', 'ROLE_CUSTOMER')">
+                        <a class="nav-link" th:href="@{/home}">Home</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+                        <a class="nav-link" th:href="@{/menu}">Menu</a>
+                    </li>
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
+                    <li class="nav-item dropdown"
+                        sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Table</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                            th:href="@{/table/booking/my}">My
+                                Bookings</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-user-circle me-1"></i>
+                            <span sec:authentication="principal.fullName">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+
+<div th:fragment="navbar-guest">
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand-logo fs-4" href="#">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+
+<!-- Sidebar Fragment cho Order-->
+<div th:fragment="order-sidebar(activePage)">
+    <style>
+        .sidebar {
+            width: 120px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            gap: 10px;
+            height: 100vh;
+        }
+
+        .menu-panel, .order-panel {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 10px 0;
+            width: 100px;
+            border-radius: 15px;
+            font-size: 12px;
+            transition: 0.25s;
+            text-align: center;
+        }
+
+        .menu-item.logout {
+            color: var(--brand-primary, #FF7A00);
+            border: none;
+        }
+
+        /* Khi hover nút "Logout".
+          Được phủ đè bởi .menu-item:hover, nên text sẽ là màu trắng.
+        */
+        .menu-item.logout:hover {
+            color: var(--brand-white, #FFFFFF);
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        /* Khi hover một item bất kỳ.
+          Đổi nền từ đỏ (#ff4d4d) sang cam.
+        */
+        .menu-item:hover {
+            background-color: var(--brand-primary, #FF7A00);
+            color: var(--brand-white, #FFFFFF);
+            transform: scale(1.05);
+        }
+
+        /* Khi một item được "active".
+          Đổi nền từ đỏ (#ff4d4d) sang cam.
+        */
+        .menu-item.active {
+            background-color: var(--brand-primary, #FF7A00);
+            color: var(--brand-white, #FFFFFF);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+    </style>
+    <div class="sidebar">
+        <a href="/order/create" class="menu-item"
+           th:classappend="${activePage == 'create'} ? ' active'">
+            <i class="bi bi-house-door"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/dashboard/sales" class="menu-item"
+           th:classappend="${activePage == 'sales'} ? ' active'">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Sales Amount</span>
+        </a>
+
+        <a href="/order/list" class="menu-item"
+           th:classappend="${activePage == 'list'} ? ' active'">
+            <i class="bi bi-list-ul"></i>
+            <span>Order List</span>
+        </a>
+
+        <a href="/table/booking/management" class="menu-item sidebar-bottom"
+           th:classappend="${activePage == 'home'} ? ' active'">
+            <i class="bi bi-arrow-bar-left"></i>
+            <span>Table Booking</span>
+        </a>
+        <!--        <form th:action="@{/logout}" method="post" class="sidebar-bottom">-->
+        <!--            <button type="submit" class="menu-item logout">-->
+        <!--                <i class="bi bi-box-arrow-right"></i>-->
+        <!--                <span>Log Out</span>-->
+        <!--            </button>-->
+        <!--        </form>-->
+    </div>
+</div>
+
+<!-- Menu Fragment -->
+<div th:fragment="menu-panel">
+    <style>
+        .main-container {
+            flex: 1;
+            padding: 15px 25px;
+            overflow-y: auto;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        /* Pagination */
+
+        .pagination a {
+            color: #007bff;
+            padding: 5px 10px;
+            margin: 0 3px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination a:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100px; /*chỉnh sửa kích thước ảnh, đợi có đủ description mới làm đc*/
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .product-card:hover {
+            background-color: #f0f0f0;
+        }
+
+    </style>
+    <div class="menu-panel">
+        <div class="menu-header">
+            <div class="categories">
+                <h3 style="font-size:17px;">Menu Category</h3>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div id="categoryCheckboxes" class="d-flex gap-3 flex-wrap">
+                        <div th:each="category : ${categoryList}" class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox"
+                                       name="categoryId"
+                                       th:value="${category.cateId}"
+                                       class="form-check-input category-checkbox"
+                                       th:checked="${category.cateId == selectedCategoryId}"
+                                       onchange="handleCategorySelect(this)">
+                                <span th:text="${category.cateName}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="menu-grid">
+            <div th:each="product : ${productList}" class="product-card"
+                 th:data-product-id="${product.proId}"><img th:src="@{/uploads/{img}(img=${product.img})}"
+                                                            alt="Product Image"/>
+                <p class="product-name fw-semibold" th:text="${product.proName}"></p>
+                <p class="product-desc text-muted"
+                   th:text="${#strings.abbreviate(product.description, 50)}"></p>
+                <p class="product-price mb-0">
+                    <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
+                </p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Product pagination">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/order/create(page=${currentPage - 1}, categoryId=${selectedCategoryId}, query=${query})}"
+                       aria-label="Previous">
+                        <span aria-hidden="true">Prev</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/order/create(page=${i}, categoryId=${selectedCategoryId}, query=${query})}"
+                       th:text="${i}"></a>
+                </li>
+
+                <!-- Next -->
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/order/create(page=${currentPage + 1}, categoryId=${selectedCategoryId}, query=${query})}"
+                       aria-label="Next">
+                        <span aria-hidden="true">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</div>
+
+<div th:fragment="footer">
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+</div>

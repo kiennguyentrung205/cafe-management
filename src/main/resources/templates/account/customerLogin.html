@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragment/frag :: acclogin}"></head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Login',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/account/login.css">
+</th:block>
 <body>
-<div th:insert="~{fragment/frag::navbar-acclogin}"></div>
+<div th:replace="~{fragments/common :: navbar-guest}"></div>
 
 <div class="container-fluid main-content d-flex align-items-center justify-content-center min-vh-100 py-2">
     <div class="row justify-content-center w-100">

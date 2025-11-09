@@ -31,7 +31,7 @@ public class CustomerController {
             return "redirect:/login";
         }
         Customer sessionCustomer = loggedUser.getLoggedCustomer();
-        if (sessionCustomer ==  null) {
+        if (sessionCustomer == null) {
             return "redirect:/login";
         }
         Customer customer = customerService.getCustomerById(sessionCustomer.getCusId());
@@ -46,7 +46,7 @@ public class CustomerController {
             return "redirect:/login";
         }
         Customer sessionCustomer = loggedUser.getLoggedCustomer();
-        if (sessionCustomer ==  null) {
+        if (sessionCustomer == null) {
             return "redirect:/login";
         }
 
@@ -63,7 +63,7 @@ public class CustomerController {
             return "redirect:/login";
         }
         Customer sessionCustomer = loggedUser.getLoggedCustomer();
-        if (sessionCustomer ==  null) {
+        if (sessionCustomer == null) {
             return "redirect:/login";
         }
         Customer customer = customerService.getCustomerById(sessionCustomer.getCusId());
@@ -72,8 +72,7 @@ public class CustomerController {
     }
 
     @PostMapping("/edit")
-    public String editProfile(@ModelAttribute(name = "customer") Customer customer,
-                              @RequestParam(value = "imgFile") MultipartFile imgFile , Model model) {
+    public String editProfile(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "imgFile") MultipartFile imgFile, Model model) {
         try {
             if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
                 return "redirect:/profile/edit";
@@ -94,7 +93,7 @@ public class CustomerController {
             return "redirect:/login";
         }
         Customer customer = loggedUser.getLoggedCustomer();
-        if (customer ==  null) {
+        if (customer == null) {
             return "redirect:/login";
         }
         model.addAttribute("customer", customer);
@@ -102,14 +101,10 @@ public class CustomerController {
     }
 
     @PostMapping("/changePassword")
-    public String changePassword(@ModelAttribute(name = "customer") Customer customer,
-                                 @RequestParam(value = "currentPassword") String currentPassword,
-                                 @RequestParam(value = "newPassword") String newPassword,
-                                 @RequestParam(value = "confirmPassword") String confirmPassword,
-                                 Model model) {
+    public String changePassword(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "currentPassword") String currentPassword, @RequestParam(value = "newPassword") String newPassword, @RequestParam(value = "confirmPassword") String confirmPassword, Model model) {
         try {
             customerService.changePassword(customer.getCusId(), newPassword, confirmPassword, currentPassword);
-            return "redirect:/profile/" + customer.getCusId();
+            return "redirect:/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("customer", customer);

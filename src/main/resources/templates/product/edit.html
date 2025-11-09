@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="fragment/frag :: productlist">
-</head>
-<body class="bg-light">
-<div th:replace="fragment/frag :: navbar"></div>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Product',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/edit.css">
+</th:block>
+<body>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main Content -->
 <div class="container my-5">

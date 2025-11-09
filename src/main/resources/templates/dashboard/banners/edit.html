@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragment/frag :: staffmanagement}">
-    <title th:text="${pageTitle}">Banner Form</title>
-</head>
-<body class="bg-light">
-<div th:insert="~{fragment/frag :: navbar}"></div>
+<html lang="en">
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Banner',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/list.css">
+</th:block>
+<body>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -18,9 +23,9 @@
                     <form th:action="@{/dashboard/banners/save}" method="post" th:object="${banner}"
                           enctype="multipart/form-data" class="needs-validation" novalidate>
 
-                        <input type="hidden" th:field="*{id}" />
+                        <input type="hidden" th:field="*{id}"/>
 
-                        <input type="hidden" th:field="*{imagePath}" />
+                        <input type="hidden" th:field="*{imagePath}"/>
 
                         <div class="mb-3">
                             <label for="title" class="form-label fw-bold">Title</label>
@@ -30,7 +35,8 @@
 
                         <div class="mb-3">
                             <label for="orderNumber" class="form-label fw-bold">Order Number (Priority)</label>
-                            <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}" required>
+                            <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}"
+                                   required>
                             <div class="invalid-feedback">Order Number is required.</div>
                         </div>
 
@@ -41,12 +47,15 @@
 
                             <div th:if="*{imagePath}" class="mt-2">
                                 <p>Current Image:</p>
-                                <img th:src="*{imagePath}" alt="Current Banner Image" class="img-thumbnail" style="max-width: 150px;">
+                                <img th:src="*{imagePath}" alt="Current Banner Image" class="img-thumbnail"
+                                     style="max-width: 150px;">
                             </div>
 
                             <img id="previewPhoto" class="img-thumbnail mt-2"
                                  style="max-width: 150px; display: none;">
-                            <div class="invalid-feedback" th:if="${banner.id == 0}">Image is required for a new banner.</div>
+                            <div class="invalid-feedback" th:if="${banner.id == 0}">Image is required for a new
+                                banner.
+                            </div>
                         </div>
 
 
@@ -62,9 +71,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 
 <script>
     // Preview Image (Logic đã được sửa để xử lý cả ảnh cũ và ảnh mới)
@@ -76,7 +82,7 @@
 
         if (event.target.files[0]) {
             // Ẩn ảnh cũ khi chọn ảnh mới
-            if(currentImage) currentImage.style.display = 'none';
+            if (currentImage) currentImage.style.display = 'none';
 
             reader.onload = function () {
                 output.src = reader.result;
@@ -87,7 +93,7 @@
             // Nếu không chọn file, ẩn preview và hiện lại ảnh cũ (nếu có)
             output.src = '';
             output.style.display = 'none';
-            if(currentImage) currentImage.style.display = 'block';
+            if (currentImage) currentImage.style.display = 'block';
         }
     }
 
@@ -107,7 +113,10 @@
             })
     })()
 </script>
-
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 </body>
 </html>

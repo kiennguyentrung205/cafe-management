@@ -37,7 +37,7 @@
             <!-- Menu items -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link active" th:href="@{/home}">Home</a>
                     </li>
 
@@ -45,20 +45,35 @@
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
                            href="#" id="tableDropdown" role="button">
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
-                                                                               th:href="@{/table/booking/my}">My
+                            <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li><a class="dropdown-item"
+                                   th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
                         </ul>
                     </li>
 
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/login}">Login</a>
                     </li>
@@ -75,10 +90,12 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
                                     <button class="dropdown-item" type.submit>Log out</button>
@@ -133,14 +150,28 @@
             <!-- Menu items -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
-
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -149,7 +180,9 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                               th:href="@{/table/list}">List Tables</a>
+                            </li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -175,10 +208,12 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
                                     <button class="dropdown-item" type.submit>Log out</button>
@@ -232,14 +267,28 @@
             <!-- Menu items -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
-
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
                     <li class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -248,7 +297,9 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                               th:href="@{/table/list}">List Tables</a>
+                            </li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -274,10 +325,12 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
                                     <button class="dropdown-item" type.submit>Log out</button>
@@ -330,14 +383,28 @@
             <!-- Menu items -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
-
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -346,7 +413,9 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                               th:href="@{/table/list}">List Tables</a>
+                            </li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -372,10 +441,12 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
                                     <button class="dropdown-item" type.submit>Log out</button>
@@ -430,14 +501,28 @@
             <!-- Menu items -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
-
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link active" th:href="@{/table/management}">Table Management</a>
+                    </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -446,7 +531,9 @@
                             <span>Table</span>
                         </a>
                         <ul aria-labelledby="tableDropdown" class="dropdown-menu">
-                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
+                            <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
+                                                                               th:href="@{/table/list}">List Tables</a>
+                            </li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
                                 Bookings</a></li>
@@ -472,13 +559,15 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                                    <button class="dropdown-item" type="submit">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -529,12 +618,27 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
                     <li class="nav-item">
                         <!-- Set 'Menu' as active -->
                         <a class="nav-link active" th:href="@{/menu}">Menu</a>
+                    </li>
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
+                            <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
                     </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
@@ -542,7 +646,7 @@
                            href="#" id="tableDropdown" role="button">
                             <span>Table</span>
                         </a>
-                        <ul  aria-labelledby="tableDropdown" class="dropdown-menu">
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
                             <li><a class="dropdown-item" th:href="@{/table/list}">List Tables</a></li>
                             <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')"><a class="dropdown-item"
                                                                                th:href="@{/table/booking/my}">My
@@ -567,10 +671,12 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul aria-labelledby="userDropdown" class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <th:block sec:authorize="hasRole('CUSTOMER')">
+                                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </th:block>
                             <li>
                                 <form class="d-inline" method="post" th:action="@{/logout}">
                                     <button class="dropdown-item" type="submit">Log out</button>
