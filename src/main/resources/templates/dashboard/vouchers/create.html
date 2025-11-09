@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head th:replace="~{fragment/frag :: voucher}"></head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Vouchers',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/create.css">
+</th:block>
 <body>
-<div th:insert="~{fragment/frag::navbar}"></div>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main Content -->
 <div class="container my-5">
