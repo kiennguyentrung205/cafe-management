@@ -1,15 +1,28 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.cafemanagement.entities.Banner;
+import vn.edu.fpt.cafemanagement.entities.Voucher;
 import vn.edu.fpt.cafemanagement.repositories.BannerRepository;
 import vn.edu.fpt.cafemanagement.services.BannerService;
+import vn.edu.fpt.cafemanagement.util.SignUtil;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard/banners")
@@ -21,8 +34,17 @@ public class BannerController {
     }
 
     @GetMapping
-    public String listBanner(Model model) {
-        model.addAttribute("banners", bannerService.findAllBanners());
+    public String listBanner(
+            Model model,
+            @PageableDefault(size = 10, page = 0, sort = "id") Pageable pageable) {
+        Page<Banner> bannerPage = bannerService.findAllBanners(pageable);
+        model.addAttribute("bannerPage", bannerPage);
+
+        List<Banner> activeBanners = bannerService.findAllBanners().stream().filter(Banner::isActive).collect(Collectors.toList());
+
+        model.addAttribute("banners", bannerPage.getContent());
+        model.addAttribute("activeBanners", activeBanners);
+
         return "dashboard/banners/list";
     }
 
@@ -38,37 +60,96 @@ public class BannerController {
         Optional<Banner> banner = bannerService.findBannerById(id);
         if (banner.isPresent()) {
             model.addAttribute("banner", banner.get());
-            model.addAttribute("pageTitle", "Edit Banner (ID: " + id + ")");
+            model.addAttribute("pageTitle", "Edit Banner");
             return "dashboard/banners/edit";
         } else {
-            redirectAttributes.addFlashAttribute("errorInfo", "Banner ID " + id + " not found.");
+            redirectAttributes.addFlashAttribute("errorInfo", "This banner not found.");
             return "redirect:/dashboard/banners";
         }
     }
-
     @PostMapping("/save")
-    public String saveBanner(@ModelAttribute Banner banner,
+    public String saveBanner(@ModelAttribute("banner") Banner banner,
                              @RequestParam("imageFile") MultipartFile imageFile,
+                             Model model,
                              RedirectAttributes redirectAttributes) {
+
+        boolean isEdit = banner.getId() > 0;
+        String targetView = isEdit ? "dashboard/banners/edit" : "dashboard/banners/create";
+
+        // 1. LẤY ĐƯỜNG DẪN ẢNH CŨ (NẾU CÓ) ĐỂ HỖ TRỢ VALIDATION VÀ FORWARD
+        String existingImagePath = banner.getImagePath(); // Lấy từ Model Attribute (nếu có từ hidden field)
+
+        if (isEdit && (existingImagePath == null || existingImagePath.isEmpty())) {
+            // Nếu là Edit nhưng đường dẫn ảnh bị mất/trống (có thể do lỗi binding form), lấy lại từ DB
+            Optional<Banner> existingBannerOpt = bannerService.findBannerById(banner.getId());
+            if (existingBannerOpt.isPresent()) {
+                existingImagePath = existingBannerOpt.get().getImagePath();
+                banner.setImagePath(existingImagePath); // Gán lại cho model attribute
+            }
+        }
+
+        // --- KHỐI VALIDATION BẮT BUỘC ---
+
+        // 1. Title Validation
+        if (banner.getTitle() == null || banner.getTitle().isBlank()) {
+            model.addAttribute("error", "Banner Title cannot be empty.");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // 2. Order Number Validation (Giữ nguyên)
+        if (banner.getOrderNumber() < 0) {
+            model.addAttribute("error", "Order Number must be a non-negative value");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // 3. Image Validation (Sửa logic)
+        boolean hasNewFile = !imageFile.isEmpty();
+        boolean hasExistingPath = existingImagePath != null && !existingImagePath.isEmpty();
+
+        // Báo lỗi nếu: KHÔNG có file mới VÀ Banner KHÔNG có đường dẫn ảnh cũ nào
+        if (!hasNewFile && !hasExistingPath) {
+            model.addAttribute("error", "Image file is required for this banner.");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // --- KHỐI XỬ LÝ LƯU (Đã được đơn giản hóa) ---
+
         try {
-            if (!imageFile.isEmpty()) {
-                // Tạo thư mục nếu chưa tồn tại
-                String uploadDir = "D:/SWP/Project/uploads/";
-                java.io.File dir = new java.io.File(uploadDir);
-                if (!dir.exists()) dir.mkdirs();
+            String uploadDir = "D:/SWP/Project/uploads/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
 
-                // Lưu file
-                String fileName = imageFile.getOriginalFilename();
-                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-                imageFile.transferTo(path.toFile());
+            if (hasNewFile) {
+                // Logic upload ảnh mới và cập nhật đường dẫn
+                String originalFileName = imageFile.getOriginalFilename();
+                String extension = "";
+                if (originalFileName != null && originalFileName.contains(".")) {
+                    extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                }
 
-                // Lưu tên file vào DB
-                banner.setImagePath("/uploads/" + fileName);
+                String newFileName = java.util.UUID.randomUUID().toString() + extension;
+                Path path = Paths.get(uploadDir + newFileName);
+
+                Files.copy(imageFile.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                banner.setImagePath("/uploads/" + newFileName);
+
+            } else if (isEdit && hasExistingPath) {
+                // Trường hợp Edit và không upload file mới: Giữ đường dẫn ảnh cũ đã lấy ở trên
+                banner.setImagePath(existingImagePath);
+
+            } else if (!isEdit) {
+                // Nếu là Create, nhưng validation không chạy (ví dụ ảnh là file rỗng)
+                banner.setImagePath(null);
             }
 
+            // Lưu DB
             bannerService.save(banner);
             redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
         } catch (Exception e) {
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorInfo", "Error saving banner: " + e.getMessage());
         }
 
@@ -80,12 +161,9 @@ public class BannerController {
     public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         // 1. Thực hiện logic xóa
         bannerService.delete(id);
+        redirectAttributes.addFlashAttribute("completeInfo", "Banner has been deleted successfully!");
 
-        // 2. (Tùy chọn) Thêm thông báo thành công
-        redirectAttributes.addFlashAttribute("completeInfo", "Banner: " + id + " đã được xóa thành công.");
-
-        // 3. Chuyển hướng trở lại trang danh sách (Banner Manager)
-        return "redirect:/dashboard/banners"; // <--- ĐÃ SỬA THÀNH ĐƯỜNG DẪN HIỂN THỊ DANH SÁCH
+        return "redirect:/dashboard/banners";
     }
 
 }

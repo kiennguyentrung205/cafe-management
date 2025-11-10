@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 
@@ -18,6 +19,11 @@ public class StaffService {
     public StaffService(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
+
+    public List<Staff> findAllStaffs() {
+        return staffRepository.findAll();
+    }
+
 
     public List<Staff> getList() {
         return staffRepository.findAll();

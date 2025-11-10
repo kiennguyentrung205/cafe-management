@@ -8,14 +8,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Role;
+import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 import vn.edu.fpt.cafemanagement.services.StaffService;
 import vn.edu.fpt.cafemanagement.services.RoleService;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard/staff")
@@ -23,10 +31,12 @@ public class StaffController {
 
     private final StaffService staffService;
     private final RoleService roleService;
+    private final StaffRepository staffRepository;
 
-    public StaffController(StaffService staffService, RoleService roleService) {
+    public StaffController(StaffService staffService, RoleService roleService, StaffRepository staffRepository) {
         this.staffService = staffService;
         this.roleService = roleService;
+        this.staffRepository = staffRepository;
     }
 
     @RequestMapping
@@ -45,12 +55,16 @@ public class StaffController {
         } else {
             staffPage = staffService.getActiveStaffs(pageable);
         }
+
         if (staffPage.getContent().isEmpty()) {
             model.addAttribute("notFound", "No staff found" + (keyword != null ? " for \"" + keyword + "\"" : ""));
             model.addAttribute("staffs", null);
             return "dashboard/staff/list";
         }
 
+        List<Staff> activeStaffs = staffService.findAllStaffs().stream().filter(Staff::isActive).collect(Collectors.toList());
+
+        model.addAttribute("activeStaffs", activeStaffs);
         model.addAttribute("staffs", staffPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", staffPage.getTotalPages());
@@ -87,14 +101,35 @@ public class StaffController {
     @PostMapping("/save")
     public String save(@ModelAttribute("staff") Staff staff,
                        @RequestParam("roleId") int roleId,
-                       @RequestParam("photo") MultipartFile file, Model model) {
+                       @RequestParam("photo") MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
         Role role = roleService.getRoleById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Null"));
         staff.setRole(role);
+
         // Hash mật khẩu trước khi lưu
-        if (staff.getPassword() != null && !staff.getPassword().isEmpty()) {
-            String hashedPassword = BCrypt.hashpw(staff.getPassword(), BCrypt.gensalt());
-            staff.setPassword(hashedPassword);
+        boolean isEdit = staff.getManagerId() > 0;
+        String newPassword = staff.getPassword();
+
+        if (isEdit) {
+            if (newPassword == null || newPassword.isBlank()) {
+                Staff existingStaff = staffService.findById(staff.getManagerId());
+                if (existingStaff != null) {
+                    staff.setPassword(existingStaff.getPassword());
+                } else {
+
+                }
+            } else {
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                staff.setPassword(hashedPassword);
+            }
+        } else {
+            // Kiểm tra mật khẩu có được nhập ko
+            if (newPassword == null || newPassword.isBlank()) {
+            } else {
+
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                staff.setPassword(hashedPassword);
+            }
         }
 
 
@@ -184,24 +219,43 @@ public class StaffController {
             model.addAttribute("roles", roleService.getAllRoles());
             return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
-        if (!file.isEmpty()) {
-            try {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/img/staff/";//
-                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
-                if (!java.nio.file.Files.exists(uploadPath)) {
-                    java.nio.file.Files.createDirectories(uploadPath);
+
+        try {
+            String uploadDir = "D:/SWP/Project/uploads/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            if (!file.isEmpty()) {
+                String originalFileName = file.getOriginalFilename();
+                String extension = "";
+                if (originalFileName != null && originalFileName.contains(".")) {
+                    extension = originalFileName.substring(originalFileName.lastIndexOf("."));
                 }
 
-                file.transferTo(new java.io.File(uploadDir + fileName));
-                staff.setImg("/img/staff/" + fileName);//
+                String newFileName = java.util.UUID.randomUUID().toString() + extension;
+                Path path = Paths.get(uploadDir + newFileName);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                Files.copy(file.getInputStream(), path);
+
+
+                staff.setImg("/uploads/" + newFileName);
+            } else {
+                if (isEdit) {
+                    Staff existingStaff = staffService.findById(staff.getManagerId());
+
+                    if (existingStaff != null && existingStaff.getImg() != null) {
+                        staff.setImg(existingStaff.getImg());
+                    }
+                    // Nếu existingStaff == null hoặc ảnh cũ cũng null, staff.img sẽ là null
+                }
             }
 
+            staffService.save(staff);
+            redirectAttributes.addFlashAttribute("completeInfo", "Staff has been saved successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorInfo", "Error saving staff: " + e.getMessage());
         }
-        staffService.save(staff);
+
         return "redirect:/dashboard/staff";
     }
 
