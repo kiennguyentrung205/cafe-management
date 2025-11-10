@@ -15,22 +15,30 @@
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="startDate">From Date</label>
-                    <input class="form-control" id="startDate" type="date" name="startDate">
+                    <input class="form-control" id="startDate" name="startDate" type="date" th:value="${startDate}">
                 </div>
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="endDate">To Date</label>
-                    <input class="form-control" id="endDate" type="date" name="endDate">
+                    <input class="form-control" id="endDate" name="endDate" type="date" th:value="${endDate}">
                 </div>
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="status">Status</label>
-                    <select class="form-select" id="status" name="status">
+                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
                         <option value="">Please select status...</option>
-                        <option th:each="x : ${bookingStatus}" th:value="${x}" th:text="${x.toUpperCase()}"></option>
+                        <option th:each="x : ${bookingStatus}" th:text="${x.toUpperCase()}" th:value="${x}" th:selected="${x == status}"></option>
                     </select>
                 </div>
                 <div class="col-12 col-lg-3 d-flex gap-2 mt-3 mt-lg-0 align-self-end">
-                    <button class="btn btn-outline-secondary w-50" type="reset">CLEAR</button>
-                    <button class="btn btn-outline-primary w-50" type="submit">SEARCH</button>
+                    <button class="btn btn-secondary w-50" type="button"
+                            onclick="
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('status').value = '';">
+                        CLEAR
+                    </button>
+
+
+                    <button class="btn btn-brand-primary w-50" type="submit">SEARCH</button>
                 </div>
             </div>
         </form>
@@ -60,10 +68,18 @@
                         <td class="p-3">
                             <!-- Styled Status -->
                             <span class="badge"
-                                  th:classappend="${x.status == 'booked' ? 'text-bg-warning' : (x.status == 'completed' ? 'text-bg-success' : 'text-bg-secondary')}"
-                                  th:text="${x.status}">${x.status}</span>
+                                  th:classappend="|${
+        x.status == 'booked' ? 'text-bg-primary' :
+        (x.status == 'checked-in' ? 'text-bg-success' :
+        (x.status == 'completed' ? 'text-bg-success-subtle text-success' :
+        (x.status == 'canceled' ? 'text-bg-danger' :
+        (x.status == 'auto-canceled' ? 'text-bg-warning text-dark' :
+        'text-bg-secondary'))))}|"
+                                  th:text="${x.status}">
+                            </span>
                         </td>
-                        <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>
+                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+<!--                        <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>-->
                         <td class="p-3">
                             <button class="btn btn-outline-danger btn-sm" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
                                          [[${x.bookingTime}]])"
@@ -134,7 +150,7 @@
         </div>
     </div>
 </main>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- JS -->
 <script th:inline="javascript">
     function openCancelPopup(id, tableId, bookingTimeStr) {

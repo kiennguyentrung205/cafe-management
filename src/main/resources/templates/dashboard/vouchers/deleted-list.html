@@ -24,6 +24,13 @@
                     </a>
                 </div>
             </div>
+            <div class="col-12 mt-3">
+                <form class="d-flex" role="search" th:action="@{/dashboard/vouchers/deleted-list}" method="get">
+                    <input class="form-control me-2" type="search" name="keyword"
+                           placeholder="Search Voucher's name..." th:value="${keyword}" aria-label="Search">
+                    <button class="btn btn-brand-primary" type="submit" style="white-space: nowrap;">Search</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -73,7 +80,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Restore Voucher popup (Styled as success) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

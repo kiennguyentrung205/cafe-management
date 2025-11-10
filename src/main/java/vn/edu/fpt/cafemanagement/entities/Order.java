@@ -53,12 +53,16 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<PointHistory> pointHistories;
 
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private vn.edu.fpt.cafemanagement.entities.Table table;
+
     public Order() {
     }
 
-    public Order(int orderId, Customer customer, Staff staff, String status, double totalPrice,
-                 LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories, LocalDateTime updatedAt, Staff updatedBy) {
+    public Order(int orderId, Customer customer, Staff staff, String status, double totalPrice, LocalDateTime createdAt,
+                 int pointsUsed, LocalDateTime updatedAt, Staff updatedBy, Voucher voucher, List<OrderItem> orderItems,
+                 List<PointHistory> pointHistories, vn.edu.fpt.cafemanagement.entities.Table table) {
         this.orderId = orderId;
         this.customer = customer;
         this.staff = staff;
@@ -66,11 +70,12 @@ public class Order {
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.pointsUsed = pointsUsed;
+        this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
         this.voucher = voucher;
         this.orderItems = orderItems;
         this.pointHistories = pointHistories;
-        this.updatedAt = updatedAt;
-        this.updatedBy = updatedBy;
+        this.table = table;
     }
 
     public int getOrderId() {
@@ -166,5 +171,13 @@ public class Order {
     }
     public void setUpdatedBy(Staff updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public vn.edu.fpt.cafemanagement.entities.Table getTable() {
+        return table;
+    }
+
+    public void setTable(vn.edu.fpt.cafemanagement.entities.Table table) {
+        this.table = table;
     }
 }

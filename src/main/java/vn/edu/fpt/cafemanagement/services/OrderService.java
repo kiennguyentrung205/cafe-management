@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.OrderItem;
@@ -127,5 +128,17 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
         order.setUpdatedBy(currentStaff);
         orderRepository.save(order);
+    }
+
+    public Page<Order> getKitchenOrders(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        List<String> statuses = List.of("Pending", "Ready");
+        return orderRepository.findByStatusIn(statuses, pageable);
+    }
+
+    @Transactional
+    public void deleteOrderById(int orderId) {
+        orderItemRepository.deleteByOrder_OrderId(orderId);
+        orderRepository.deleteById(orderId);
     }
 }

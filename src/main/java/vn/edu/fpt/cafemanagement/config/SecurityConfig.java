@@ -58,6 +58,11 @@ public class SecurityConfig {
                         .requestMatchers("/product/list").hasRole("ADMIN")
                         .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "CASHIER")
                         .requestMatchers("/table/booking/management").hasRole("CASHIER")
+                        .requestMatchers("/order/create").hasRole("CASHIER")
+                        .requestMatchers("/order/list").hasRole("ADMIN, CASHIER")
+                        .requestMatchers("/order/history-list").hasRole("ADMIN, CASHIER")
+                        .requestMatchers("/order/edit").hasRole("BARISTA")
+                        .requestMatchers("/order/edit-history").hasRole("ADMIN, BARISTA")
                         .requestMatchers("/orders/management").hasRole("WAITER")
                         .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
                         .requestMatchers("/product/delete/**").hasRole("ADMIN")
@@ -97,8 +102,8 @@ public class SecurityConfig {
                 .authenticationProvider(customerAuthenticationProvider())
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login**", "/assets/**", "/forgot-password",
-                                "/set-password**", "/register", "/home", "/product/{id}", "/customer/login","/uploads/**","/api/banners")
+                        .requestMatchers("/login**", "/assets/**", "/forgot-password", "/product/**", "/product/{id}",
+                                "/set-password**", "/register", "/home", "/customer/login", "/uploads/**", "/api/banners")
                         .permitAll()
                         .anyRequest().authenticated())
 
