@@ -63,17 +63,17 @@ public class StaffService {
         Optional<Staff> existing = staffRepository.findByUsername(username);
         // nếu không tồn tại -> false (chưa bị lấy)
         // nếu tồn tại và id của existing khác idToExclude -> true (bị lấy bởi người khác)
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public boolean isEmailTaken(String email, Integer idToExclude) {
         Optional<Staff> existing = staffRepository.findByEmail(email);
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public boolean isPhoneTaken(String phone, Integer idToExclude) {
         Optional<Staff> existing = staffRepository.findByPhoneNumber(phone);
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public Page<Staff> getActiveStaffs(Pageable pageable) {
