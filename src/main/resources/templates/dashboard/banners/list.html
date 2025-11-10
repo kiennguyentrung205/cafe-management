@@ -189,16 +189,14 @@
 
                     <!-- Hàng chứa Tiêu đề và Nút tạo mới -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="fw-bold mb-0">Banner Manager</h1>
+                        <h1 class="fw-bold mb-0">Banner List</h1>
 
                         <!-- Nút này đã đúng (btn-primary), CSS chung sẽ tự style -->
                         <a th:href="@{/dashboard/banners/create}" class="btn btn-primary">
                             <i class="fas fa-plus me-1"></i> Add New Banner
                         </a>
                     </div>
-
-                    <!-- Thông báo (Giữ nguyên) -->
-                    <div th:if="${completeInfo}" class="alert alert-success">
+  <div th:if="${completeInfo}" class="alert alert-success">
                         <span th:text="${completeInfo}"></span>
                     </div>
                     <div th:if="${errorInfo}" class="alert alert-danger">
@@ -212,7 +210,7 @@
                           Bỏ .table-dark (header)
                         -->
                         <table class="table table-hover mt-3">
-                            <thead> <!-- Style đã được định nghĩa trong CSS -->
+                            <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Image</th>
@@ -223,8 +221,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="banner : ${banners}">
-                                <td th:text="${banner.id}">1</td>
+                            <tr th:each="banner, iterStat : ${banners}">
+<!--                                <td th:text="${banner.id}">1</td>-->
+                                <td class="p-3" th:text="${iterStat.count}" scope="row"></td>
                                 <td>
                                     <!-- THÊM class cho ảnh -->
                                     <img th:src="@{${banner.imagePath}}" alt="Banner"

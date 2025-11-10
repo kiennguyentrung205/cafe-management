@@ -6,10 +6,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.cafemanagement.entities.Banner;
+import vn.edu.fpt.cafemanagement.entities.Voucher;
 import vn.edu.fpt.cafemanagement.repositories.BannerRepository;
 import vn.edu.fpt.cafemanagement.services.BannerService;
+import vn.edu.fpt.cafemanagement.util.SignUtil;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard/banners")
@@ -22,6 +26,7 @@ public class BannerController {
 
     @GetMapping
     public String listBanner(Model model) {
+        List<Banner> activeBanners = bannerService.findAllBanners().stream().filter(Banner::isActive).collect(Collectors.toList());
         model.addAttribute("banners", bannerService.findAllBanners());
         return "dashboard/banners/list";
     }
@@ -82,7 +87,7 @@ public class BannerController {
         bannerService.delete(id);
 
         // 2. (Tùy chọn) Thêm thông báo thành công
-        redirectAttributes.addFlashAttribute("completeInfo", "Banner: " + id + " đã được xóa thành công.");
+        redirectAttributes.addFlashAttribute("completeInfo", "Banner: " + id + "vvv");
 
         // 3. Chuyển hướng trở lại trang danh sách (Banner Manager)
         return "redirect:/dashboard/banners"; // <--- ĐÃ SỬA THÀNH ĐƯỜNG DẪN HIỂN THỊ DANH SÁCH
