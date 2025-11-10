@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragment/frag :: acclogin}"></head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Login',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/account/login.css">
+</th:block>
 <body>
-<div th:insert="~{fragment/frag::navbar-acclogin}"></div>
+<div th:replace="~{fragments/common :: navbar-guest}"></div>
 
 <!-- Page Content -->
 <div class="container-fluid main-content px-3">
@@ -63,13 +69,13 @@
                     <div class="auth-divider my-4">OR</div>
 
                     <!-- Google Login -->
-<!--                    <a class="btn btn-outline-google w-100"-->
-<!--                       href="/oauth2/authorization/google">-->
-<!--                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"-->
-<!--                             height="20" alt="Google icon">-->
-<!--                        Log in with Google-->
-<!--                    </a>-->
-<!--                    -->
+                    <!--                    <a class="btn btn-outline-google w-100"-->
+                    <!--                       href="/oauth2/authorization/google">-->
+                    <!--                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"-->
+                    <!--                             height="20" alt="Google icon">-->
+                    <!--                        Log in with Google-->
+                    <!--                    </a>-->
+                    <!--                    -->
                     <a class="btn btn-outline-google w-100"
                        href="/oauth2/authorization/google">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"

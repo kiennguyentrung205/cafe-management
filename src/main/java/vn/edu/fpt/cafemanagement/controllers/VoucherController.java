@@ -58,7 +58,7 @@ public class VoucherController {
             }
         }
 //        validate blank
-        if (voucher.getCode().isBlank() || voucher.getVoucherName().isBlank() || voucher.getQuantity() == 0 || voucher.getDiscountType().isBlank() || voucher.getDiscountValue() == 0.0 || voucher.getMinOrderValue() < 0.0) {
+        if (voucher.getCode().isBlank() || voucher.getVoucherName().isBlank() || voucher.getDiscountType().isBlank()) {
             model.addAttribute("message", "Error: Please fill all the fields!");
             if (voucher.getVoucherId() == 0) {
                 //  create
@@ -68,6 +68,44 @@ public class VoucherController {
                 return "dashboard/vouchers/edit";
             }
         }
+
+        //check quantity > 0
+        if (voucher.getQuantity() <= 0) {
+            model.addAttribute("message", "Error: Quantity must be more than 0!");
+            if (voucher.getVoucherId() == 0) {
+                //  create
+                return "dashboard/vouchers/create";
+            } else {
+                //  edit
+                return "dashboard/vouchers/edit";
+            }
+        }
+
+        //check min order value >= 0
+        if (voucher.getMinOrderValue() < 0) {
+            model.addAttribute("message", "Error: Min order value must be more than or equal to 0!");
+            if (voucher.getVoucherId() == 0) {
+                //  create
+                return "dashboard/vouchers/create";
+            } else {
+                //  edit
+                return "dashboard/vouchers/edit";
+            }
+        }
+
+        //check discount value > 0
+        if (voucher.getDiscountValue() <= 0) {
+            model.addAttribute("message", "Error: Discount value must be more than 0!");
+            if (voucher.getVoucherId() == 0) {
+                //  create
+                return "dashboard/vouchers/create";
+            } else {
+                //  edit
+                return "dashboard/vouchers/edit";
+            }
+        }
+
+
 //        validate voucher name and voucher code
         if (!voucher.getCode().matches("[A-Za-z0-9%]+") || !voucher.getVoucherName().matches("[\\p{L}0-9%\\s]+")) {
             model.addAttribute("message", "Error: Voucher Name or Voucher Code is invalid!. EX: VCH123 or DISCOUNT50%");
