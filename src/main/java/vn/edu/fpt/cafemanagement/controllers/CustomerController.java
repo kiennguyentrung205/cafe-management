@@ -74,6 +74,15 @@ public class CustomerController {
     @PostMapping("/edit")
     public String editProfile(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "imgFile") MultipartFile imgFile, Model model) {
         try {
+            Customer sessionCustomer = loggedUser.getLoggedCustomer();
+            if (customer.getCusId() != sessionCustomer.getCusId()) {
+                System.err.println("SECURITY ALERT: Customer ID mismatch! Form ID = "
+                        + customer.getCusId() + ", Logged ID = " + sessionCustomer.getCusId());
+
+                model.addAttribute("title", "Security Error");
+                model.addAttribute("errorMessage", "Update request denied due to invalid data.");
+                return "error-page";
+            }
             if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
                 return "redirect:/profile/edit";
             }
