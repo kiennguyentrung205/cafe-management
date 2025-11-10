@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragment/frag :: accregister}"></head>
-<body>
-<div th:insert="~{fragment/frag::navbar-accregister}"></div>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Register',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
 
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/account/register.css">
+</th:block>
+
+<body>
+
+<div th:replace="~{fragments/common :: navbar-guest}"></div>
 <!-- Page Content -->
 <div class="container-fluid main-content px-3">
     <div class="row justify-content-center w-100">
@@ -87,7 +95,7 @@
 
                     <div class="text-center mt-4">
                         <span class="text-muted">Already have an account?</span>
-                        <a href="/login" class="text-decoration-none ms-1"
+                        <a href="/customer/login" class="text-decoration-none ms-1"
                            style="color: var(--brand-primary); font-weight: 500;">
                             Login here
                         </a>

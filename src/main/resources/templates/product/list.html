@@ -1,8 +1,13 @@
 <!DOCTYPE html>
-<head th:replace="fragment/frag :: productlist">
-</head>
-<body class="bg-light">
-<div th:replace="fragment/frag :: navbar"></div>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Product',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/product/list.css">
+</th:block>
+<body>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main Content -->
 <div class="container my-5">
@@ -102,7 +107,8 @@
                             </thead>
                             <tbody>
                             <tr th:each="product, i : ${pageProduct}" th:object="${product}">
-                                <td class="ps-4" th:text="${(pageProduct.number * pageProduct.size) + i.index + 1}"></td>
+                                <td class="ps-4"
+                                    th:text="${(pageProduct.number * pageProduct.size) + i.index + 1}"></td>
 
                                 <td class="text-center">
                                     <img th:src="@{/uploads/{img}(img=*{img})}"
@@ -132,11 +138,12 @@
                                 </td>
 
                                 <td class="pe-4 text-nowrap">
-                                    <a class="btn btn-sm btn-brand-primary" th:href="@{/product/edit/{id}(id=*{proId})}">
-                                        <i class="fa-solid fa-pen"></i>
+                                    <a class="btn btn-sm btn-brand-primary"
+                                       th:href="@{/product/edit/{id}(id=*{proId})}">
+                                        Edit
                                     </a>
                                     <a class="btn btn-sm btn-outline-secondary" th:href="@{/product/{id}(id=*{proId})}">
-                                        <i class="fa-solid fa-eye"></i>
+                                        Details
                                     </a>
                                     <!-- Delete Button triggers modal -->
                                     <button class="btn btn-sm btn-danger btn-delete"
@@ -144,7 +151,7 @@
                                             th:data-name="*{proName}"
                                             data-bs-toggle="modal"
                                             data-bs-target="#deleteModal">
-                                        <i class="fa-solid fa-trash"></i>
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
@@ -207,12 +214,14 @@
         <div class="modal-content" style="border-radius: 0.75rem;">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this product?</p>
                 <p class="mb-0"><strong>Product:</strong> <span id="modalProductName"></span></p>
-                <p class="text-warning mt-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> This action may affect related orders.</p>
+                <p class="text-warning mt-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> This action may
+                    affect related orders.</p>
             </div>
             <div class="modal-footer">
                 <form id="deleteForm" method="post">
@@ -228,7 +237,9 @@
 
 
 <!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 <!-- Custom JS for Delete Modal -->
 <script>

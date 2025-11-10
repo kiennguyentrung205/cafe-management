@@ -27,6 +27,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByUsername(String username);
 
 
 //Tặng điểm sinh nhật khách

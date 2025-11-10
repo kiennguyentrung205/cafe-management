@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head th:replace="~{fragments/common :: common-head(
-            pageTitle='Category',
+            pageTitle='Banner',
             pageSpecificCss=~{:: .page-css}
-          )}">
-</head>
+          )}"></head>
+
 <th:block class="page-css">
-    <link rel="stylesheet" href="/assets/css/dashboard/product/list.css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/list.css">
     <style>
         /* == :root định nghĩa các biến màu chủ đạo == */
         :root {
@@ -90,7 +90,7 @@
             box-shadow: 0 4px 10px rgba(255, 122, 0, 0.25);
         }
 
-        /* 3. Button Nguy hiểm (Viền đỏ) - MỚI */
+        /* 3. Button Nguy hiểm (Viền đỏ) */
         .btn-outline-danger {
             border-color: var(--color-danger);
             color: var(--color-danger);
@@ -109,50 +109,55 @@
             border-color: var(--color-danger);
         }
 
-        /* Style cho các nút nhỏ (sm) trong bảng
-          Ghi đè padding để chúng nhỏ hơn
-        */
+        /* Style cho các nút nhỏ (sm) trong bảng */
         .btn-sm.btn-outline-primary,
         .btn-sm.btn-outline-danger {
             padding: 0.25rem 0.75rem;
             font-weight: 500;
         }
 
-        /* Ghi đè các màu cũ */
-        .btn-warning, .btn-success {
+        /* Ghi đè các màu cũ (info, success, danger, warning) */
+        .btn-warning, .btn-success, .btn-info {
             background-color: var(--color-primary);
             border-color: var(--color-primary);
             color: var(--color-white) !important;
         }
-        .btn-warning:hover, .btn-success:hover {
+
+        .btn-warning:hover, .btn-success:hover, .btn-info:hover {
             background-color: var(--color-primary-dark);
             border-color: var(--color-primary-dark);
         }
+
         .btn-danger {
             background-color: var(--color-danger);
             border-color: var(--color-danger);
         }
+
         .btn-danger:hover {
             background-color: var(--color-danger-dark);
             border-color: var(--color-danger-dark);
         }
 
-
         /* == Style riêng cho Form (Thống nhất) == */
-        .form-label { /* ... (Giữ nguyên) ... */ }
-        .form-control, .form-select { /* ... (Giữ nguyên) ... */ }
-        .form-control:focus, .form-select:focus { /* ... (Giữ nguyên) ... */ }
-        .form-control[readonly] { /* ... (Giữ nguyên) ... */ }
+        .form-label { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control, .form-select { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control:focus, .form-select:focus { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control[readonly] { /* ... (Giữ nguyên) ... */
+        }
 
         /* == Style riêng cho Bảng (Thống nhất) == */
         .table {
             border-top: none;
-            /* Căn giữa text trong các ô */
             vertical-align: middle;
         }
 
         .table > thead {
-            /* Style này được lấy từ trang "Point History" */
             color: var(--color-text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -160,108 +165,107 @@
             letter-spacing: 0.5px;
             border-bottom-width: 2px;
         }
+
+        /* (MỚI) Style cho ảnh thumbnail trong bảng */
+        .table-image-thumbnail {
+            width: 120px; /* Rộng hơn 1 chút */
+            height: 50px;
+            object-fit: cover;
+            border-radius: var(--border-radius-base); /* Bo góc 8px */
+        }
     </style>
 </th:block>
 <body>
 <div th:replace="~{fragments/common :: navbar-main}"></div>
 <div class="container py-5">
     <div class="row justify-content-center">
-        <!-- Đưa nội dung vào một cột giới hạn chiều rộng và căn giữa -->
-        <div class="col-lg-10 col-xl-10"> <!-- Cho phép cột rộng hơn một chút cho bảng -->
+        <!-- Banner Manager có thể cần full-width hơn -->
+        <div class="col-lg-12">
 
             <!-- BỌC TẤT CẢ VÀO TRONG CARD -->
             <div class="card">
+                <!-- Thay .p-4 bằng .card-body -->
                 <div class="card-body">
 
                     <!-- Hàng chứa Tiêu đề và Nút tạo mới -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0" th:text="${title}">Category List</h1>
+                        <h1 class="fw-bold mb-0">Banner Manager</h1>
 
-                        <!--
-                          THAY ĐỔI: Đổi btn-success thành btn-primary
-                        -->
-                        <a class="btn btn-primary" th:href="@{/category/create}">
-                            + Create new category
+                        <!-- Nút này đã đúng (btn-primary), CSS chung sẽ tự style -->
+                        <a th:href="@{/dashboard/banners/create}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Add New Banner
                         </a>
                     </div>
 
-                    <!-- Thông báo khi list rỗng -->
-                    <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
-                        There are any category in the system
+                    <!-- Thông báo (Giữ nguyên) -->
+                    <div th:if="${completeInfo}" class="alert alert-success">
+                        <span th:text="${completeInfo}"></span>
+                    </div>
+                    <div th:if="${errorInfo}" class="alert alert-danger">
+                        <span th:text="${errorInfo}"></span>
                     </div>
 
-                    <!-- Bảng chỉ hiển thị khi list không rỗng -->
-                    <div th:unless="${CategoryList.isEmpty()}">
+                    <!-- Bảng -->
+                    <div class="table-responsive">
+                        <!--
+                          THAY ĐỔI: Bỏ .table-bordered, .table-striped
+                          Bỏ .table-dark (header)
+                        -->
+                        <table class="table table-hover mt-3">
+                            <thead> <!-- Style đã được định nghĩa trong CSS -->
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Order</th>
+                                <th>Active</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="banner : ${banners}">
+                                <td th:text="${banner.id}">1</td>
+                                <td>
+                                    <!-- THÊM class cho ảnh -->
+                                    <img th:src="@{${banner.imagePath}}" alt="Banner"
+                                         class="table-image-thumbnail">
+                                </td>
+                                <td th:text="${banner.title}">Promotion Title</td>
 
-                        <div class="table-responsive">
-                            <!--
-                              THAY ĐỔI: Bỏ .table-bordered và .table-striped
-                              (trông hiện đại hơn)
-                              Bỏ .table-dark (header)
-                            -->
-                            <table class="table table-hover">
-                                <thead> <!-- Style đã được định nghĩa trong CSS -->
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Active</th>
-                                    <th scope="col" class="text-end">Action</th> <!-- Căn phải cột Action -->
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="category, iterStat : ${CategoryList}" th:object="${category}">
+                                <td th:text="${banner.orderNumber}">1</td>
+                                <td class_D="p-3">
+                                    <span th:text="${banner.isActive ? 'Active' : 'Not Active'}"
+                                          th:classappend="${banner.isActive ? 'text-success' : 'text-danger'}"
+                                          class="fw-bold"></span>
+                                </td>
+                                <td class="text-end">
+                                    <!--
+                                      THAY ĐỔI: btn-info -> btn-outline-primary
+                                    -->
+                                    <a th:href="@{/dashboard/banners/edit/{id}(id=${banner.id})}"
+                                       class="btn btn-sm btn-outline-primary">Edit</a>
 
-                                    <td th:text="${iterStat.index + 1}">1</td>
+                                    <!--
+                                      THAY ĐỔI QUAN TRỌNG:
+                                      Thay thế confirm() bằng Modal
+                                    -->
+                                    <form th:action="@{'/dashboard/banners/delete/' + ${banner.id}}" method="get"
+                                          th:id="|deleteForm-${banner.id}|"
+                                          style="display:inline;">
+                                    </form>
 
-                                    <td th:text="*{cateName}">Sample Category</td>
-
-                                    <td>
-                                        <span th:if="*{active}" class="badge bg-success">Active</span>
-                                        <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
-                                    </td>
-
-                                    <td class="text-end"> <!-- Căn phải các nút -->
-                                        <!--
-                                          THAY ĐỔI: Đổi btn-primary thành btn-outline-primary
-                                        -->
-                                        <a class="btn btn-sm btn-outline-primary"
-                                           th:href="@{/category/edit/{id}(id=*{cateId})}">
-                                            Edit
-                                        </a>
-
-                                        <!--
-                                          THAY ĐỔI QUAN TRỌNG:
-                                          Thay thế confirm() bằng Modal
-
-                                          1. Form được đặt riêng lẻ và có ID duy nhất
-                                        -->
-                                        <form th:action="@{/category/delete/{id}(id=*{cateId})}" method="post"
-                                              th:id="|deleteForm-*{cateId}|"
-                                              style="display:inline;">
-                                            <!-- (không cần nút submit ở đây) -->
-                                        </form>
-
-                                        <!--
-                                          2. Nút này sẽ mở Modal, KHÔNG submit form
-                                             - data-bs-toggle="modal"
-                                             - data-bs-target="#deleteConfirmModal"
-                                             - data-form-id (trỏ tới ID của form cần submit)
-                                             - Đổi btn-danger thành btn-outline-danger
-                                        -->
-                                        <button class="btn btn-sm btn-outline-danger ms-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteConfirmModal"
-                                                th:data-form-id="|deleteForm-*{cateId}|">
-                                            Delete
-                                        </button>
-                                    </td>
-
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
+                                    <button class="btn btn-sm btn-outline-danger ms-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteConfirmModal"
+                                            th:data-form-id="|deleteForm-${banner.id}|"
+                                            th:data-banner-title="${banner.title}">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                 </div>
@@ -273,7 +277,7 @@
 
 <!--
   MODAL XÁC NHẬN XÓA (Thêm mới)
-  Đây là component thay thế cho confirm()
+  (Copy từ file categorylist_styled.html)
 -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
      aria-hidden="true">
@@ -283,16 +287,15 @@
                 <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                Bạn có chắc muốn xóa Category này không? <br/>
-                Hành động này không thể hoàn tác.
+            <!-- (MỚI) Thêm ID để JS có thể thay đổi nội dung -->
+            <div class="modal-body" id="deleteModalBody">
+                Are you sure to delete this banner? <br/>
+                This action can not be undo.
             </div>
             <div class="modal-footer border-0">
-                <!-- Nút Cancel (sử dụng style phụ) -->
                 <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
                     Cancel
                 </button>
-                <!-- Nút Delete (sử dụng style đỏ .btn-danger) -->
                 <button type="button" class="btn btn-danger" id="confirmDeleteButton">
                     Delete
                 </button>
@@ -304,33 +307,41 @@
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
 <!--
-  JavaScript cho Modal (Thêm mới)
+  JavaScript cho Modal (Cập nhật)
   (Phải đặt sau Bootstrap JS)
 -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var deleteConfirmModal = document.getElementById('deleteConfirmModal');
         var confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        var deleteModalBody = document.getElementById('deleteModalBody'); // (MỚI)
         var formToSubmit;
 
         // 1. Khi Modal chuẩn bị được hiển thị
         deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
-            // Lấy cái nút đã bấm để mở modal
             var button = event.relatedTarget;
 
-            // Lấy ID của form từ attribute 'data-form-id'
+            // Lấy ID form
             var formId = button.getAttribute('data-form-id');
             formToSubmit = document.getElementById(formId);
+
+            // (MỚI) Lấy tên banner và cập nhật nội dung Modal
+            var bannerTitle = button.getAttribute('data-banner-title');
+            if (bannerTitle) {
+                deleteModalBody.innerHTML = `Are you sure to delete banner: <br/><strong>${bannerTitle}</strong>? <br/><br/>This action can not be undo.`;
+            } else {
+                // Fallback nếu không có tên
+                deleteModalBody.innerHTML = `Are you sure to delete this banner? <br/>This action can not be undo.`;
+            }
         });
 
         // 2. Khi bấm nút "Delete" màu đỏ BÊN TRONG MODAL
         confirmDeleteButton.addEventListener('click', function () {
             if (formToSubmit) {
-                // Submit cái form đã được lưu
                 formToSubmit.submit();
             }
         });
