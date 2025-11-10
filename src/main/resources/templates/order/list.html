@@ -48,7 +48,7 @@
             <td th:text="${order.orderId}"></td>
             <td th:text="${order.customer != null ? order.customer.name : 'Guest'}"></td>
             <td th:text="${order.staff != null ? order.staff.name : 'N/A'}"></td>
-            <td th:text="${order.table != null ? 'Table ' + order.table.tableId : 'Take-away'}"></td>
+            <td th:text="${order.table != null ? order.table.tableId : 'Take-away'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${order.pointsUsed}"></td>

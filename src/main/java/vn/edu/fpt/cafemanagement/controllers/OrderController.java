@@ -493,7 +493,7 @@ public class OrderController {
         orderMap.put("customer", customer != null ? customer.getName() : "N/A");
         orderMap.put("staff", order.getStaff() != null ? order.getStaff().getName() : "N/A");
         orderMap.put("status", order.getStatus());
-        orderMap.put("table", table != null ? "Table " + table.getTableId() : "Take-away");
+        orderMap.put("table", table != null ? table.getTableId() : "Take-away");
         orderMap.put("pointsUsed", order.getPointsUsed());
         orderMap.put("voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None");
         orderMap.put("totalPrice", roundedPrice);
