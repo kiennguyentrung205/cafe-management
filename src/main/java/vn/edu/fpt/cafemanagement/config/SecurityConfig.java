@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/order/edit").hasAnyRole("BARISTA", "WAITER")
                         .requestMatchers("/order/list").hasAnyRole("ADMIN", "CASHIER")
                         .requestMatchers("/order/history-list").hasAnyRole("ADMIN", "CASHIER")
-                        .requestMatchers("/order/edit-history").hasAnyRole("ADMIN", "BARISTA")
+                        .requestMatchers("/order/edit-history").hasAnyRole("ADMIN", "BARISTA", "WAITER")
                         .requestMatchers("/orders/management").hasRole("WAITER")
                         .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
                         .requestMatchers("/product/delete/**").hasRole("ADMIN")

@@ -10,7 +10,6 @@
 <body>
 <div th:replace="~{fragments/common :: navbar-main}"></div>
 
-<!-- Main Content -->
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Edit Order History</h2>
@@ -19,12 +18,13 @@
         <thead>
         <tr>
             <th>Order#</th>
-            <th>Staff</th>
+            <th>Created By (Cashier)</th>
             <th>Products</th>
             <th>Note</th>
             <th>Status</th>
             <th>Updated At</th>
-            <th>Updated By</th>
+            <th>Made By (Barista)</th>
+            <th>Served By (Waiter)</th>
         </tr>
         </thead>
 
@@ -32,10 +32,8 @@
         <tr th:each="order : ${orders}">
             <td th:text="${order.orderId}"></td>
 
-            <!-- Staff (creator of order) -->
             <td th:text="${order.staff != null ? order.staff.name : '-'}"></td>
 
-            <!-- Products -->
             <td>
                 <ul style="list-style:none;padding:0;margin:0;">
                     <li th:each="item : ${order.orderItems}"
@@ -43,7 +41,6 @@
                 </ul>
             </td>
 
-            <!-- Note -->
             <td>
                 <ul style="list-style: none; padding: 0; margin: 0;">
                     <li th:each="item : ${order.orderItems}"
@@ -51,18 +48,17 @@
                 </ul>
             </td>
 
-            <!-- Status -->
             <td th:text="${order.status}"></td>
 
-            <!-- Updated At -->
             <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
 
-            <!-- Updated By -->
-            <td th:text="${order.updatedBy != null ? order.updatedBy.name : '-'}"></td>
+            <td th:text="${order.madeBy != null ? order.madeBy.name : '-'}"></td>
+
+            <td th:text="${order.servedBy != null ? order.servedBy.name : '-'}"></td>
         </tr>
 
         <tr th:if="${orders == null or orders.isEmpty()}">
-            <td colspan="7" class="text-center text-muted py-3">
+            <td colspan="8" class="text-center text-muted py-3">
                 There are not any history orders.
             </td>
         </tr>
