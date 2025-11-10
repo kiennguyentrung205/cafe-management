@@ -35,20 +35,18 @@
 
                             <img id="previewPhoto" class="img-thumbnail mt-2"
                                  style="max-width: 150px; display: none;">
+
                         </div>
 
                         <!-- Tilte -->
                         <div class="mb-3">
                             <label for="name" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="name" th:field="*{title}" required>
-                            <div class="invalid-feedback">Title is required.</div>
+                            <input type="text" class="form-control" id="name" th:field="*{title}" >
                         </div>
 
                         <div class="mb-3">
                             <label for="orderNumber" class="form-label fw-bold">Order Number (Priority)</label>
-                            <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}"
-                                   required>
-                            <div class="invalid-feedback">Order Number is required.</div>
+                            <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}">
                         </div>
 
                         <!-- Actions -->

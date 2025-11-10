@@ -63,40 +63,89 @@ public class BannerController {
         Optional<Banner> banner = bannerService.findBannerById(id);
         if (banner.isPresent()) {
             model.addAttribute("banner", banner.get());
-            model.addAttribute("pageTitle", "Edit Banner (ID: " + id + ")");
+            model.addAttribute("pageTitle", "Edit Banner");
             return "dashboard/banners/edit";
         } else {
-            redirectAttributes.addFlashAttribute("errorInfo", "Banner ID " + id + " not found.");
+            redirectAttributes.addFlashAttribute("errorInfo", "This banner not found.");
             return "redirect:/dashboard/banners";
         }
     }
-
     @PostMapping("/save")
-    public String saveBanner(@ModelAttribute Banner banner,
+    public String saveBanner(@ModelAttribute("banner") Banner banner,
                              @RequestParam("imageFile") MultipartFile imageFile,
+                             Model model,
                              RedirectAttributes redirectAttributes) {
+
+        boolean isEdit = banner.getId() > 0;
+        String targetView = isEdit ? "dashboard/banners/edit" : "dashboard/banners/create";
+
+        // 1. LẤY ĐƯỜNG DẪN ẢNH CŨ (NẾU CÓ) ĐỂ HỖ TRỢ VALIDATION VÀ FORWARD
+        String existingImagePath = banner.getImagePath(); // Lấy từ Model Attribute (nếu có từ hidden field)
+
+        if (isEdit && (existingImagePath == null || existingImagePath.isEmpty())) {
+            // Nếu là Edit nhưng đường dẫn ảnh bị mất/trống (có thể do lỗi binding form), lấy lại từ DB
+            Optional<Banner> existingBannerOpt = bannerService.findBannerById(banner.getId());
+            if (existingBannerOpt.isPresent()) {
+                existingImagePath = existingBannerOpt.get().getImagePath();
+                banner.setImagePath(existingImagePath); // Gán lại cho model attribute
+            }
+        }
+
+        // --- KHỐI VALIDATION BẮT BUỘC ---
+
+        // 1. Title Validation
+        if (banner.getTitle() == null || banner.getTitle().isBlank()) {
+            model.addAttribute("error", "Banner Title cannot be empty.");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // 2. Order Number Validation (Giữ nguyên)
+        if (banner.getOrderNumber() < 0) {
+            model.addAttribute("error", "Order Number must be a non-negative value");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // 3. Image Validation (Sửa logic)
+        boolean hasNewFile = !imageFile.isEmpty();
+        boolean hasExistingPath = existingImagePath != null && !existingImagePath.isEmpty();
+
+        // Báo lỗi nếu: KHÔNG có file mới VÀ Banner KHÔNG có đường dẫn ảnh cũ nào
+        if (!hasNewFile && !hasExistingPath) {
+            model.addAttribute("error", "Image file is required for this banner.");
+            model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
+            return targetView;
+        }
+
+        // --- KHỐI XỬ LÝ LƯU (Đã được đơn giản hóa) ---
+
         try {
             String uploadDir = "D:/SWP/Project/uploads/";
             File dir = new File(uploadDir);
             if (!dir.exists()) dir.mkdirs();
 
-            if (!imageFile.isEmpty()) {
-                // Lấy tên file gốc và phần mở rộng
+            if (hasNewFile) {
+                // Logic upload ảnh mới và cập nhật đường dẫn
                 String originalFileName = imageFile.getOriginalFilename();
                 String extension = "";
                 if (originalFileName != null && originalFileName.contains(".")) {
                     extension = originalFileName.substring(originalFileName.lastIndexOf("."));
                 }
 
-                // Tạo tên file mới (UUID tránh trùng và bị khóa)
                 String newFileName = java.util.UUID.randomUUID().toString() + extension;
                 Path path = Paths.get(uploadDir + newFileName);
 
-                // Ghi file mới
-                Files.copy(imageFile.getInputStream(), path);
-
-                // Cập nhật đường dẫn mới vào DB
+                Files.copy(imageFile.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                 banner.setImagePath("/uploads/" + newFileName);
+
+            } else if (isEdit && hasExistingPath) {
+                // Trường hợp Edit và không upload file mới: Giữ đường dẫn ảnh cũ đã lấy ở trên
+                banner.setImagePath(existingImagePath);
+
+            } else if (!isEdit) {
+                // Nếu là Create, nhưng validation không chạy (ví dụ ảnh là file rỗng)
+                banner.setImagePath(null);
             }
 
             // Lưu DB
@@ -111,19 +160,13 @@ public class BannerController {
     }
 
 
-
-
-
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         // 1. Thực hiện logic xóa
         bannerService.delete(id);
+        redirectAttributes.addFlashAttribute("completeInfo", "Banner has been deleted successfully!");
 
-        // 2. (Tùy chọn) Thêm thông báo thành công
-        redirectAttributes.addFlashAttribute("completeInfo", "Banner: " + id + "vvv");
-
-        // 3. Chuyển hướng trở lại trang danh sách (Banner Manager)
-        return "redirect:/dashboard/banners"; // <--- ĐÃ SỬA THÀNH ĐƯỜNG DẪN HIỂN THỊ DANH SÁCH
+        return "redirect:/dashboard/banners";
     }
 
 }

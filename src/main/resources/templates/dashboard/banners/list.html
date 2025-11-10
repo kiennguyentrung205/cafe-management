@@ -191,12 +191,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h1 class="fw-bold mb-0">Banner List</h1>
 
-                        <!-- Nút này đã đúng (btn-primary), CSS chung sẽ tự style -->
+
                         <a th:href="@{/dashboard/banners/create}" class="btn btn-primary">
                             <i class="fas fa-plus me-1"></i> Add New Banner
                         </a>
                     </div>
-  <div th:if="${completeInfo}" class="alert alert-success">
+                    <div th:if="${completeInfo}" class="alert alert-success">
                         <span th:text="${completeInfo}"></span>
                     </div>
                     <div th:if="${errorInfo}" class="alert alert-danger">
@@ -222,7 +222,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="banner, iterStat : ${banners}">
-<!--                                <td th:text="${banner.id}">1</td>-->
+                                <!--                                <td th:text="${banner.id}">1</td>-->
                                 <td class="p-3" th:text="${iterStat.count}" scope="row"></td>
                                 <td>
                                     <!-- THÊM class cho ảnh -->
@@ -274,29 +274,29 @@
 </div>
 
 
-<!--
-  MODAL XÁC NHẬN XÓA (Thêm mới)
-  (Copy từ file categorylist_styled.html)
--->
+<!--MODAL XÁC NHẬN XÓA-->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
      aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: var(--border-radius-lg);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
-            <!-- (MỚI) Thêm ID để JS có thể thay đổi nội dung -->
+
             <div class="modal-body" id="deleteModalBody">
                 Are you sure to delete this banner? <br/>
-                This action can not be undo.
+                This action can not be UNDO!!!
             </div>
+
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     Cancel
                 </button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteButton">
-                    Delete
+                    Confirm Delete
                 </button>
             </div>
         </div>
@@ -333,10 +333,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-<!--
-  JavaScript cho Modal (Cập nhật)
-  (Phải đặt sau Bootstrap JS)
--->
+<!--JavaScript cho Modal-->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var deleteConfirmModal = document.getElementById('deleteConfirmModal');
@@ -355,10 +352,7 @@
             // (MỚI) Lấy tên banner và cập nhật nội dung Modal
             var bannerTitle = button.getAttribute('data-banner-title');
             if (bannerTitle) {
-                deleteModalBody.innerHTML = `Are you sure to delete banner: <br/><strong>${bannerTitle}</strong>? <br/><br/>This action can not be undo.`;
-            } else {
-                // Fallback nếu không có tên
-                deleteModalBody.innerHTML = `Are you sure to delete this banner? <br/>This action can not be undo.`;
+                deleteModalBody.innerHTML = `<strong>Are you sure to delete banner:</strong> ${bannerTitle} ? <br/><br/> <strong>This action can not be UNDO!!!</strong>`;
             }
         });
 

@@ -16,28 +16,32 @@
         <div class="col-lg-10">
             <div class="card shadow-sm">
                 <div class="card-body p-4 p-md-5">
-                    <h2 class="card-title mb-4 fw-bold" th:text="${pageTitle}">Banner Form</h2>
+                    <h2 class="card-title mb-4 fw-bold" th:text="${pageTitle}"></h2>
 
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                     <div th:if="${errorInfo}" class="alert alert-danger" th:text="${errorInfo}"></div>
 
+
                     <form th:action="@{/dashboard/banners/save}" method="post" th:object="${banner}"
-                          enctype="multipart/form-data" class="needs-validation" novalidate>
-
+                          enctype="multipart/form-data" class="needs-validation">
                         <input type="hidden" th:field="*{id}"/>
-
                         <input type="hidden" th:field="*{imagePath}"/>
 
                         <div class="mb-3">
                             <label for="title" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="title" th:field="*{title}" required>
-                            <div class="invalid-feedback">Title is required.</div>
+                            <input type="text"
+                                   id="title"
+                                   th:field="*{title}"
+                                   class="form-control">
+
                         </div>
 
                         <div class="mb-3">
                             <label for="orderNumber" class="form-label fw-bold">Order Number (Priority)</label>
-                            <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}"
-                                   required>
-                            <div class="invalid-feedback">Order Number is required.</div>
+                            <input type="number"
+                                   id="orderNumber"
+                                   th:field="*{orderNumber}"
+                                   class="form-control">
                         </div>
 
                         <div class="mb-3">
@@ -53,8 +57,7 @@
 
                             <img id="previewPhoto" class="img-thumbnail mt-2"
                                  style="max-width: 150px; display: none;">
-                            <div class="invalid-feedback" th:if="${banner.id == 0}">Image is required for a new
-                                banner.
+                            <div class="invalid-feedback" th:if="${banner.id == 0}">
                             </div>
                         </div>
 
