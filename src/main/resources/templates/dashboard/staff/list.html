@@ -24,7 +24,7 @@
                 <a th:href="@{/dashboard/staff/deleted}" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-trash me-1"></i> Trash
                 </a>
-                <a th:href="@{/dashboard/staff/new}" class="btn btn-brand-primary">
+                <a th:href="@{/dashboard/staff/new}" class="btn btn-outline-primary">
                     <i class="fa-solid fa-plus me-1"></i> Add New Staff
                 </a>
             </div>
@@ -34,7 +34,7 @@
                 <form class="d-flex" role="search" th:action="@{/dashboard/staff}" method="get">
                     <input class="form-control me-2" type="search" name="keyword"
                            placeholder="Search by name, email or role..." th:value="${keyword}" aria-label="Search">
-                    <button class="btn btn-brand-primary" type="submit" style="white-space: nowrap;">Search</button>
+                    <button class="btn btn-outline-secondary" type="submit" style="white-space: nowrap;">Search</button>
                 </form>
             </div>
         </div>
@@ -82,8 +82,8 @@
                                 <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}"
                                    class="btn btn-sm btn-outline-secondary">Details</a>
                                 <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}"
-                                   class="btn btn-sm btn-warning text-dark">Edit</a>
-                                <button class="btn btn-sm btn-danger btn-delete"
+                                   class="btn btn-sm btn-outline-warning text-dark">Edit</a>
+                                <button class="btn btn-sm btn-outline-danger btn-delete"
                                         th:data-id="${staff.managerId}"
                                         th:data-name="${staff.name}"
                                         th:data-email="${staff.email}"
