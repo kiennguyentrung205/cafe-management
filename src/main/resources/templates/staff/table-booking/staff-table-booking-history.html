@@ -107,7 +107,7 @@
     </div>
 
     <!-- Pagination -->
-    <nav aria-label="Page navigation" class="mt-4">
+    <nav class="mt-4" aria-label="Page navigation">
         <ul class="list-unstyled pagination justify-content-center" th:if="${totalPages > 1}">
             <li class="page-item" th:classappend="${tableBooking.first} ? 'disabled' : ''">
                 <a class="page-link" th:href="@{/table/booking/management(page=${currentPage - 1},
@@ -187,7 +187,7 @@
         </div>
     </div>
 </main>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- JS -->
 <script th:inline="javascript">
     // JS functions unified to use 'en-GB' format (dd/mm/yyyy)

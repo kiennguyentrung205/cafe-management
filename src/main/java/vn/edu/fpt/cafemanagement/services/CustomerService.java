@@ -62,11 +62,26 @@ public class CustomerService {
 
     public void updateCustomer(Customer customer, MultipartFile imgFile) {
         Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
-        if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
-            if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
-                throw new IllegalArgumentException("The email already exists, please use a different one!");
+        if (!existingCustomer.isGoogleAccount()) {
+            if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
+                if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
+                    throw new IllegalArgumentException("The email already exists, please use a different one!");
+                }
+                existingCustomer.setEmail(customer.getEmail());
             }
-            existingCustomer.setEmail(customer.getEmail());
+            if (imgFile != null && !imgFile.isEmpty()) {
+                try {
+                    String uploadDir = "D:/SWP/Project/uploads/";
+                    String fileName = imgFile.getOriginalFilename();
+
+                    Path filePath = Paths.get(uploadDir + fileName);
+                    Files.copy(imgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                    existingCustomer.setImg(fileName);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("Error uploading image!");
+                }
+            }
         }
 
         if (!customer.getUsername().equalsIgnoreCase(existingCustomer.getUsername())) {
@@ -101,7 +116,6 @@ public class CustomerService {
             existingCustomer.setPhoneNumber(customer.getPhoneNumber());
         }
 
-
         if (customer.getName() == null || customer.getName().isEmpty()) {
             throw new IllegalArgumentException("The name cannot be empty.");
         }
@@ -109,20 +123,6 @@ public class CustomerService {
             throw new IllegalArgumentException("The name can only contain letters and spaces!");
         }
         existingCustomer.setName(customer.getName());
-
-        if (imgFile != null && !imgFile.isEmpty()) {
-            try {
-                String uploadDir = "D:/SWP/Project/uploads/";
-                String fileName = imgFile.getOriginalFilename();
-
-                Path filePath = Paths.get(uploadDir + fileName);
-                Files.copy(imgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                existingCustomer.setImg(fileName);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Error uploading image!");
-            }
-        }
         if (customer.getDateOfBirth() == null) {
             throw new IllegalArgumentException("Birthdate cannot be null!");
         }
