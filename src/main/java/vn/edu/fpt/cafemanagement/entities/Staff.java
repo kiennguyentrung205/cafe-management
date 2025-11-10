@@ -19,7 +19,7 @@ public class Staff implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "staff_id")
-    private int managerId;
+    private int staffId;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -60,10 +60,10 @@ public class Staff implements UserDetails {
     public Staff() {
     }
 
-    public Staff(int managerId, String name, String phoneNumber, String email, String address, String password,
+    public Staff(int staffId, String name, String phoneNumber, String email, String address, String password,
                  String username, Role role, LocalDate dateOfBirth, String img, boolean isActive,
                  List<Order> orders) {
-        this.managerId = managerId;
+        this.staffId = staffId;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -78,12 +78,12 @@ public class Staff implements UserDetails {
 //        this.shiftAssignments = shiftAssignments;
     }
 
-    public int getManagerId() {
-        return managerId;
+    public int getStaffId() {
+        return staffId;
     }
 
-    public void setManagerId(int managerId) {
-        this.managerId = managerId;
+    public void setStaffId(int staffId) {
+        this.staffId = staffId;
     }
 
     public String getName() {

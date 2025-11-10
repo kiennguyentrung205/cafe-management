@@ -52,11 +52,11 @@ public class LoggedUser {
         return null;
     }
 
-    public Staff getLoggedManager() {
+    public Staff getLoggedStaff() {
         CustomUserDetails userDetails = getLoggedUser();
 
-        if (userDetails != null && userDetails.isManager()) {
-            return userDetails.getManager();
+        if (userDetails != null && userDetails.isStaff()) {
+            return userDetails.getStaff();
         }
         return null;
     }
@@ -66,8 +66,8 @@ public class LoggedUser {
         return userDetails != null && userDetails.isCustomer();
     }
 
-    public boolean isManager() {
+    public boolean isStaff() {
         CustomUserDetails userDetails = getLoggedUser();
-        return userDetails != null && userDetails.isManager();
+        return userDetails != null && userDetails.isStaff();
     }
 }

@@ -19,4 +19,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 
     List<OrderItem> findByOrder_OrderId(int orderId);
 
+    void deleteByOrder_OrderId(int orderId);
+
 }
