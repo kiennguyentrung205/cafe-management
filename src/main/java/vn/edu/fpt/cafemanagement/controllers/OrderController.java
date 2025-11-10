@@ -25,6 +25,8 @@ public class OrderController {
     private final CustomerService customerService;
     private final CategoryService categoryService;
     private final PointHistoryService pointHistoryService;
+    private final TableService tableService;
+    private final TableBookingService tableBookingService;
     private final LoggedUser loggedUser;
 
     public OrderController(ProductService productService,
@@ -33,6 +35,8 @@ public class OrderController {
                            CustomerService customerService,
                            CategoryService categoryService,
                            PointHistoryService pointHistoryService,
+                           TableService tableService,
+                           TableBookingService tableBookingService,
                            LoggedUser loggedUser
     ) {
         this.productService = productService;
@@ -41,7 +45,9 @@ public class OrderController {
         this.customerService = customerService;
         this.categoryService = categoryService;
         this.pointHistoryService = pointHistoryService;
-        this.loggedUser = loggedUser; // <-- [ĐÃ THÊM]
+        this.tableService = tableService;
+        this.tableBookingService = tableBookingService;
+        this.loggedUser = loggedUser;
     }
 
     // ----------------------- [GET: Hiển thị form tạo order + tìm kiếm + phân trang] -----------------------
@@ -58,6 +64,8 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
 
+        Table bookedTable = null; // Biến để giữ bàn đã đặt
+
         if ("check".equals(action)) {
             Customer customer = customerService.getCustomerByPhone(customerPhone);
             if (customer == null) {
@@ -65,15 +73,21 @@ public class OrderController {
                 model.addAttribute("customer", null);
             } else {
                 model.addAttribute("customer", customer);
+
+                // [LOGIC MỚI]
+                // Kiểm tra xem khách này có đang ngồi ở bàn nào (đã check-in) không
+                TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer);
+                if (activeBooking != null) {
+                    bookedTable = activeBooking.getTable();
+                }
             }
-            // Giữ lại SĐT trong ô input sau khi check
             model.addAttribute("customerPhone", customerPhone);
         } else {
-            // Trạng thái mặc định khi tải trang
             model.addAttribute("customer", null);
             model.addAttribute("customerPhone", null);
         }
 
+        // --- [LOGIC TÌM KIẾM SẢN PHẨM (ĐÃ ĐƯỢC THÊM LẠI)] ---
         if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
             // tìm theo cả tên + category
             productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
@@ -84,14 +98,31 @@ public class OrderController {
             // chỉ lọc theo category
             productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
         } else {
+            // Mặc định: lấy tất cả
             productPage = productService.getActiveProductsPaged(pageable);
         }
+        // --- [HẾT LOGIC TÌM KIẾM SẢN PHẨM] ---
 
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
         model.addAttribute("query", query != null ? query : "");
         model.addAttribute("productList", productPage.getContent());
         model.addAttribute("voucherList", voucherService.getActiveVouchers());
+
+        // [LOGIC MỚI] Quyết định hiển thị dropdown bàn hay bàn cố định
+        if (bookedTable != null) {
+            // Nếu khách đã check-in, chỉ gửi thông tin bàn đó
+            model.addAttribute("bookedTable", bookedTable);
+            model.addAttribute("tableList", null); // Không cần danh sách bàn
+        } else {
+            // Nếu không, gửi danh sách các bàn 'available'
+            model.addAttribute("bookedTable", null);
+            List<Table> availableTables = tableService.getTablesList().stream()
+                    .filter(table -> "available".equalsIgnoreCase(table.getStatus()))
+                    .toList();
+            model.addAttribute("tableList", availableTables);
+        }
+
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("title", "Create In-Store Order");
@@ -108,24 +139,25 @@ public class OrderController {
             @RequestParam(value = "quantities", required = false) List<Integer> quantities,
             @RequestParam(value = "notes", required = false) List<String> notes,
             @RequestParam(value = "voucherId", required = false) Optional<Integer> voucherId,
+            @RequestParam(value = "tableId", required = false) Integer tableId, // <-- [THÊM MỚI]
             @RequestParam(value = "customerPhone", required = false) String customerPhone,
-            @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed, // Đây là pointsUsed_Input từ form
+            @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
             Model model
     ) {
 
-        // --- [CHECK 1] Products (Giữ nguyên) ---
+        // --- [CHECK 1] Products ---
         if (productIds == null || productIds.isEmpty() || "null".equals(String.valueOf(productIds.get(0)))) {
             model.addAttribute("error", "No products selected!");
             return reloadCreatePage(model, null);
         }
 
-        // --- [CHECK 2] Quantities (Giữ nguyên) ---
+        // --- [CHECK 2] Quantities ---
         if (quantities == null || quantities.size() != productIds.size()) {
             model.addAttribute("error", "Data mismatch between products and quantities. Please refresh and try again.");
             return reloadCreatePage(model, null);
         }
 
-        // --- [CHECK 3] Get Customer (Giữ nguyên) ---
+        // --- [CHECK 3] Get Customer ---
         Customer customer = null;
         if (customerPhone != null && !customerPhone.trim().isEmpty()) {
             customer = customerService.getCustomerByPhone(customerPhone.trim());
@@ -134,21 +166,21 @@ public class OrderController {
             }
         }
 
-        // --- [CHECK 4] Cannot use both (Giữ nguyên) ---
+        // --- [CHECK 4] Cannot use both ---
         Integer voucherIdValue = voucherId.orElse(0);
         if (pointsUsed > 0 && voucherIdValue != 0) {
             model.addAttribute("error", "Cannot use both Voucher and Redeem Points!");
             return reloadCreatePage(model, customer);
         }
 
-        // --- [CHECK 5] Staff check (Giữ nguyên) ---
+        // --- [CHECK 5] Staff check ---
         Staff staff = loggedUser.getLoggedStaff();
         if (staff == null) {
             model.addAttribute("error", "No logged-in staff! Please login again.");
             return "redirect:/login";
         }
 
-        // --- [STEP 6] Lấy Voucher (Giữ nguyên) ---
+        // --- [STEP 6] Lấy Voucher ---
         Voucher voucher = null;
         if (voucherIdValue != 0) {
             voucher = voucherService.getVoucherById(voucherIdValue);
@@ -156,10 +188,9 @@ public class OrderController {
                 model.addAttribute("error", "Voucher invalid or out of stock!");
                 return reloadCreatePage(model, customer);
             }
-            // *Chưa* giảm số lượng, sẽ giảm ở cuối nếu mọi thứ OK
         }
 
-        // --- [STEP 7] Tính Subtotal (totalPrice) (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
+        // --- [STEP 7] Tính Subtotal (totalPrice) ---
         double totalPrice = 0; // Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
@@ -174,7 +205,6 @@ public class OrderController {
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";
 
             OrderItem item = new OrderItem();
-            // *Chưa* set Order vội, sẽ set ở cuối
             item.setProduct(product);
             item.setQuantity(qty);
             item.setNote(note);
@@ -182,7 +212,7 @@ public class OrderController {
             totalPrice += product.getPrice() * qty;
         }
 
-        // --- [STEP 8] Tính Voucher Discount (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
+        // --- [STEP 8] Tính Voucher Discount ---
         double voucherDiscount = 0;
         if (voucher != null) {
             if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType())) {
@@ -192,55 +222,36 @@ public class OrderController {
             }
         }
 
-        // --- [STEP 9] Tính Price To Pay (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
-        // (Giá trị còn lại PHẢI TRẢ sau khi trừ voucher)
+        // --- [STEP 9] Tính Price To Pay ---
         double priceToPay = totalPrice - voucherDiscount;
         if (priceToPay < 0) priceToPay = 0;
 
-        // --- [STEP 10] Tính Max Points Needed (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
-        // (Số điểm TỐI ĐA CẦN DÙNG cho đơn hàng này, 1 điểm = 1000)
+        // --- [STEP 10] Tính Max Points Needed ---
         int maxPointsNeeded = (int) Math.ceil(priceToPay / 1000.0);
 
-        // --- [STEP 11 - NEW VALIDATION] BẮT LỖI pointsUsed TẠI BACKEND ---
-
-        // Validation 1: Check for negative (Kiểm tra số âm)
+        // --- [STEP 11 - VALIDATION] BẮT LỖI pointsUsed TẠI BACKEND ---
         if (pointsUsed < 0) {
             model.addAttribute("error", "Points used cannot be negative.");
             return reloadCreatePage(model, customer);
         }
-
-        // Validation 2: Check against what the customer HAS (Kiểm tra điểm khách CÓ)
-        // (Chỉ check nếu customer tồn tại và có liên kết)
         if (customer != null && pointsUsed > customer.getPoint()) {
             model.addAttribute("error", "You only have " + customer.getPoint() + " points. Please enter a lower amount.");
             return reloadCreatePage(model, customer);
         }
-
-        // Validation 3: Check against what the order NEEDS (Kiểm tra điểm đơn hàng CẦN)
         if (pointsUsed > maxPointsNeeded) {
             model.addAttribute("error", "This order only requires a maximum of " + maxPointsNeeded + " points. Please enter a lower amount.");
             return reloadCreatePage(model, customer);
         }
 
-        // --- [KẾT THÚC VALIDATION MỚI] ---
-
-        // Nếu qua được 3 bước trên, 'pointsUsed' (từ input) là HỢP LỆ.
-        // Chúng ta gán nó là số điểm sẽ dùng thực tế.
         int actualPointsUsed = pointsUsed;
 
         // --- [STEP 12] TÍNH TOÁN CUỐI CÙNG ---
-
-        // 5. Tính số tiền giảm giá THỰC TẾ (từ điểm)
         double pointsDiscount = actualPointsUsed * 1000.0;
-
-        // 6. Tính giá cuối cùng (sẽ không bao giờ âm)
         double finalPrice = priceToPay - pointsDiscount;
         if (finalPrice < 0) finalPrice = 0;
 
-        // 7. Tính điểm tích lũy (earnedPoints)
         int earnedPoints = (int) (finalPrice / 50000);
 
-        // 8. Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
         if (finalPrice > 0) {
             finalPrice = Math.ceil(finalPrice / 1000) * 1000;
         }
@@ -254,8 +265,24 @@ public class OrderController {
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
         order.setStatus("Pending");
-        order.setPointsUsed(actualPointsUsed); // <-- Dùng số điểm đã validate
+        order.setPointsUsed(actualPointsUsed);
         order.setTotalPrice(finalPrice);
+
+        // --- [LOGIC MỚI] GÁN BÀN VÀO ĐƠN HÀNG ---
+        if (tableId != null && tableId > 0) {
+            Table table = tableService.findById(tableId);
+            if (table != null) {
+                // 1. Gán bàn vào đơn hàng
+                order.setTable(table);
+
+                // 2. Cập nhật trạng thái bàn thành "occupied" (bận)
+                tableService.updateTableStatus(tableId, "occupied");
+            } else {
+                // (Tùy chọn) Báo lỗi nếu ID bàn không hợp lệ
+                model.addAttribute("warning", "Invalid Table ID. Order created as 'Take-away'.");
+            }
+        }
+        // --- [HẾT LOGIC MỚI] ---
 
         // Gắn order vào items
         for(OrderItem item : orderItems) {
@@ -270,14 +297,14 @@ public class OrderController {
             voucherService.saveVoucher(voucher);
         }
 
-        orderService.saveOrder(order); // Lưu order (và items)
+        orderService.saveOrder(order); // Lưu order (và items, và table)
 
         // Cập nhật customer (nếu có)
         if (customer != null) {
             customer.setPoint(customer.getPoint() - actualPointsUsed + earnedPoints);
             customerService.saveCustomer(customer);
 
-            // Ghi lịch sử (Giữ nguyên)
+            // Ghi lịch sử
             if (actualPointsUsed > 0) {
                 PointHistory ph = new PointHistory();
                 ph.setCustomer(customer);
@@ -452,49 +479,58 @@ public class OrderController {
         Order order = optionalOrder.get();
         List<OrderItem> items = orderService.getOrderItemsByOrderId(orderId);
 
-        // Lấy customer ra và kiểm tra null
+        // Lấy customer và table (có thể null)
         Customer customer = order.getCustomer();
+        Table table = order.getTable(); // Lấy thông tin bàn
 
         double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
 
-        response.put("success", true);
-        response.put("order", Map.of(
-                "id", order.getOrderId(),
-                // Kiểm tra null
-                "customer", customer != null ? customer.getName() : "N/A",
-                "staff", order.getStaff() != null ? order.getStaff().getName() : "N/A",
-                "status", order.getStatus(),
-                "pointsUsed", order.getPointsUsed(),
-                "voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None",
-                "totalPrice", roundedPrice,
-                "date", order.getCreatedAt(),
-                "update", order.getUpdatedAt() != null ? order.getUpdatedAt() : "-",
-                "products", items.stream()
-                        .map(i -> Map.of(
-                                "name", i.getProduct().getProName(),
-                                "price", i.getProduct().getPrice(),
-                                "quantity", i.getQuantity()
-                        ))
-                        .toList()
-        ));
+        // [SỬA LỖI] Tạo một Map mới cho 'order' thay vì dùng Map.of()
+        Map<String, Object> orderMap = new HashMap<>();
 
-        // Kiểm tra null cho toàn bộ
+        // [SỬA LỖI] Dùng put() cho từng mục
+        orderMap.put("id", order.getOrderId());
+        orderMap.put("customer", customer != null ? customer.getName() : "N/A");
+        orderMap.put("staff", order.getStaff() != null ? order.getStaff().getName() : "N/A");
+        orderMap.put("status", order.getStatus());
+        orderMap.put("table", table != null ? "Table " + table.getTableId() : "Take-away");
+        orderMap.put("pointsUsed", order.getPointsUsed());
+        orderMap.put("voucher", order.getVoucher() != null ? order.getVoucher().getVoucherName() : "None");
+        orderMap.put("totalPrice", roundedPrice);
+        orderMap.put("date", order.getCreatedAt());
+
+        // [SỬA LỖI] Cải thiện logic "Completed At"
+        // Chỉ gửi ngày update nếu status là 'Served' hoặc 'Canceled'
+        LocalDateTime completedAt = (order.getUpdatedAt() != null &&
+                (order.getStatus().equals("Served") || order.getStatus().equals("Canceled")))
+                ? order.getUpdatedAt() : null;
+        orderMap.put("update", completedAt); // JavaScript 'formatDateTime' sẽ tự xử lý 'null'
+
+        orderMap.put("products", items.stream()
+                .map(i -> Map.of( // Map.of() ở đây vẫn OK vì chỉ có 3 cặp
+                        "name", i.getProduct().getProName(),
+                        "price", i.getProduct().getPrice(),
+                        "quantity", i.getQuantity()
+                ))
+                .toList());
+
+        // Đặt 'orderMap' (đã sửa) vào response chính
+        response.put("order", orderMap);
+        response.put("success", true);
+
+        // --- Phần code xử lý customer giữ nguyên ---
         if (customer != null) {
-            // SỬA LỖI: Dùng HashMap thay vì Map.of()
-            // HashMap cho phép giá trị (value) là null
             Map<String, Object> customerMap = new HashMap<>();
             customerMap.put("id", customer.getCusId());
             customerMap.put("name", customer.getName());
-            customerMap.put("phone", customer.getPhoneNumber()); // Sẽ là null nếu DB là null
-            customerMap.put("email", customer.getEmail());       // Sẽ là null nếu DB là null
-            customerMap.put("address", customer.getAddress());   // Sẽ là null nếu DB là null
-            customerMap.put("img", customer.getImg());         // Sẽ là null nếu DB là null
+            customerMap.put("phone", customer.getPhoneNumber());
+            customerMap.put("email", customer.getEmail());
+            customerMap.put("address", customer.getAddress());
+            customerMap.put("img", customer.getImg());
 
             response.put("customer", customerMap);
 
         } else {
-            // Trả về một đối tượng customer rỗng nếu không có
-            // Khối 'else' này của bạn đã đúng, không cần sửa
             response.put("customer", Map.of(
                     "id", "N/A",
                     "name", "N/A",

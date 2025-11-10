@@ -32,9 +32,9 @@
         </tr>
         </thead>
 
-        <form th:action="@{/order/updateStatus}" method="post" th:each="order : ${orders}">
+        <form th:action="@{/order/updateStatus}" method="post" th:each="order, iterStat : ${orders}">
             <tr>
-                <td th:text="${order.orderId}"></td>
+                <td th:text="${iterStat.count}"></td>
 
                 <td th:text="${order.staff != null ? order.staff.name : '-'}"></td>
 

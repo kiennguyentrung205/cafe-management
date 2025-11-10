@@ -139,6 +139,27 @@
                                    class="form-control form-control-sm">
                         </div>
                     </div>
+                    <div class="table-info" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Table:</label>
+
+                        <div th:if="${bookedTable != null}">
+                            <input type="text" class="form-control form-control-sm"
+                                   th:value="|Table ${bookedTable.tableId} (checked-in)|"
+                                   disabled
+                                   style="width: 200px; background-color: #e9ecef;"/>
+                            <input type="hidden" name="tableId" th:value="${bookedTable.tableId}" />
+                        </div>
+
+                        <div th:if="${bookedTable == null}">
+                            <select name="tableId" class="form-select form-select-sm" style="width: 200px;">
+                                <option value="">Take-away</option>
+                                <option th:each="table : ${tableList}"
+                                        th:value="${table.tableId}"
+                                        th:text="|Bàn ${table.tableId} (Ghế: ${table.capacity})|">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="voucher" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
 
                         <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Voucher:</label>

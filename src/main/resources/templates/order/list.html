@@ -25,6 +25,7 @@
             <th>#</th>
             <th>Customer</th>
             <th>Staff</th>
+            <th>Table</th>
             <th>Status</th>
             <th>Points Used</th>
             <th>Voucher</th>
@@ -47,6 +48,7 @@
             <td th:text="${order.orderId}"></td>
             <td th:text="${order.customer != null ? order.customer.name : 'Guest'}"></td>
             <td th:text="${order.staff != null ? order.staff.name : 'N/A'}"></td>
+            <td th:text="${order.table != null ? 'Table ' + order.table.tableId : 'Take-away'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${order.pointsUsed}"></td>
@@ -97,7 +99,7 @@
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header text-white" style="background-color: #FF7A00;">
                 <h5 class="modal-title">Order Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -109,6 +111,7 @@
                         <th>#</th>
                         <th>Customer</th>
                         <th>Staff</th>
+                        <th>Table</th>
                         <th>Status</th>
                         <th>Product</th>
                         <th>Points Used</th>
@@ -179,6 +182,7 @@
                     <td>${o.id}</td>
                     <td>${o.customer}</td>
                     <td>${o.staff}</td>
+                    <td>${o.table}</td>
                     <td>${o.status}</td>
                     <td>${productNames}</td>
                     <td>${o.pointsUsed}</td>
