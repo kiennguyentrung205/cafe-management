@@ -2,6 +2,7 @@ package vn.edu.fpt.cafemanagement.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -11,6 +12,11 @@ import vn.edu.fpt.cafemanagement.repositories.BannerRepository;
 import vn.edu.fpt.cafemanagement.services.BannerService;
 import vn.edu.fpt.cafemanagement.util.SignUtil;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,29 +62,42 @@ public class BannerController {
                              @RequestParam("imageFile") MultipartFile imageFile,
                              RedirectAttributes redirectAttributes) {
         try {
+            String uploadDir = "D:/SWP/Project/uploads/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
             if (!imageFile.isEmpty()) {
-                // Tạo thư mục nếu chưa tồn tại
-                String uploadDir = "D:/SWP/Project/uploads/";
-                java.io.File dir = new java.io.File(uploadDir);
-                if (!dir.exists()) dir.mkdirs();
+                // Lấy tên file gốc và phần mở rộng
+                String originalFileName = imageFile.getOriginalFilename();
+                String extension = "";
+                if (originalFileName != null && originalFileName.contains(".")) {
+                    extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                }
 
-                // Lưu file
-                String fileName = imageFile.getOriginalFilename();
-                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-                imageFile.transferTo(path.toFile());
+                // Tạo tên file mới (UUID tránh trùng và bị khóa)
+                String newFileName = java.util.UUID.randomUUID().toString() + extension;
+                Path path = Paths.get(uploadDir + newFileName);
 
-                // Lưu tên file vào DB
-                banner.setImagePath("/uploads/" + fileName);
+                // Ghi file mới
+                Files.copy(imageFile.getInputStream(), path);
+
+                // Cập nhật đường dẫn mới vào DB
+                banner.setImagePath("/uploads/" + newFileName);
             }
 
+            // Lưu DB
             bannerService.save(banner);
             redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
         } catch (Exception e) {
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorInfo", "Error saving banner: " + e.getMessage());
         }
 
         return "redirect:/dashboard/banners";
     }
+
+
+
 
 
     @GetMapping("/delete/{id}")

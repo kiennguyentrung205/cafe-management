@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head th:replace="~{fragments/common :: common-head(
             pageTitle='Banner',
             pageSpecificCss=~{:: .page-css}
           )}"></head>
-
 <th:block class="page-css">
     <link rel="stylesheet" href="/assets/css/dashboard/staff/list.css">
 </th:block>
 <body>
 <div th:replace="~{fragments/common :: navbar-main}"></div>
-
 <!-- Main Content -->
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -67,6 +64,11 @@
     </div>
 </div>
 
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
 <!-- Custom JS -->
 <script>
     // Preview Image
@@ -103,10 +105,7 @@
             })
     })()
 </script>
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+
 </body>
 </html>
 
