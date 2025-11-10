@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head th:replace="~{fragment/frag :: voucher}"></head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Vouchers',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/edit.css">
+</th:block>
 <body>
-<div th:insert="~{fragment/frag::navbar}"></div>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main Content -->
 <div class="container my-5">
@@ -92,7 +99,7 @@
                             <!-- Form Actions -->
                             <div class="col-12 mt-4">
                                 <div class="d-flex justify-content-end gap-2">
-<!--                                    <a th:href="@{/dashboard/vouchers/list}"-->
+                                    <!--                                    <a th:href="@{/dashboard/vouchers/list}"-->
                                     <!--                                       class="btn btn-outline-secondary">Cancel</a>-->
                                     <button type="submit" class="btn btn-brand-primary">Save Changes</button>
                                 </div>
