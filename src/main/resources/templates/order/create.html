@@ -155,7 +155,7 @@
                                 <option value="">Take-away</option>
                                 <option th:each="table : ${tableList}"
                                         th:value="${table.tableId}"
-                                        th:text="|Bàn ${table.tableId} (Ghế: ${table.capacity})|">
+                                        th:text="|Table ${table.tableId} (Capacity: ${table.capacity})|">
                                 </option>
                             </select>
                         </div>
@@ -210,8 +210,6 @@
         </div>
     </form>
 </div>
-<div th:insert="~{layout/footer}"></div>
-<script src="/assets/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/bootstrap.bundle.min.js"></script>
 <script>
     /* ===== Hàm hiển thị modal cảnh báo ===== */
@@ -916,6 +914,6 @@
         </div>
     </div>
 </div>
-<div th:insert="fragments/common :: footer"></div>
+<div th:insert="~{layout/footer}"></div>
 </body>
 </html>
