@@ -53,7 +53,7 @@ public class BannerController {
         try {
             if (!imageFile.isEmpty()) {
                 // Tạo thư mục nếu chưa tồn tại
-                String uploadDir = "D:/uploads/banners/";
+                String uploadDir = "D:/SWP/Project/uploads/";
                 java.io.File dir = new java.io.File(uploadDir);
                 if (!dir.exists()) dir.mkdirs();
 
@@ -63,7 +63,7 @@ public class BannerController {
                 imageFile.transferTo(path.toFile());
 
                 // Lưu tên file vào DB
-                banner.setImagePath("/uploads/banners/" + fileName);
+                banner.setImagePath("/uploads/" + fileName);
             }
 
             bannerService.save(banner);
@@ -88,7 +88,7 @@ public class BannerController {
         return "redirect:/dashboard/banners"; // <--- ĐÃ SỬA THÀNH ĐƯỜNG DẪN HIỂN THỊ DANH SÁCH
     }
 
-    }
+}
 
 
 

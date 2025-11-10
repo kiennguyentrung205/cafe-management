@@ -16,7 +16,7 @@ import vn.edu.fpt.cafemanagement.services.ProductService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/menu")
+@RequestMapping("/home")
 public class MenuController {
     CategoryService categoryService;
     ProductService productService;
@@ -36,7 +36,7 @@ public class MenuController {
 //        model.addAttribute("categoryList", categoryList);
 //        model.addAttribute("currentPage", page);
 //        model.addAttribute("totalPages", productPage.getTotalPages());
-//        return "menu/menu";
+//        return "home/home";
 //    }
 
     @GetMapping(value = {"", "/search"})
@@ -135,7 +135,7 @@ public class MenuController {
         model.addAttribute("categoryList", categoryList);
         model.addAttribute("selectedCategoryId", categoryIdForModel);
         model.addAttribute("keyword", keyword); // Truyền keyword về view
-        return "menu/menu";
+        return "home/home";
     }
 
 //    @GetMapping(value = {"/list", "/search"}) // Cả hai URL đều dẫn đến đây

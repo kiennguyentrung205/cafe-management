@@ -42,11 +42,11 @@
                         <a class="nav-link active" th:href="@{/dashboard}">Dashboard</a>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_WAITER', 'ROLE_CUSTOMER')">
+<!--                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_WAITER', 'ROLE_CUSTOMER')">-->
+<!--                        <a class="nav-link" th:href="@{/home}">Home</a>-->
+<!--                    </li>-->
+                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER','ROLE_ADMIN')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
-                        <a class="nav-link" th:href="@{/menu}">Menu</a>
                     </li>
                     <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
@@ -112,7 +112,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/menu}">Menu</a>
+                        <a class="nav-link" th:href="@{/templates/home}">Menu</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/login}">Login</a>
