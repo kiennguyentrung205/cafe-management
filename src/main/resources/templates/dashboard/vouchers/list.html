@@ -21,11 +21,11 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center">
                 <h4 class="fw-bold mb-0">Active Vouchers</h4>
                 <div class="d-flex gap-2 mt-2 mt-md-0">
-                    <a type="button" class="btn btn-brand-primary" th:href="@{/dashboard/vouchers/create}">
+                    <a type="button" class="btn btn-outline-primary" th:href="@{/dashboard/vouchers/create}">
                         <i class="fa-solid fa-plus me-1"></i> Create New
                     </a>
                     <a type="button" class="btn btn-outline-secondary" th:href="@{/dashboard/vouchers/deleted-list}">
-                        <i class="fa-solid fa-trash me-1"></i> Trash
+                        <i class="fa-solid me-1"></i> Trash
                     </a>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                                     Details
                                 </button>
                                 <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
-                                   class="btn btn-sm btn-brand-primary">Edit</a>
+                                   class="btn btn-sm btn-outline-primary">Edit</a>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                         th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.signature}]])">
                                     Delete
@@ -83,7 +83,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Delete Voucher popup -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
