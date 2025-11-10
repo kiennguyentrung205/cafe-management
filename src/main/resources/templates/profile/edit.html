@@ -40,12 +40,14 @@
                                  alt="Avatar Nội bộ"
                                  class="profile-avatar mb-3"/>
                         </div>
-                        <div class="mb-3">
-                            <label for="imgFile" class="form-label">Change avatar:</label>
-                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
-                            <input class="form-control" type="file" id="imgFile" name="imgFile" accept="image/*">
-                        </div>
 
+                        <div th:if="${!customer.googleAccount}">
+                            <div class="mb-3">
+                                <label for="imgFile" class="form-label">Change avatar:</label>
+                                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                                <input class="form-control" type="file" id="imgFile" name="imgFile" accept="image/*">
+                            </div>
+                        </div>
                         <!-- 4. Username -->
                         <div class="mb-3">
                             <label class="form-label">Username:</label>
