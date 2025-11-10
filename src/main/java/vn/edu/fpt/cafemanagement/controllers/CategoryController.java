@@ -59,7 +59,8 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/edit/{id}")
-    public String editCategory(@ModelAttribute("category") Category category, @PathVariable("id") int cateId, Model model) {
+    public String editCategory(@ModelAttribute("category") Category category,
+                               @PathVariable("id") int cateId, Model model) {
         boolean hasError = false;
 
         // 1. KIỂM TRA MÂU THUẪN ID
