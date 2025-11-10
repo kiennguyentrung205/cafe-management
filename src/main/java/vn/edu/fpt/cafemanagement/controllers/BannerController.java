@@ -40,10 +40,7 @@ public class BannerController {
         Page<Banner> bannerPage = bannerService.findAllBanners(pageable);
         model.addAttribute("bannerPage", bannerPage);
 
-        List<Banner> activeBanners = bannerPage.getContent().stream()
-                .filter(Banner::isActive)
-                .collect(Collectors.toList());
-
+        List<Banner> activeBanners = bannerService.findAllBanners().stream().filter(Banner::isActive).collect(Collectors.toList());
 
         model.addAttribute("banners", bannerPage.getContent());
         model.addAttribute("activeBanners", activeBanners);
