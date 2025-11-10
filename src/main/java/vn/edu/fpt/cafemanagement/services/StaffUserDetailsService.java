@@ -27,7 +27,7 @@ public class StaffUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         try {
-            Staff staff = staffRepository.findByUsername(username)
+            Staff staff = staffRepository.findByUsernameAndIsActive(username, true)
                     .orElseThrow(() -> {
 
                         return new UsernameNotFoundException("Staff not found with username: " + username);

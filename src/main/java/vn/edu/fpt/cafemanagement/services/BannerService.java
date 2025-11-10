@@ -1,5 +1,7 @@
 package vn.edu.fpt.cafemanagement.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.repositories.BannerRepository;
@@ -33,5 +35,9 @@ public class BannerService {
 
     public void  delete(Integer id) {
         bannerRepository.deleteById(id);
+    }
+
+    public Page<Banner> findAllBanners(Pageable pageable) {
+        return bannerRepository.findAll(pageable);
     }
 }
