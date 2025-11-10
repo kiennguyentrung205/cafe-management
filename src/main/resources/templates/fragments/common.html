@@ -12,9 +12,10 @@
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <th:block th:replace="${pageSpecificCss} ?: ~{}"></th:block>
@@ -58,8 +59,21 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
+
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_BARISTA')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/order/edit}">Edit Order</a></li>
+                        </ul>
+                    </li>
+
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
                         <a class="nav-link" th:href="@{/table/management}">Table Management</a>
                     </li>

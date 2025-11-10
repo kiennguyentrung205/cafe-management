@@ -109,20 +109,23 @@ public class OrderController {
             @RequestParam(value = "notes", required = false) List<String> notes,
             @RequestParam(value = "voucherId", required = false) Optional<Integer> voucherId,
             @RequestParam(value = "customerPhone", required = false) String customerPhone,
-            @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
+            @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed, // Đây là pointsUsed_Input từ form
             Model model
     ) {
 
+        // --- [CHECK 1] Products (Giữ nguyên) ---
         if (productIds == null || productIds.isEmpty() || "null".equals(String.valueOf(productIds.get(0)))) {
             model.addAttribute("error", "No products selected!");
             return reloadCreatePage(model, null);
         }
 
+        // --- [CHECK 2] Quantities (Giữ nguyên) ---
         if (quantities == null || quantities.size() != productIds.size()) {
             model.addAttribute("error", "Data mismatch between products and quantities. Please refresh and try again.");
             return reloadCreatePage(model, null);
         }
 
+        // --- [CHECK 3] Get Customer (Giữ nguyên) ---
         Customer customer = null;
         if (customerPhone != null && !customerPhone.trim().isEmpty()) {
             customer = customerService.getCustomerByPhone(customerPhone.trim());
@@ -131,33 +134,21 @@ public class OrderController {
             }
         }
 
-        if (customer != null && pointsUsed > customer.getPoint()) {
-            model.addAttribute("error", "Not enough points!");
-            return reloadCreatePage(model, customer);
-        }
-
+        // --- [CHECK 4] Cannot use both (Giữ nguyên) ---
         Integer voucherIdValue = voucherId.orElse(0);
         if (pointsUsed > 0 && voucherIdValue != 0) {
             model.addAttribute("error", "Cannot use both Voucher and Redeem Points!");
             return reloadCreatePage(model, customer);
         }
 
+        // --- [CHECK 5] Staff check (Giữ nguyên) ---
         Staff staff = loggedUser.getLoggedStaff();
         if (staff == null) {
             model.addAttribute("error", "No logged-in staff! Please login again.");
-            // Chuyển về trang login nếu không tìm thấy user
             return "redirect:/login";
         }
 
-        Order order = new Order();
-        if (customer != null) order.setCustomer(customer);
-
-        order.setStaff(staff);      // người tạo đơn
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
-        order.setStatus("Pending");
-        order.setPointsUsed(pointsUsed);
-
+        // --- [STEP 6] Lấy Voucher (Giữ nguyên) ---
         Voucher voucher = null;
         if (voucherIdValue != 0) {
             voucher = voucherService.getVoucherById(voucherIdValue);
@@ -165,28 +156,25 @@ public class OrderController {
                 model.addAttribute("error", "Voucher invalid or out of stock!");
                 return reloadCreatePage(model, customer);
             }
-            order.setVoucher(voucher);
-            voucher.setQuantity(voucher.getQuantity() - 1);
-            voucherService.saveVoucher(voucher);
+            // *Chưa* giảm số lượng, sẽ giảm ở cuối nếu mọi thứ OK
         }
 
-        double totalPrice = 0; // Đây là Subtotal
+        // --- [STEP 7] Tính Subtotal (totalPrice) (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
+        double totalPrice = 0; // Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
             Product product = productService.getProductById(productIds.get(i));
 
             if (product == null) {
                 model.addAttribute("error", "One of the selected products is invalid or no longer exists!");
-                // Phải nạp lại model và customer (nếu có)
                 return reloadCreatePage(model, customer);
             }
 
             int qty = quantities.get(i);
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";
 
-
             OrderItem item = new OrderItem();
-            item.setOrder(order);
+            // *Chưa* set Order vội, sẽ set ở cuối
             item.setProduct(product);
             item.setQuantity(qty);
             item.setNote(note);
@@ -194,78 +182,111 @@ public class OrderController {
             totalPrice += product.getPrice() * qty;
         }
 
+        // --- [STEP 8] Tính Voucher Discount (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
         double voucherDiscount = 0;
         if (voucher != null) {
             if ("PERCENT".equalsIgnoreCase(voucher.getDiscountType())) {
-                // [SỬA 1] Làm tròn tiền discount (theo %_giam_gia)
                 voucherDiscount = Math.ceil(totalPrice * (voucher.getDiscountValue() / 100.0));
             } else if ("AMOUNT".equalsIgnoreCase(voucher.getDiscountType())) {
                 voucherDiscount = voucher.getDiscountValue();
             }
         }
 
-        // 1. Tính giá trị còn lại PHẢI TRẢ (sau khi trừ voucher)
+        // --- [STEP 9] Tính Price To Pay (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
+        // (Giá trị còn lại PHẢI TRẢ sau khi trừ voucher)
         double priceToPay = totalPrice - voucherDiscount;
         if (priceToPay < 0) priceToPay = 0;
 
-        // 2. Tính số điểm TỐI ĐA CẦN DÙNG (1 điểm = 2000đ)
-        // (Ví dụ: 18.000đ / 2000 = 9 điểm)
-        // (Ví dụ: 16.000đ / 2000 = 8 điểm)
-        int maxPointsNeeded = (int) Math.ceil(priceToPay / 2000.0);
+        // --- [STEP 10] Tính Max Points Needed (ĐÃ ĐƯỢC ĐƯA LÊN TRÊN) ---
+        // (Số điểm TỐI ĐA CẦN DÙNG cho đơn hàng này, 1 điểm = 1000)
+        int maxPointsNeeded = (int) Math.ceil(priceToPay / 1000.0);
 
-        // 3. Lấy số điểm khách MUỐN DÙNG (từ form, là bội số của 5)
-        // (Ví dụ: 10 điểm)
-        int pointsUsed_Input = pointsUsed;
+        // --- [STEP 11 - NEW VALIDATION] BẮT LỖI pointsUsed TẠI BACKEND ---
 
-        // 4. Tính số điểm THỰC TẾ SẼ TRỪ
-        // (Là số nhỏ hơn: số khách CHỌN hoặc số CẦN)
-        // (Ví dụ: min(10, 9) = 9 điểm)
-        // (Ví dụ: min(10, 8) = 8 điểm)
-        int actualPointsUsed = Math.min(pointsUsed_Input, maxPointsNeeded);
+        // Validation 1: Check for negative (Kiểm tra số âm)
+        if (pointsUsed < 0) {
+            model.addAttribute("error", "Points used cannot be negative.");
+            return reloadCreatePage(model, customer);
+        }
 
-        // 5. Tính số tiền giảm giá THỰC TẾ (e.g., 9 * 2000 = 18000)
-        double pointsDiscount = actualPointsUsed * 2000.0;
+        // Validation 2: Check against what the customer HAS (Kiểm tra điểm khách CÓ)
+        // (Chỉ check nếu customer tồn tại và có liên kết)
+        if (customer != null && pointsUsed > customer.getPoint()) {
+            model.addAttribute("error", "You only have " + customer.getPoint() + " points. Please enter a lower amount.");
+            return reloadCreatePage(model, customer);
+        }
+
+        // Validation 3: Check against what the order NEEDS (Kiểm tra điểm đơn hàng CẦN)
+        if (pointsUsed > maxPointsNeeded) {
+            model.addAttribute("error", "This order only requires a maximum of " + maxPointsNeeded + " points. Please enter a lower amount.");
+            return reloadCreatePage(model, customer);
+        }
+
+        // --- [KẾT THÚC VALIDATION MỚI] ---
+
+        // Nếu qua được 3 bước trên, 'pointsUsed' (từ input) là HỢP LỆ.
+        // Chúng ta gán nó là số điểm sẽ dùng thực tế.
+        int actualPointsUsed = pointsUsed;
+
+        // --- [STEP 12] TÍNH TOÁN CUỐI CÙNG ---
+
+        // 5. Tính số tiền giảm giá THỰC TẾ (từ điểm)
+        double pointsDiscount = actualPointsUsed * 1000.0;
 
         // 6. Tính giá cuối cùng (sẽ không bao giờ âm)
         double finalPrice = priceToPay - pointsDiscount;
         if (finalPrice < 0) finalPrice = 0;
 
         // 7. Tính điểm tích lũy (earnedPoints)
-        // (Tính trên giá sau khi đã trừ điểm)
         int earnedPoints = (int) (finalPrice / 50000);
 
-        // [SỬA 2] Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
+        // 8. Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
         if (finalPrice > 0) {
             finalPrice = Math.ceil(finalPrice / 1000) * 1000;
         }
 
-        //Làm tròn TỔNG TIỀN CUỐI CÙNG lên 1000 VND
-        if (finalPrice > 0) {
-            finalPrice = Math.ceil(finalPrice / 1000) * 1000;
-        }
+        // --- [STEP 13] LƯU VÀO DATABASE ---
 
+        Order order = new Order();
+        if (customer != null) order.setCustomer(customer);
+
+        order.setStaff(staff);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setStatus("Pending");
+        order.setPointsUsed(actualPointsUsed); // <-- Dùng số điểm đã validate
         order.setTotalPrice(finalPrice);
+
+        // Gắn order vào items
+        for(OrderItem item : orderItems) {
+            item.setOrder(order);
+        }
         order.setOrderItems(orderItems);
-        // ------------------------------------------
 
-        orderService.saveOrder(order);
+        // Gắn voucher và giảm số lượng (nếu có)
+        if (voucher != null) {
+            order.setVoucher(voucher);
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherService.saveVoucher(voucher);
+        }
 
+        orderService.saveOrder(order); // Lưu order (và items)
+
+        // Cập nhật customer (nếu có)
         if (customer != null) {
             customer.setPoint(customer.getPoint() - actualPointsUsed + earnedPoints);
             customerService.saveCustomer(customer);
 
-            // 1. GHI LỊCH SỬ NẾU DÙNG ĐIỂM
+            // Ghi lịch sử (Giữ nguyên)
             if (actualPointsUsed > 0) {
                 PointHistory ph = new PointHistory();
                 ph.setCustomer(customer);
                 ph.setOrder(order);
-                ph.setAmount(-actualPointsUsed); // <-- Dùng actualPointsUsed
+                ph.setAmount(-actualPointsUsed);
                 ph.setTypeOfChange("Redeemed in order");
                 ph.setChangeTime(LocalDateTime.now());
                 pointHistoryService.saveHistory(ph);
             }
-
-            // 2. GHI LỊCH SỬ NẾU NHẬN ĐIỂM
             if (earnedPoints > 0) {
                 PointHistory phEarned = new PointHistory();
                 phEarned.setCustomer(customer);
@@ -325,7 +346,8 @@ public class OrderController {
     ) {
 
         int pageSize = 6;
-        Page<Order> orderPage = orderService.getUnservedOrders(page, pageSize);
+        // [ĐÃ SỬA] Gọi service method mới để lấy cả Pending và Ready
+        Page<Order> orderPage = orderService.getKitchenOrders(page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -360,25 +382,67 @@ public class OrderController {
             @RequestParam("status") String status
     ) {
 
-        // 1. Lấy Staff (Barista) đang đăng nhập từ LoggedUser service
+        // 1. Kiểm tra nếu Barista quên chọn (status là rỗng)
+        if (status == null || status.trim().isEmpty()) {
+            return "redirect:/order/edit";
+        }
+
+        // 2. Xử lý "Canceled"
+        if ("Canceled".equals(status)) {
+            Staff currentUser = loggedUser.getLoggedStaff();
+
+            // --- DEBUG ---
+            // In ra Role thực tế của user trong CONSOLE
+            System.out.println("DEBUG: User role is: '" + currentUser.getRole() + "'");
+            // --- HẾT DEBUG ---
+
+            // [SỬA LỖI] Phải so sánh với "ROLE_BARISTA"
+            if (currentUser == null || !currentUser.getRole().equals("ROLE_BARISTA")) {
+                System.out.println("DEBUG: Cancel FAILED role check."); // Thêm debug
+                return "redirect:/order/edit?error=UnauthorizedCancel";
+            }
+
+            try {
+                orderService.deleteOrderById(orderId);
+            } catch (Exception e) {
+                return "redirect:/order/edit?error=DeleteFailed";
+            }
+            return "redirect:/order/edit?success=OrderCanceled";
+        }
+
+        // 3. Xử lý "Ready" và "Served"
         Staff currentUser = loggedUser.getLoggedStaff();
         if (currentUser == null) {
-            // Nếu không có ai đăng nhập, chuyển về trang login
             return "redirect:/login";
         }
 
-        // 2. Lấy Order
+        // --- DEBUG ---
+        // In ra Role thực tế của user trong CONSOLE
+        System.out.println("DEBUG: User role is: '" + currentUser.getRole() + "'");
+        // --- HẾT DEBUG ---
+
         Optional<Order> optionalOrder = orderService.getOrderById(orderId);
         if (optionalOrder.isEmpty()) {
             return "redirect:/order/edit?error=OrderNotFound";
         }
 
         Order order = optionalOrder.get();
-        // 3. Cập nhật trạng thái
-        order.setStatus(status);
 
-        // 4. Gọi phương thức service ĐÚNG
-        // Phương thức này sẽ tự động set 'updatedBy = currentUser' và 'updatedAt = now()'
+        // [SỬA LỖI] Phải so sánh với "ROLE_BARISTA"
+        if (status.equals("Ready") && !currentUser.getRole().equals("ROLE_BARISTA")) {
+            System.out.println("DEBUG: Ready FAILED role check."); // Thêm debug
+            return "redirect:/order/edit?error=UnauthorizedReady";
+        }
+
+        // [SỬA LỖI] Phải so sánh với "ROLE_WAITER"
+        if (status.equals("Served") && !currentUser.getRole().equals("ROLE_WAITER")) {
+            System.out.println("DEBUG: Served FAILED role check."); // Thêm debug
+            return "redirect:/order/edit?error=UnauthorizedServed";
+        }
+
+        // --- Chỉ khi qua được các bước trên, code mới chạy tới đây ---
+        System.out.println("DEBUG: Validation PASSED. Saving status: " + status); // Thêm debug
+        order.setStatus(status);
         orderService.updateOrder(order, currentUser);
 
         return "redirect:/order/edit";
