@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 
@@ -18,6 +19,11 @@ public class StaffService {
     public StaffService(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
+
+    public List<Staff> findAllStaffs() {
+        return staffRepository.findAll();
+    }
+
 
     public List<Staff> getList() {
         return staffRepository.findAll();
@@ -63,17 +69,17 @@ public class StaffService {
         Optional<Staff> existing = staffRepository.findByUsername(username);
         // nếu không tồn tại -> false (chưa bị lấy)
         // nếu tồn tại và id của existing khác idToExclude -> true (bị lấy bởi người khác)
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public boolean isEmailTaken(String email, Integer idToExclude) {
         Optional<Staff> existing = staffRepository.findByEmail(email);
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public boolean isPhoneTaken(String phone, Integer idToExclude) {
         Optional<Staff> existing = staffRepository.findByPhoneNumber(phone);
-        return existing.isPresent() && !Objects.equals(existing.get().getStaffId(), idToExclude);
+        return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
     public Page<Staff> getActiveStaffs(Pageable pageable) {
