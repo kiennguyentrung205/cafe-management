@@ -63,12 +63,13 @@
                         </thead>
                         <tbody>
                         <tr th:each="staff : ${staffs}">
+                        <tr th:if="${staff.active}" th:each="staff, iterStat : ${staffs}" th:object="${staff}">
                             <td class="p-3 text-center">
                                 <img th:src="${staff.img != null ? staff.img : 'https://placehold.co/60x60/f4f7f6/6c757d?text=No+Img'}"
                                      th:onerror="|this.src='https://placehold.co/60x60/f4f7f6/6c757d?text=No+Img'|"
                                      style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem;">
-                            </td>
-                            <td class="p-3" th:text="${staff.managerId}">1</td>
+
+                            <td class="p-3" th:text="${iterStat.count}" scope="row"></td>
                             <td class="p-3" th:text="${staff.name}">Nguyen Van A</td>
                             <td class="p-3" th:text="${staff.email}">abc@gmail.com</td>
                             <td class="p-3" th:text="${staff.phoneNumber}">0123456789</td>

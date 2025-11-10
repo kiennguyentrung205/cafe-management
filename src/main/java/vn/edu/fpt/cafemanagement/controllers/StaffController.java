@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.cafemanagement.entities.Banner;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Role;
 import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
@@ -22,6 +23,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard/staff")
@@ -60,6 +62,9 @@ public class StaffController {
             return "dashboard/staff/list";
         }
 
+        List<Staff> activeStaffs = staffService.findAllStaffs().stream().filter(Staff::isActive).collect(Collectors.toList());
+
+        model.addAttribute("activeStaffs", activeStaffs);
         model.addAttribute("staffs", staffPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", staffPage.getTotalPages());
