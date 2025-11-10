@@ -1,5 +1,8 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -31,9 +34,20 @@ public class BannerController {
     }
 
     @GetMapping
-    public String listBanner(Model model) {
-        List<Banner> activeBanners = bannerService.findAllBanners().stream().filter(Banner::isActive).collect(Collectors.toList());
-        model.addAttribute("banners", bannerService.findAllBanners());
+    public String listBanner(
+            Model model,
+            @PageableDefault(size = 10, page = 0, sort = "id") Pageable pageable) {
+        Page<Banner> bannerPage = bannerService.findAllBanners(pageable);
+        model.addAttribute("bannerPage", bannerPage);
+
+        List<Banner> activeBanners = bannerPage.getContent().stream()
+                .filter(Banner::isActive)
+                .collect(Collectors.toList());
+
+
+        model.addAttribute("banners", bannerPage.getContent());
+        model.addAttribute("activeBanners", activeBanners);
+
         return "dashboard/banners/list";
     }
 
