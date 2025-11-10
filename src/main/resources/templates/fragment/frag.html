@@ -1,11 +1,11 @@
-<head th:fragment="head">
+<head th:fragment="head" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <title>WIMI RUSTIC</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fpt.com/-/media/project/fpt-corporation/fpt/settings/favicon.png" rel="shortcut icon">
 </head>
 
-<div th:fragment="navbar">
+<div th:fragment="navbar" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand-logo fs-4" th:href="@{/dashboard}" sec:authorize="hasRole('ADMIN')">
@@ -50,19 +50,19 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        <a class="nav-link dropdown-toggle" th:href="@{/profile}" id="userDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-user-circle me-1"></i>
                             <span sec:authentication="name">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <!--                            <li><a class="dropdown-item" href="#">Profile</a></li>-->
-                            <!--                            <li>-->
-                            <!--                                <hr class="dropdown-divider">-->
-                            <!--                            </li>-->
+                            <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <button type="submit" class="dropdown-item">Log out</button>
+                                    <button type="submit" class="dropdown-item">Log eout</button>
                                 </form>
                             </li>
                         </ul>
