@@ -382,23 +382,25 @@ public class OrderController {
             @RequestParam("status") String status
     ) {
 
-        // 1. Kiểm tra nếu Barista quên chọn (status là rỗng)
+        // 1. Kiểm tra status rỗng (nếu Barista quên chọn)
         if (status == null || status.trim().isEmpty()) {
             return "redirect:/order/edit";
         }
 
+        Staff currentUser = loggedUser.getLoggedStaff();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Lấy TÊN của Role (String), không phải lấy Object Role
+        // Giá trị sẽ là "Barista", "Waiter", v.v.
+        String userRoleName = currentUser.getRole().getRoleName();
+
         // 2. Xử lý "Canceled"
         if ("Canceled".equals(status)) {
-            Staff currentUser = loggedUser.getLoggedStaff();
 
-            // --- DEBUG ---
-            // In ra Role thực tế của user trong CONSOLE
-            System.out.println("DEBUG: User role is: '" + currentUser.getRole() + "'");
-            // --- HẾT DEBUG ---
-
-            // [SỬA LỖI] Phải so sánh với "ROLE_BARISTA"
-            if (currentUser == null || !currentUser.getRole().equals("ROLE_BARISTA")) {
-                System.out.println("DEBUG: Cancel FAILED role check."); // Thêm debug
+            // [SỬA LỖI] So sánh chính xác "Barista" (theo database)
+            if (!userRoleName.equals("Barista")) {
                 return "redirect:/order/edit?error=UnauthorizedCancel";
             }
 
@@ -411,16 +413,6 @@ public class OrderController {
         }
 
         // 3. Xử lý "Ready" và "Served"
-        Staff currentUser = loggedUser.getLoggedStaff();
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
-
-        // --- DEBUG ---
-        // In ra Role thực tế của user trong CONSOLE
-        System.out.println("DEBUG: User role is: '" + currentUser.getRole() + "'");
-        // --- HẾT DEBUG ---
-
         Optional<Order> optionalOrder = orderService.getOrderById(orderId);
         if (optionalOrder.isEmpty()) {
             return "redirect:/order/edit?error=OrderNotFound";
@@ -428,20 +420,17 @@ public class OrderController {
 
         Order order = optionalOrder.get();
 
-        // [SỬA LỖI] Phải so sánh với "ROLE_BARISTA"
-        if (status.equals("Ready") && !currentUser.getRole().equals("ROLE_BARISTA")) {
-            System.out.println("DEBUG: Ready FAILED role check."); // Thêm debug
+        // [SỬA LỖI] So sánh chính xác "Barista" (theo database)
+        if (status.equals("Ready") && !userRoleName.equals("Barista")) {
             return "redirect:/order/edit?error=UnauthorizedReady";
         }
 
-        // [SỬA LỖI] Phải so sánh với "ROLE_WAITER"
-        if (status.equals("Served") && !currentUser.getRole().equals("ROLE_WAITER")) {
-            System.out.println("DEBUG: Served FAILED role check."); // Thêm debug
+        // [SỬA LỖI] So sánh chính xác "Waiter" (theo database)
+        if (status.equals("Served") && !userRoleName.equals("Waiter")) {
             return "redirect:/order/edit?error=UnauthorizedServed";
         }
 
-        // --- Chỉ khi qua được các bước trên, code mới chạy tới đây ---
-        System.out.println("DEBUG: Validation PASSED. Saving status: " + status); // Thêm debug
+        // --- Nếu tất cả kiểm tra qua, code sẽ chạy tới đây ---
         order.setStatus(status);
         orderService.updateOrder(order, currentUser);
 

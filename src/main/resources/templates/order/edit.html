@@ -66,7 +66,7 @@
 
                     <th:block th:if="${order.status == 'Ready'}">
                         <select name="status" class="form-select form-select-sm me-2" sec:authorize="hasAnyRole('WAITER', 'ROLE_WAITER')">
-                            <option value="Ready" selected>Ready</option>
+                            <option value="Ready" selected disabled>Ready (Select action)</option>
                             <option value="Served">Served</option>
                         </select>
                         <span sec:authorize="!hasAnyRole('WAITER', 'ROLE_WAITER')" th:text="${order.status}">Ready</span>
