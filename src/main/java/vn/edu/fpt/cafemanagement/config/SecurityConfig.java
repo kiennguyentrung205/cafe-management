@@ -48,7 +48,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain staffFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/staff/**", "/dashboard/**", "/table/booking/management", "/orders/management")
+                .securityMatcher("/staff/**", "/dashboard/**", "/table/booking/management", "/orders/management", "/order/**")
                 .authenticationProvider(staffAuthenticationProvider())
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
@@ -59,10 +59,10 @@ public class SecurityConfig {
                         .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "CASHIER")
                         .requestMatchers("/table/booking/management").hasRole("CASHIER")
                         .requestMatchers("/order/create").hasRole("CASHIER")
-                        .requestMatchers("/order/list").hasRole("ADMIN, CASHIER")
-                        .requestMatchers("/order/history-list").hasRole("ADMIN, CASHIER")
-                        .requestMatchers("/order/edit").hasRole("BARISTA")
-                        .requestMatchers("/order/edit-history").hasRole("ADMIN, BARISTA")
+                        .requestMatchers("/order/edit").hasAnyRole("BARISTA", "WAITER")
+                        .requestMatchers("/order/list").hasAnyRole("ADMIN", "CASHIER")
+                        .requestMatchers("/order/history-list").hasAnyRole("ADMIN", "CASHIER")
+                        .requestMatchers("/order/edit-history").hasAnyRole("ADMIN", "BARISTA")
                         .requestMatchers("/orders/management").hasRole("WAITER")
                         .requestMatchers("/product/edit/**").hasAnyRole("ADMIN", "BARISTA")
                         .requestMatchers("/product/delete/**").hasRole("ADMIN")

@@ -32,7 +32,7 @@
                 <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <a class="navbar-brand-logo fs-4" th:href="@{/home}"
-               sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
+               sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER', 'ROLE_BARISTA')">
                 <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
             <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
@@ -53,6 +53,7 @@
                         sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER','ROLE_ADMIN')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
+
                     <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
                            data-bs-toggle="dropdown"
@@ -78,9 +79,20 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
-                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_WAITER')">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li><a class="nav-link" th:href="@{/table/management}">Table Management</a></li>
+                            <li><a class="nav-link" th:href="@{/order/edit}">Edit Order</a></li>
+                        </ul>
                     </li>
+
+
+
                     <li class="nav-item dropdown"
                         sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
