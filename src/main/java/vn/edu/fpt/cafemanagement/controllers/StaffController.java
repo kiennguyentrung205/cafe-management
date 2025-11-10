@@ -107,11 +107,11 @@ public class StaffController {
             model.addAttribute("roles", roleService.getAllRoles()); // Load lại roles
 
             // Nếu là create thì quay lại create, nếu là edit thì quay lại edit
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 
-        Integer idForCheck = (staff.getStaffId() == 0) ? null : staff.getStaffId();
+        Integer idForCheck = (staff.getManagerId() == 0) ? null : staff.getManagerId();
         // check username/email/phone trùng
         if (staffService.isUsernameTaken(staff.getUsername(), idForCheck)) {
             model.addAttribute("error", "Username already exists!");
@@ -138,35 +138,35 @@ public class StaffController {
 
             model.addAttribute("error", "Please fill all required fields!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 // Validate tên
         if (!staff.getName().matches("^[\\p{L} ]+$")) {
             model.addAttribute("error", "Name must contain only letters!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 // Validate email
         if (!staff.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,6}$")) {
             model.addAttribute("error", "Invalid email format!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 // Validate số điện thoại
         if (!staff.getPhoneNumber().matches("^0\\d{9}$")) {
             model.addAttribute("error", "Phone number must be 10 digits and start with 0!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 // Validate Date of Birth
         if (staff.getDateOfBirth() == null) {
             model.addAttribute("error", "Date of Birth is required!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
         LocalDate today = LocalDate.now();
@@ -175,14 +175,14 @@ public class StaffController {
         if (staff.getDateOfBirth().isAfter(today)) {
             model.addAttribute("error", "Date of Birth cannot be in the future!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
 // Tuổi phải >= 18
         if (Period.between(staff.getDateOfBirth(), today).getYears() < 18) {
             model.addAttribute("error", "Staff must be at least 18 years old!");
             model.addAttribute("roles", roleService.getAllRoles());
-            return (staff.getStaffId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
+            return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
         if (!file.isEmpty()) {
             try {

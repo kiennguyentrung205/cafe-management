@@ -46,7 +46,6 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
     int countByCustomerAndDate(@Param("customerId") int customerId,
                                @Param("date") LocalDate date);
 
-    TableBooking findFirstByCustomerCusIdAndStatus(int cusId, String status);
 
 //    List<TableBooking> findExpiredBookings();
 }

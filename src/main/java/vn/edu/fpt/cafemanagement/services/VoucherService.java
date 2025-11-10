@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.Voucher;
 import vn.edu.fpt.cafemanagement.repositories.VoucherRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,7 +20,7 @@ public class VoucherService {
     }
 
     public List<Voucher> getActiveVouchers() {
-        return voucherRepository.findAvailableVouchers(LocalDate.now());
+        return voucherRepository.findByIsActiveTrue();
     }
 
     public List<Voucher> getNoActiveVouchers() {
