@@ -22,8 +22,14 @@
 
                     <!-- 1. Phần Avatar và Tên -->
                     <div class="text-center mb-4">
-                        <img th:src="${customer.googleAccount} ? ${customer.img} : @{/uploads/{img}(img=${customer.img})}"
-                             alt="Avatar"
+                        <img th:if="${customer.googleAccount}"
+                             th:src="${customer.img}"
+                             alt="Avatar Google"
+                             class="profile-avatar mb-3"/>
+
+                        <img th:unless="${customer.googleAccount}"
+                             th:src="@{/uploads/{img}(img=${customer.img})}"
+                             alt="Avatar Nội bộ"
                              class="profile-avatar mb-3"/>
                         <h2 class="h4 mb-1" th:text="${customer.name}">Customer Name</h2>
                         <div class="text-muted" th:text="'@' + ${customer.username}">@username</div>

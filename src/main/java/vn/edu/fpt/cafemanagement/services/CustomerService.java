@@ -69,6 +69,19 @@ public class CustomerService {
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
+            if (imgFile != null && !imgFile.isEmpty()) {
+                try {
+                    String uploadDir = "D:/SWP/Project/uploads/";
+                    String fileName = imgFile.getOriginalFilename();
+
+                    Path filePath = Paths.get(uploadDir + fileName);
+                    Files.copy(imgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                    existingCustomer.setImg(fileName);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("Error uploading image!");
+                }
+            }
         }
 
         if (!customer.getUsername().equalsIgnoreCase(existingCustomer.getUsername())) {
@@ -103,7 +116,6 @@ public class CustomerService {
             existingCustomer.setPhoneNumber(customer.getPhoneNumber());
         }
 
-
         if (customer.getName() == null || customer.getName().isEmpty()) {
             throw new IllegalArgumentException("The name cannot be empty.");
         }
@@ -111,20 +123,6 @@ public class CustomerService {
             throw new IllegalArgumentException("The name can only contain letters and spaces!");
         }
         existingCustomer.setName(customer.getName());
-
-        if (imgFile != null && !imgFile.isEmpty()) {
-            try {
-                String uploadDir = "D:/SWP/Project/uploads/";
-                String fileName = imgFile.getOriginalFilename();
-
-                Path filePath = Paths.get(uploadDir + fileName);
-                Files.copy(imgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                existingCustomer.setImg(fileName);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Error uploading image!");
-            }
-        }
         if (customer.getDateOfBirth() == null) {
             throw new IllegalArgumentException("Birthdate cannot be null!");
         }
