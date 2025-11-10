@@ -8,8 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Role;
+import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 import vn.edu.fpt.cafemanagement.services.StaffService;
 import vn.edu.fpt.cafemanagement.services.RoleService;
 
@@ -23,10 +25,12 @@ public class StaffController {
 
     private final StaffService staffService;
     private final RoleService roleService;
+    private final StaffRepository staffRepository;
 
-    public StaffController(StaffService staffService, RoleService roleService) {
+    public StaffController(StaffService staffService, RoleService roleService, StaffRepository staffRepository) {
         this.staffService = staffService;
         this.roleService = roleService;
+        this.staffRepository = staffRepository;
     }
 
     @RequestMapping
@@ -45,6 +49,7 @@ public class StaffController {
         } else {
             staffPage = staffService.getActiveStaffs(pageable);
         }
+
         if (staffPage.getContent().isEmpty()) {
             model.addAttribute("notFound", "No staff found" + (keyword != null ? " for \"" + keyword + "\"" : ""));
             model.addAttribute("staffs", null);
@@ -87,7 +92,7 @@ public class StaffController {
     @PostMapping("/save")
     public String save(@ModelAttribute("staff") Staff staff,
                        @RequestParam("roleId") int roleId,
-                       @RequestParam("photo") MultipartFile file, Model model) {
+                       @RequestParam("photo") MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
         Role role = roleService.getRoleById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Null"));
         staff.setRole(role);
@@ -184,26 +189,29 @@ public class StaffController {
             model.addAttribute("roles", roleService.getAllRoles());
             return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
-        if (!file.isEmpty()) {
-            try {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/img/staff/";//
-                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
-                if (!java.nio.file.Files.exists(uploadPath)) {
-                    java.nio.file.Files.createDirectories(uploadPath);
-                }
 
-                file.transferTo(new java.io.File(uploadDir + fileName));
-                staff.setImg("/img/staff/" + fileName);//
+        try {
+            if (!file.isEmpty()) {
+                String uploadDir = "D:/SWP/Project/uploads/";
+                java.io.File dir = new java.io.File(uploadDir);
+                if (!dir.exists()) dir.mkdirs();
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                String fileName = file.getOriginalFilename();
+                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
+                file.transferTo(path.toFile());
+
+                staff.setImg("/uploads/" + fileName);
             }
 
+            staffService.save(staff);
+            redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorInfo", "Error saving banner: " + e.getMessage());
         }
-        staffService.save(staff);
+
         return "redirect:/dashboard/staff";
     }
+
 
     // Xóa mềm
     @PostMapping("/delete/{id}")
