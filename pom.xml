@@ -94,21 +94,21 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!--         JUnit 5 (Jupiter) cho test -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.junit.jupiter</groupId>-->
-        <!--            <artifactId>junit-jupiter</artifactId>-->
-        <!--            <version>5.10.0</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
+<!--         JUnit 5 (Jupiter) cho test -->
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter</artifactId>-->
+<!--            <version>5.10.0</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
-        <!--        Mockito để giả lập repository/service -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.mockito</groupId>-->
-        <!--            <artifactId>mockito-core</artifactId>-->
-        <!--            <version>5.11.0</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
+<!--        Mockito để giả lập repository/service -->
+<!--        <dependency>-->
+<!--            <groupId>org.mockito</groupId>-->
+<!--            <artifactId>mockito-core</artifactId>-->
+<!--            <version>5.11.0</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
@@ -127,6 +127,29 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.11.0.3922</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <argLine>
+                        -XX:+EnableDynamicAgentLoading
+                        -Xshare:off
+                    </argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>

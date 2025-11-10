@@ -30,22 +30,30 @@
 
                         <!-- 3. Avatar -->
                         <div class="text-center mb-4">
-                            <img alt="Avatar"
-                                 class="profile-avatar mb-3"
-                                 th:src="${customer.googleAccount} ? ${customer.img} : @{/img/{img}(img=${customer.img})}"/>
-                        </div>
-                        <div class="mb-3">
-                            <label for="imgFile" class="form-label">Change avatar:</label>
-                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
-                            <input class="form-control" type="file" id="imgFile" name="imgFile" accept="image/*">
+                            <img th:if="${customer.googleAccount}"
+                                 th:src="${customer.img}"
+                                 alt="Avatar Google"
+                                 class="profile-avatar mb-3"/>
+
+                            <img th:unless="${customer.googleAccount}"
+                                 th:src="@{/uploads/{img}(img=${customer.img})}"
+                                 alt="Avatar"
+                                 class="profile-avatar mb-3"/>
                         </div>
 
+                        <div th:if="${!customer.googleAccount}">
+                            <div class="mb-3">
+                                <label for="imgFile" class="form-label">Change avatar:</label>
+                                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                                <input class="form-control" type="file" id="imgFile" name="imgFile" accept="image/*">
+                            </div>
+                        </div>
                         <!-- 4. Username -->
                         <div class="mb-3">
                             <label class="form-label">Username:</label>
 
                             <input class="form-control" type="text" name="username"
-                                   th:value="${customer.username}" >
+                                   th:value="${customer.username}">
                         </div>
 
                         <!-- 5. Name -->
@@ -66,7 +74,7 @@
                         <div class="mb-3">
                             <label for="emailInput" class="form-label">Email:</label>
                             <input class="form-control" type="text" id="emailInput" name="email"
-                                   th:readonly="${customer.googleAccount} ? 'readonly' : ''"
+                                   th:readonly="${customer.googleAccount}"
                                    th:value="${customer.email}">
                         </div>
 
@@ -86,9 +94,9 @@
                             </button>
 
                             <!-- Nút "Cancel" là nút phụ -> .btn-outline-primary -->
-                            <button class="btn btn-outline-primary btn-lg" type="reset">
+                            <a th:href="@{/profile}" class="btn btn-outline-primary btn-lg" type="button">
                                 Cancel
-                            </button>
+                            </a>
                         </div>
                     </form>
                     <!-- Kết thúc Form -->

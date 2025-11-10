@@ -28,13 +28,13 @@ public class TableBookingService {
         int count = tableBookingRepository.countByCustomerAndDate(tableBooking.getCustomer().getCusId(), bookingTime.toLocalDate() );
 
         if(count > 2){
-            throw new IllegalArgumentException("You are allowed to book 2 tables per day");
+            throw new IllegalArgumentException("You are allowed to book 3 tables per day");
         }
 
 
         long diffMinutes = Duration.between(now, bookingTime).toMinutes();
-        if (diffMinutes < 0) {
-            throw new RuntimeException("You cannot book table in the past!");
+        if (diffMinutes < 30) {
+            throw new RuntimeException("Booking time must be 30+ minutes from now!");
         }
 
         if (diffMinutes > 120) {
