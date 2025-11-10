@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title ?: 'Lỗi Ứng Dụng'}"></title>
+    <title th:text="${title ?: 'Application Error'}"></title>
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
     <style>
         .error-container {
@@ -13,7 +13,7 @@
 
         .error-icon {
             font-size: 5rem;
-            color: #dc3545; /* Màu đỏ của Bootstrap */
+            color: #dc3545; /* Bootstrap red */
             margin-bottom: 20px;
         }
     </style>
@@ -29,33 +29,26 @@
                     <i class="bi bi-exclamation-triangle-fill"></i> &#9888;
                 </div>
 
-                <h1 class="display-4 text-danger" th:text="${title ?: 'Rất Tiếc, Đã Xảy Ra Lỗi!'}">Lỗi Ứng Dụng</h1>
+                <h1 class="display-4 text-danger" th:text="${title ?: 'Sorry, an error occurred!'}">Application
+                    Error</h1>
 
                 <p class="lead"
-                   th:text="${errorMessage ?: 'Một vấn đề không mong muốn đã xảy ra. Vui lòng thử lại hoặc liên hệ quản trị viên.'}">
-                    Thông tin không nhất quán hoặc sản phẩm không tồn tại.
+                   th:text="${errorMessage ?: 'An unexpected problem occurred. Please try again or contact the administrator.'}">
+                    Inconsistent information or product does not exist.
                 </p>
 
                 <hr class="my-4">
 
                 <p>
-                    <a th:href="@{/product/list}" class="btn btn-primary btn-lg mt-2">
-                        <i class="bi bi-list"></i> Về Danh Sách Sản Phẩm
-                    </a>
-                    <a th:href="@{/}" class="btn btn-secondary btn-lg mt-2">
-                        <i class="bi bi-house-door-fill"></i> Về Trang Chủ
+                    <a th:href="@{/home}" class="btn btn-secondary btn-lg mt-2">
+                        <i class="bi bi-house-door-fill"></i> Back to Home
                     </a>
                 </p>
-
-<!--                <div th:if="${trace}" class="mt-4 text-start p-3 bg-light border rounded">-->
-                <!--                    <strong>Thông tin kỹ thuật (chỉ cho quản trị viên):</strong>-->
-                <!--                    <pre th:text="${trace}"></pre>-->
-                <!--                </div>-->
 
             </div>
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 </body>
 </html>

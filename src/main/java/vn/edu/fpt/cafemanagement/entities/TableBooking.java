@@ -34,7 +34,6 @@ public class TableBooking {
 
     private LocalDateTime checkinTime;
 
-    @CreatedDate
     private LocalDateTime createAt;
 
     public TableBooking() {

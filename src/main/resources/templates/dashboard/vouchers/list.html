@@ -29,7 +29,7 @@
                     <i class="fa-solid fa-trash me-1"></i> Trash
                 </a>
                 <a th:href="@{/dashboard/vouchers/create}" class="btn btn-brand-primary">
-                    <i class="fa-solid fa-plus me-1"></i> Add New Staff
+                    <i class="fa-solid fa-plus me-1"></i> Add New Voucher
                 </a>
             </div>
             <!-- Search Bar -->
@@ -75,7 +75,7 @@
                                     Details
                                 </button>
                                 <a th:href="@{/dashboard/vouchers/edit/{id}(id=*{voucherId})}" type="button"
-                                   class="btn btn-sm btn-brand-primary">Edit</a>
+                                   class="btn btn-sm btn-outline-primary">Edit</a>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                         th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.signature}]])">
                                     Delete
@@ -96,7 +96,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Delete Voucher popup -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

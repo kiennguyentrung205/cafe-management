@@ -24,7 +24,7 @@
                 <a th:href="@{/product/deleted-list}" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-trash me-1"></i> Trash
                 </a>
-                <a th:href="@{/product/create}" class="btn btn-brand-primary">
+                <a th:href="@{/product/create}" class="btn btn-outline-primary">
                     <i class="fa-solid fa-plus me-1"></i> Create New Product
                 </a>
             </div>
@@ -144,7 +144,7 @@
                                 </td>
 
                                 <td class="pe-4 text-nowrap">
-                                    <a class="btn btn-sm btn-brand-primary"
+                                    <a class="btn btn-sm btn-outline-primary"
                                        th:href="@{/product/edit/{id}(id=*{proId})}">
                                         Edit
                                     </a>
@@ -152,7 +152,7 @@
                                         Details
                                     </a>
                                     <!-- Delete Button triggers modal -->
-                                    <button class="btn btn-sm btn-danger btn-delete"
+                                    <button class="btn btn-sm btn-outline-danger btn-delete"
                                             th:data-id="*{proId}"
                                             th:data-name="*{proName}"
                                             data-bs-toggle="modal"
@@ -213,7 +213,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Modal Xác nhận Xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
