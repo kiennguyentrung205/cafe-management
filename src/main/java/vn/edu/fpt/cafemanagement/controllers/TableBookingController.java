@@ -120,24 +120,6 @@ public class TableBookingController {
         LocalDateTime now = LocalDateTime.now();
 
 
-//        long diffMinutes = Duration.between(now, bookingTime).toMinutes();
-//        if (diffMinutes < 0) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "You cannot book table in the past!");
-//            return "redirect:/table/booking/new?table-id=" + tableBooking.getTable().getTableId();
-//        }
-//
-//        if (diffMinutes > 120) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "You can only book a table within 2 hours before your arrival");
-//            return "redirect:/table/booking/new?table-id=" + tableBooking.getTable().getTableId();
-//        }
-//
-//        if (bookingTime.getHour() >= 22) {
-//            redirectAttributes.addFlashAttribute("errorMessage", "You cannot book table after 22:00!");
-//            return "redirect:/table/booking/new?table-id=" + tableBooking.getTable().getTableId();
-//        }
-//
-//        tableBooking.setStatus("booked");
-
         try {
             tableBookingService.createBooking(tableBooking);
         } catch (Exception e) {
