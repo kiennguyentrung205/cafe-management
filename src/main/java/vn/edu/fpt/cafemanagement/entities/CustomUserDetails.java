@@ -25,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
         return this.customer != null;
     }
 
-    public boolean isStaff() {
+    public boolean isManager() {
         return this.staff != null;
     }
 
@@ -33,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
         return this.customer;
     }
 
-    public Staff getStaff() {
+    public Staff getManager() {
         return this.staff;
     }
 
@@ -43,7 +43,7 @@ public class CustomUserDetails implements UserDetails {
             return customer.getCusId();
         }
         if (staff != null) {
-            return staff.getStaffId();
+            return staff.getManagerId();
         }
         return null;
     }
@@ -71,7 +71,7 @@ public class CustomUserDetails implements UserDetails {
 
     // Thêm method để lấy user type
     public String getUserType() {
-        return customer != null ? "CUSTOMER" : "STAFF";
+        return customer != null ? "CUSTOMER" : "MANAGER";
     }
 
     @Override
