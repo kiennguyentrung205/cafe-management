@@ -27,9 +27,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        logger.info("=== LOGIN SUCCESS ===");
-        logger.info("Username: {}", authentication.getName());
-        logger.info("Request URI: {}", request.getRequestURI());
 
         if(authentication.getPrincipal() instanceof OidcUser){
             response.sendRedirect("/home");
@@ -38,9 +35,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        logger.info("User Type: {}", userDetails.getUserType());
-        logger.info("Full Name: {}", userDetails.getFullName());
-        logger.info("Authorities: {}", authentication.getAuthorities());
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String redirectUrl = "/home"; // default
