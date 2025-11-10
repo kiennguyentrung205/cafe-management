@@ -50,9 +50,14 @@ public class TableBookingController {
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
-        if (startDate != null && endDate != null) {
-            startDateTime = startDate.atStartOfDay();
-            endDateTime = endDate.atTime(23, 59, 59);
+        if (startDate != null) {
+            if(endDate != null){
+                startDateTime = startDate.atStartOfDay();
+                endDateTime = endDate.atTime(23, 59, 59);
+            } else {
+                endDateTime = LocalDateTime.now();
+            }
+
         }
 
 
@@ -75,7 +80,7 @@ public class TableBookingController {
         }
 //        List<TableBooking> tableBooking = tableBookingService.findByCustomerId(loggedCustomer.getCusId());
 
-        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in"));
+        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in", "auto-canceled", "completed"));
         int totalPages = Math.max(tableBooking.getTotalPages(), 1);
 
 
@@ -186,7 +191,7 @@ public class TableBookingController {
             tableBooking = tableBookingService.findTableBookingManager(status, startDateTime, endDateTime, pageable);
         }
 
-        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in"));
+        List<String> bookingStatus = new ArrayList<>(Arrays.asList("booked", "canceled", "checked-in", "auto-canceled", "completed"));
 
         int totalPages = Math.max(tableBooking.getTotalPages(), 1);
         System.out.println(totalPages);

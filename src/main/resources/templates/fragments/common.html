@@ -28,6 +28,9 @@
             <a class="navbar-brand-logo fs-4" th:href="@{/dashboard}" sec:authorize="hasRole('ADMIN')">
                 <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
             </a>
+            <a class="navbar-brand-logo fs-4" th:href="@{/home}" sec:authorize="isAnonymous()">
+                <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
+            </a>
             <a class="navbar-brand-logo fs-4" th:href="@{/home}"
                sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER')">
                 <i class="fa-solid fa-mug-saucer me-2"></i>WIMI RUSTIC
@@ -43,10 +46,11 @@
                         <a class="nav-link active" th:href="@{/dashboard}">Dashboard</a>
                     </li>
 
-<!--                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_WAITER', 'ROLE_CUSTOMER')">-->
-<!--                        <a class="nav-link" th:href="@{/home}">Home</a>-->
-<!--                    </li>-->
-                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER','ROLE_ADMIN')">
+                    <!--                    <li class="nav-item" sec:authorize="hasAnyRole('ROLE_WAITER', 'ROLE_CUSTOMER')">-->
+                    <!--                        <a class="nav-link" th:href="@{/home}">Home</a>-->
+                    <!--                    </li>-->
+                    <li class="nav-item"
+                        sec:authorize="hasAnyRole('ROLE_CASHIER', 'ROLE_WAITER', 'ROLE_CUSTOMER','ROLE_ADMIN')">
                         <a class="nav-link" th:href="@{/home}">Home</a>
                     </li>
                     <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_CASHIER')">
@@ -106,6 +110,14 @@
                             </li>
                         </ul>
                     </li>
+                    <ul class="navbar-nav ms-auto" sec:authorize="isAnonymous()">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/home}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/login}">Login</a>
+                        </li>
+                    </ul>
                 </ul>
             </div>
         </div>

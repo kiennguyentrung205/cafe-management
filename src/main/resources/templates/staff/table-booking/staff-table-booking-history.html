@@ -15,22 +15,29 @@
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="startDate">From Date</label>
-                    <input class="form-control" id="startDate" name="startDate" type="date">
+                    <input class="form-control" id="startDate" name="startDate" th:value="${startDate}" type="date">
                 </div>
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="endDate">To Date</label>
-                    <input class="form-control" id="endDate" name="endDate" type="date">
+                    <input class="form-control" id="endDate" name="endDate" th:value="${endDate}" type="date">
                 </div>
                 <div class="col-12 col-md-4 col-lg-3">
                     <label class="form-label" for="status">Status</label>
-                    <select class="form-select" id="status" name="status">
+                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
                         <option value="">Please select status...</option>
-                        <option th:each="x : ${bookingStatus}" th:text="${x.toUpperCase()}" th:value="${x}"></option>
+                        <option th:each="x : ${bookingStatus}" th:selected="${x == status}" th:text="${x.toUpperCase()}"
+                                th:value="${x}"></option>
                     </select>
                 </div>
                 <div class="col-12 col-lg-3 d-flex gap-2 mt-3 mt-lg-0 align-self-end">
-                    <button class="btn btn-outline-secondary w-50" type="reset">CLEAR</button>
-                    <button class="btn btn-outline-primary w-50" type="submit">SEARCH</button>
+                    <button class="btn btn-secondary w-50" onclick="
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('status').value = '';"
+                            type="button">
+                        CLEAR
+                    </button>
+                    <button class="btn btn-brand-primary w-50" type="submit">SEARCH</button>
                 </div>
             </div>
         </form>
@@ -61,11 +68,16 @@
                         <td class="p-3">
                             <!-- Replaced with text-bg-* for better badge styling -->
                             <span class="badge"
-                                  th:classappend="|${x.status == 'booked' ? 'text-bg-warning' :
-                                                          (x.status == 'checked-in' ? 'text-bg-success' :
-                                                          (x.status == 'canceled' ? 'text-bg-danger' : 'text-bg-secondary'))}|"
+                                  th:classappend="|${
+        x.status == 'booked' ? 'text-bg-primary' :
+        (x.status == 'checked-in' ? 'text-bg-success' :
+        (x.status == 'completed' ? 'text-bg-success-subtle text-success' :
+        (x.status == 'canceled' ? 'text-bg-danger' :
+        (x.status == 'auto-canceled' ? 'text-bg-warning text-dark' :
+        'text-bg-secondary'))))}|"
                                   th:text="${x.status}">
-                                </span>
+                            </span>
+
                         </td>
                         <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
 
@@ -134,7 +146,7 @@
                 <div class="modal-footer">
                     <form method="post" th:action="@{/table/booking/management/updateStatus}">
                         <input id="tableBookingIdCancelled" name="tableBookingId" type="hidden">
-                        <input name="action" value="cancel" type="hidden">
+                        <input name="action" type="hidden" value="cancel">
                         <button class="btn btn-danger" type="submit">Confirm Cancel</button>
                     </form>
                     <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
@@ -166,7 +178,7 @@
                 <div class="modal-footer">
                     <form method="post" th:action="@{/table/booking/management/updateStatus}">
                         <input id="tableBookingIdCheckIn" name="tableBookingId" type="hidden">
-                        <input name="action" value="checkin" type="hidden">
+                        <input name="action" type="hidden" value="checkin">
                         <button class="btn btn-success" type="submit">Confirm Check-in</button>
                     </form>
                     <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
@@ -242,9 +254,9 @@
 </script>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+<script crossorigin="anonymous"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
 </body>
 </html>
 </html>
