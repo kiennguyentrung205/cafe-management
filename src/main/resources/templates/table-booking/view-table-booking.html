@@ -29,8 +29,8 @@
                     </select>
                 </div>
                 <div class="col-12 col-lg-3 d-flex gap-2 mt-3 mt-lg-0 align-self-end">
-                    <button class="btn btn-secondary w-50" type="reset">CLEAR</button>
-                    <button class="btn btn-brand-primary w-50" type="submit">SEARCH</button>
+                    <button class="btn btn-outline-secondary w-50" type="reset">CLEAR</button>
+                    <button class="btn btn-outline-primary w-50" type="submit">SEARCH</button>
                 </div>
             </div>
         </form>
@@ -65,7 +65,7 @@
                         </td>
                         <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>
                         <td class="p-3">
-                            <button class="btn btn-danger btn-sm" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
+                            <button class="btn btn-outline-danger btn-sm" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
                                          [[${x.bookingTime}]])"
                                     type="button">Cancel
                             </button>
