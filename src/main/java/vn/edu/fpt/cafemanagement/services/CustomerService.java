@@ -62,7 +62,7 @@ public class CustomerService {
 
     public void updateCustomer(Customer customer, MultipartFile imgFile) {
         Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
-        if (existingCustomer.isGoogleAccount()) {
+        if (!existingCustomer.isGoogleAccount()) {
             if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
                 if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
                     throw new IllegalArgumentException("The email already exists, please use a different one!");
