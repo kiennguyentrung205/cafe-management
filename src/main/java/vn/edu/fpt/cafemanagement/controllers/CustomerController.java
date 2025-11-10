@@ -72,7 +72,7 @@ public class CustomerController {
     }
 
     @PostMapping("/edit")
-    public String editProfile(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "imgFile") MultipartFile imgFile, Model model) {
+    public String editProfile(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "imgFile", required = false) MultipartFile imgFile, Model model) {
         try {
             Customer sessionCustomer = loggedUser.getLoggedCustomer();
             if (customer.getCusId() != sessionCustomer.getCusId()) {
