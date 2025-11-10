@@ -124,14 +124,17 @@
             border-color: var(--color-primary);
             color: var(--color-white) !important;
         }
+
         .btn-warning:hover, .btn-success:hover {
             background-color: var(--color-primary-dark);
             border-color: var(--color-primary-dark);
         }
+
         .btn-danger {
             background-color: var(--color-danger);
             border-color: var(--color-danger);
         }
+
         .btn-danger:hover {
             background-color: var(--color-danger-dark);
             border-color: var(--color-danger-dark);
@@ -139,10 +142,17 @@
 
 
         /* == Style riêng cho Form (Thống nhất) == */
-        .form-label { /* ... (Giữ nguyên) ... */ }
-        .form-control, .form-select { /* ... (Giữ nguyên) ... */ }
-        .form-control:focus, .form-select:focus { /* ... (Giữ nguyên) ... */ }
-        .form-control[readonly] { /* ... (Giữ nguyên) ... */ }
+        .form-label { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control, .form-select { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control:focus, .form-select:focus { /* ... (Giữ nguyên) ... */
+        }
+
+        .form-control[readonly] { /* ... (Giữ nguyên) ... */
+        }
 
         /* == Style riêng cho Bảng (Thống nhất) == */
         .table {
@@ -166,105 +176,108 @@
 <div th:replace="~{fragments/common :: navbar-main}"></div>
 <div class="container py-5">
     <div class="row justify-content-center">
+        <div class="card p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <h2 class="fw-bold mb-0">Category List</h2>
+                </div>
+
+                <div class="col-12 col-md-8 d-flex justify-content-md-end gap-2">
+                    <a th:href="@{/category/deleted-list}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-trash me-1"></i> Trash
+                    </a>
+                    <a th:href="@{/category/create}" class="btn btn-brand-primary">
+                        <i class="fa-solid fa-plus me-1"></i> Add New Category
+                    </a>
+                </div>
+            </div>
+        </div>
         <!-- Đưa nội dung vào một cột giới hạn chiều rộng và căn giữa -->
-        <div class="col-lg-10 col-xl-10"> <!-- Cho phép cột rộng hơn một chút cho bảng -->
+        <!-- Cho phép cột rộng hơn một chút cho bảng -->
 
-            <!-- BỌC TẤT CẢ VÀO TRONG CARD -->
-            <div class="card">
-                <div class="card-body">
+        <!-- BỌC TẤT CẢ VÀO TRONG CARD -->
+        <div class="card">
+            <div class="card-body p-0">
 
-                    <!-- Hàng chứa Tiêu đề và Nút tạo mới -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0" th:text="${title}">Category List</h1>
+                <!-- Thông báo khi list rỗng -->
+                <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
+                    There are any category in the system
+                </div>
 
+                <!-- Bảng chỉ hiển thị khi list không rỗng -->
+                <div th:unless="${CategoryList.isEmpty()}">
+
+                    <div class="table-responsive">
                         <!--
-                          THAY ĐỔI: Đổi btn-success thành btn-primary
+                          THAY ĐỔI: Bỏ .table-bordered và .table-striped
+                          (trông hiện đại hơn)
+                          Bỏ .table-dark (header)
                         -->
-                        <a class="btn btn-primary" th:href="@{/category/create}">
-                            + Create new category
-                        </a>
-                    </div>
+                        <table class="table table-hover">
+                            <thead> <!-- Style đã được định nghĩa trong CSS -->
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Active</th>
+                                <th scope="col" class="text-end">Action</th> <!-- Căn phải cột Action -->
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="category, iterStat : ${CategoryList}" th:object="${category}">
 
-                    <!-- Thông báo khi list rỗng -->
-                    <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
-                        There are any category in the system
-                    </div>
+                                <td th:text="${iterStat.index + 1}">1</td>
 
-                    <!-- Bảng chỉ hiển thị khi list không rỗng -->
-                    <div th:unless="${CategoryList.isEmpty()}">
+                                <td th:text="*{cateName}">Sample Category</td>
 
-                        <div class="table-responsive">
-                            <!--
-                              THAY ĐỔI: Bỏ .table-bordered và .table-striped
-                              (trông hiện đại hơn)
-                              Bỏ .table-dark (header)
-                            -->
-                            <table class="table table-hover">
-                                <thead> <!-- Style đã được định nghĩa trong CSS -->
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Active</th>
-                                    <th scope="col" class="text-end">Action</th> <!-- Căn phải cột Action -->
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="category, iterStat : ${CategoryList}" th:object="${category}">
+                                <td>
+                                    <span th:if="*{active}" class="badge bg-success">Active</span>
+                                    <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
+                                </td>
 
-                                    <td th:text="${iterStat.index + 1}">1</td>
+                                <td class="text-end"> <!-- Căn phải các nút -->
+                                    <!--
+                                      THAY ĐỔI: Đổi btn-primary thành btn-outline-primary
+                                    -->
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/category/edit/{id}(id=*{cateId})}">
+                                        Edit
+                                    </a>
 
-                                    <td th:text="*{cateName}">Sample Category</td>
+                                    <!--
+                                      THAY ĐỔI QUAN TRỌNG:
+                                      Thay thế confirm() bằng Modal
 
-                                    <td>
-                                        <span th:if="*{active}" class="badge bg-success">Active</span>
-                                        <span th:unless="*{active}" class="badge bg-danger">Inactive</span>
-                                    </td>
+                                      1. Form được đặt riêng lẻ và có ID duy nhất
+                                    -->
+                                    <form th:action="@{/category/delete/{id}(id=*{cateId})}" method="post"
+                                          th:id="|deleteForm-*{cateId}|"
+                                          style="display:inline;">
+                                        <!-- (không cần nút submit ở đây) -->
+                                    </form>
 
-                                    <td class="text-end"> <!-- Căn phải các nút -->
-                                        <!--
-                                          THAY ĐỔI: Đổi btn-primary thành btn-outline-primary
-                                        -->
-                                        <a class="btn btn-sm btn-outline-primary"
-                                           th:href="@{/category/edit/{id}(id=*{cateId})}">
-                                            Edit
-                                        </a>
+                                    <!--
+                                      2. Nút này sẽ mở Modal, KHÔNG submit form
+                                         - data-bs-toggle="modal"
+                                         - data-bs-target="#deleteConfirmModal"
+                                         - data-form-id (trỏ tới ID của form cần submit)
+                                         - Đổi btn-danger thành btn-outline-danger
+                                    -->
+                                    <button class="btn btn-sm btn-outline-danger ms-1"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteConfirmModal"
+                                            th:data-form-id="|deleteForm-*{cateId}|">
+                                        Delete
+                                    </button>
+                                </td>
 
-                                        <!--
-                                          THAY ĐỔI QUAN TRỌNG:
-                                          Thay thế confirm() bằng Modal
-
-                                          1. Form được đặt riêng lẻ và có ID duy nhất
-                                        -->
-                                        <form th:action="@{/category/delete/{id}(id=*{cateId})}" method="post"
-                                              th:id="|deleteForm-*{cateId}|"
-                                              style="display:inline;">
-                                            <!-- (không cần nút submit ở đây) -->
-                                        </form>
-
-                                        <!--
-                                          2. Nút này sẽ mở Modal, KHÔNG submit form
-                                             - data-bs-toggle="modal"
-                                             - data-bs-target="#deleteConfirmModal"
-                                             - data-form-id (trỏ tới ID của form cần submit)
-                                             - Đổi btn-danger thành btn-outline-danger
-                                        -->
-                                        <button class="btn btn-sm btn-outline-danger ms-1"
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteConfirmModal"
-                                                th:data-form-id="|deleteForm-*{cateId}|">
-                                            Delete
-                                        </button>
-                                    </td>
-
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                 </div>
+
             </div>
         </div>
     </div>

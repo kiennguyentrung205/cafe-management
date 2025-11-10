@@ -97,8 +97,8 @@ public class SecurityConfig {
                 .authenticationProvider(customerAuthenticationProvider())
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login**", "/assets/**", "/forgot-password",
-                                "/set-password**", "/register", "/home", "/customer/login","/uploads/**","/api/banners")
+                        .requestMatchers("/login**", "/assets/**", "/forgot-password", "/product/**", "/fragments/common",
+                                "/set-password**", "/register", "/home", "/customer/login", "/uploads/**", "/api/banners")
                         .permitAll()
                         .anyRequest().authenticated())
 

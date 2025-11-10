@@ -11,6 +11,7 @@ import vn.edu.fpt.cafemanagement.util.SignUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Controller
@@ -22,10 +23,18 @@ public class VoucherController {
     }
 
     @GetMapping(value = {"/dashboard/vouchers", "/dashboard/vouchers/list"})
-    public String getVouchers(Model model) {
+    public String getVouchers(Model model, @RequestParam(name = "keyword", required = false) String keyword) {
+        List<Voucher> allVouchers = voucherService.findAll();
         List<Voucher> activeVouchers = voucherService.findAll().stream().filter(Voucher::isActive).collect(Collectors.toList());
+        Stream<Voucher> activeVoucherStream = allVouchers.stream().filter(Voucher::isActive);
+        if (keyword != null && !keyword.isEmpty()) {
+            String lowerCaseKeyword = keyword.toLowerCase().trim();
+            activeVoucherStream = activeVoucherStream.filter(v -> v.getVoucherName().toLowerCase().contains(lowerCaseKeyword));
+        }
+        activeVouchers = activeVoucherStream.collect(Collectors.toList());
         activeVouchers.forEach(v -> v.setSignature(SignUtil.sign(String.valueOf(v.getVoucherId())))); //lambda expression
         model.addAttribute("vouchers", activeVouchers);
+        model.addAttribute("keyword", keyword);
         return "/dashboard/vouchers/list";
     }
 
@@ -54,6 +63,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -65,6 +75,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -77,6 +88,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -89,6 +101,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -101,6 +114,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -114,6 +128,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -129,6 +144,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -139,6 +155,7 @@ public class VoucherController {
                 return "dashboard/vouchers/create";
             } else {
                 //  edit
+                model.addAttribute("sig", signature);
                 return "dashboard/vouchers/edit";
             }
         }
@@ -182,8 +199,16 @@ public class VoucherController {
     }
 
     @RequestMapping(value = "/dashboard/vouchers/deleted-list")
-    public String trashVoucher(Model model) {
-        model.addAttribute("vouchers", voucherService.getNoActiveVouchers());
+    public String trashVoucher(Model model, @RequestParam(name = "keyword", required = false) String keyword) {
+        List<Voucher> inactiveVouchers = voucherService.getNoActiveVouchers();
+        Stream<Voucher> voucherStream = inactiveVouchers.stream();
+        if (keyword != null && !keyword.isEmpty()) {
+            String lowerCaseKeyword = keyword.toLowerCase().trim();
+            voucherStream = voucherStream.filter(v -> v.getVoucherName().toLowerCase().contains(lowerCaseKeyword));
+        }
+        List<Voucher> finalVouchers = voucherStream.collect(Collectors.toList());
+        model.addAttribute("vouchers", finalVouchers);
+        model.addAttribute("keyword", keyword);
         return "dashboard/vouchers/deleted-list";
     }
 
