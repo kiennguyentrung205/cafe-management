@@ -15,6 +15,10 @@ import vn.edu.fpt.cafemanagement.repositories.StaffRepository;
 import vn.edu.fpt.cafemanagement.services.StaffService;
 import vn.edu.fpt.cafemanagement.services.RoleService;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -96,10 +100,31 @@ public class StaffController {
         Role role = roleService.getRoleById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Null"));
         staff.setRole(role);
+
         // Hash mật khẩu trước khi lưu
-        if (staff.getPassword() != null && !staff.getPassword().isEmpty()) {
-            String hashedPassword = BCrypt.hashpw(staff.getPassword(), BCrypt.gensalt());
-            staff.setPassword(hashedPassword);
+        boolean isEdit = staff.getManagerId() > 0;
+        String newPassword = staff.getPassword();
+
+        if (isEdit) {
+            if (newPassword == null || newPassword.isBlank()) {
+                Staff existingStaff = staffService.findById(staff.getManagerId());
+                if (existingStaff != null) {
+                    staff.setPassword(existingStaff.getPassword());
+                } else {
+
+                }
+            } else {
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                staff.setPassword(hashedPassword);
+            }
+        } else {
+            // Kiểm tra mật khẩu có được nhập ko
+            if (newPassword == null || newPassword.isBlank()) {
+            } else {
+
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                staff.setPassword(hashedPassword);
+            }
         }
 
 
@@ -191,27 +216,43 @@ public class StaffController {
         }
 
         try {
+            String uploadDir = "D:/SWP/Project/uploads/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
             if (!file.isEmpty()) {
-                String uploadDir = "D:/SWP/Project/uploads/";
-                java.io.File dir = new java.io.File(uploadDir);
-                if (!dir.exists()) dir.mkdirs();
+                String originalFileName = file.getOriginalFilename();
+                String extension = "";
+                if (originalFileName != null && originalFileName.contains(".")) {
+                    extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                }
 
-                String fileName = file.getOriginalFilename();
-                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-                file.transferTo(path.toFile());
+                String newFileName = java.util.UUID.randomUUID().toString() + extension;
+                Path path = Paths.get(uploadDir + newFileName);
 
-                staff.setImg("/uploads/" + fileName);
+                Files.copy(file.getInputStream(), path);
+
+
+                staff.setImg("/uploads/" + newFileName);
+            } else {
+                if (isEdit) {
+                    Staff existingStaff = staffService.findById(staff.getManagerId());
+
+                    if (existingStaff != null && existingStaff.getImg() != null) {
+                        staff.setImg(existingStaff.getImg());
+                    }
+                    // Nếu existingStaff == null hoặc ảnh cũ cũng null, staff.img sẽ là null
+                }
             }
 
             staffService.save(staff);
-            redirectAttributes.addFlashAttribute("completeInfo", "Banner has been saved successfully!");
+            redirectAttributes.addFlashAttribute("completeInfo", "Staff has been saved successfully!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorInfo", "Error saving banner: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorInfo", "Error saving staff: " + e.getMessage());
         }
 
         return "redirect:/dashboard/staff";
     }
-
 
     // Xóa mềm
     @PostMapping("/delete/{id}")
