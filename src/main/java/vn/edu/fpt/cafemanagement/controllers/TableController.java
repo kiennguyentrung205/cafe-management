@@ -60,11 +60,11 @@ public class TableController {
     @PostMapping(path = "/management/update-status")
     @ResponseBody
     public String updateTableStatus(@RequestBody Table table) {
-        Table oldTable = tableService.findById(table.getTableId());
-
-        if("available".equalsIgnoreCase(oldTable.getStatus())) {
-            return "Update status error";
-        }
+//        Table oldTable = tableService.findById(table.getTableId());
+//
+//        if("available".equalsIgnoreCase(oldTable.getStatus())) {
+//            return "Update status error";
+//        }
 
         tableService.updateTableStatus(table.getTableId(), table.getStatus());
         return "Status updated successfully";

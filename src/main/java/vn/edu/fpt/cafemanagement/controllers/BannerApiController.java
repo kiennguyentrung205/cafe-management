@@ -9,7 +9,7 @@ import vn.edu.fpt.cafemanagement.services.BannerService;
 
 import java.util.List;
 
-@RestController // Quan trọng: sử dụng RestController để trả về JSON
+@RestController
 @RequestMapping("/api/banners")
 public class BannerApiController {
 

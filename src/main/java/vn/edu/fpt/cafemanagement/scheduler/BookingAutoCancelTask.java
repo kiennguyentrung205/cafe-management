@@ -40,26 +40,3 @@ public class BookingAutoCancelTask {
         }
     }
 }
-
-
-//@Service
-//public class BookingScheduler {
-//
-//    @Autowired
-//    private BookingRepository bookingRepository;
-//
-//    @Scheduled(fixedRate = 60000) // chạy mỗi 1 phút
-//    public void autoCancelBookings() {
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime threshold = now.minusMinutes(15);
-//
-//        List<Booking> overdueBookings = bookingRepository
-//                .findByStatusAndCreatedAtBefore("PENDING", threshold);
-//
-//        for (Booking b : overdueBookings) {
-//            b.setStatus("CANCELLED");
-//        }
-//
-//        bookingRepository.saveAll(overdueBookings);
-//    }
-//}
