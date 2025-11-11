@@ -129,8 +129,8 @@ public class CustomerService {
         if (existingCustomer.isGoogleAccount()) {
             LocalDate birthDate = customer.getDateOfBirth();
             int age = Period.between(birthDate, LocalDate.now()).getYears();
-            if (age < 10 || age > 100) {
-                throw new IllegalArgumentException("Customer age must be between 10 and 100 years old!");
+            if (age < 15 || age > 100) {
+                throw new IllegalArgumentException("Customer age must be between 15 and 100 years old!");
             }
             existingCustomer.setDateOfBirth(customer.getDateOfBirth());
         }
