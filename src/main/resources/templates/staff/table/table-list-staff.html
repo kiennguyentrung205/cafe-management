@@ -531,7 +531,7 @@
                         this.setAttribute('data-previous-status', newStatus);
 
                         // Reload after a short delay
-                        // setTimeout(() => window.location.reload(), 1000);
+                        setTimeout(() => window.location.reload(), 100);
                     })
                     .catch(err => {
                         hideSpinner();
