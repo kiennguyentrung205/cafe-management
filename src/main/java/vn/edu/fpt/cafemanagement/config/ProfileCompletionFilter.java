@@ -37,6 +37,7 @@ public class ProfileCompletionFilter extends OncePerRequestFilter {
                         uri.startsWith("/css") ||
                         uri.startsWith("/js") ||
                         uri.startsWith("/images") ||
+                        uri.startsWith("/https://lh3.googleusercontent.com") ||
                         uri.startsWith("/assets");
 
         Customer user = loggedUser.getLoggedCustomer();
