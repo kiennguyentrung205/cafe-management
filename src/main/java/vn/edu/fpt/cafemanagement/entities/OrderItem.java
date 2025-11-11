@@ -26,6 +26,10 @@ public class OrderItem {
     @Column(name = "note")
     private String note;
 
+
+    private double unitPrice;
+
+
     public OrderItem() {
     }
 
@@ -35,6 +39,15 @@ public class OrderItem {
         this.product = product;
         this.quantity = quantity;
         this.note = note;
+    }
+
+    public OrderItem(int orderItemId, Order order, Product product, int quantity, String note, double unitPrice) {
+        this.orderItemId = orderItemId;
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+        this.note = note;
+        this.unitPrice = unitPrice;
     }
 
     public int getOrderItemId() {
@@ -75,5 +88,13 @@ public class OrderItem {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(double unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }
