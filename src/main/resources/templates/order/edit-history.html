@@ -19,7 +19,8 @@
         <tr>
             <th>Order#</th>
             <th>Created By (Cashier)</th>
-            <th>Products</th>
+            <th>Table</th>
+            <th>Product(s)</th>
             <th>Note</th>
             <th>Status</th>
             <th>Updated At</th>
@@ -33,6 +34,8 @@
             <td th:text="${order.orderId}"></td>
 
             <td th:text="${order.staff != null ? order.staff.name : '-'}"></td>
+
+            <td th:text="${order.table != null ? order.table.tableId : 'Take-away'}"></td>
 
             <td>
                 <ul style="list-style:none;padding:0;margin:0;">
@@ -58,7 +61,7 @@
         </tr>
 
         <tr th:if="${orders == null or orders.isEmpty()}">
-            <td colspan="8" class="text-center text-muted py-3">
+            <td colspan="9" class="text-center text-muted py-3">
                 There are not any history orders.
             </td>
         </tr>
