@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import vn.edu.fpt.cafemanagement.security.CustomLoginSuccessHandler;
 import vn.edu.fpt.cafemanagement.services.CustomOidcUserService;
@@ -94,7 +95,7 @@ public class SecurityConfig {
     // Filter chain cho Customer
     @Bean
     @Order(2)
-    public SecurityFilterChain customerFilterChain(HttpSecurity http, ApplicationContext applicationContext) throws Exception {
+    public SecurityFilterChain customerFilterChain(HttpSecurity http, ApplicationContext applicationContext, ProfileCompletionFilter profileCompletionFilter) throws Exception {
         CustomOidcUserService oidcUserService = applicationContext.getBean(CustomOidcUserService.class);
 
         http
@@ -133,6 +134,7 @@ public class SecurityConfig {
 
                 .exceptionHandling(exc -> exc
                         .accessDeniedHandler(accessDeniedHandler()));
+        http.addFilterAfter(profileCompletionFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -157,18 +159,17 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            String accept = request.getHeader("Accept");
-            String xrw = request.getHeader("X-Requested-With");
-
-            if ("XMLHttpRequest".equalsIgnoreCase(xrw) || (accept != null && accept.contains("application/json"))) {
-
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
-            } else {
-                // Nếu là web (browser), redirect sang trang lỗi 403
-                response.sendRedirect(request.getContextPath() + "/403");
-            }
+//            String accept = request.getHeader("Accept");
+//            String xrw = request.getHeader("X-Requested-With");
+//
+//            if ("XMLHttpRequest".equalsIgnoreCase(xrw) || (accept != null && accept.contains("application/json"))) {
+//
+//                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//                response.setContentType("application/json;charset=UTF-8");
+//                response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
+//            } else {
+            response.sendRedirect(request.getContextPath() + "/403");
+//            }
         };
     }
 

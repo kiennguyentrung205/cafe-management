@@ -9,12 +9,8 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. Ánh xạ tất cả các request có tiền tố /uploads/**
-        // 2. Tới thư mục tuyệt đối trên ổ đĩa là D:/SWP/Project/uploads/
-        // LƯU Ý: Phải có dấu / ở cuối đường dẫn (Ví dụ: "file:///D:/SWP/Project/uploads/")
 
-        String imagePath = "file:///F:/SWP/Project/uploads/";
-        // Đảm bảo đường dẫn này kết thúc bằng dấu "/"
+        String imagePath = "file:///D:/SWP/Project/uploads/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(imagePath);
