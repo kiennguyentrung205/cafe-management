@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.TableBooking;
 import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 
@@ -102,5 +103,12 @@ public class TableBookingService {
 
     public TableBooking findActiveBookingByTable(int tableId){
         return tableBookingRepository.findActiveBookingByTable(tableId);
+    }
+
+    public TableBooking findActiveBookingByCustomer(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+        return tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "checked-in");
     }
 }
