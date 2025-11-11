@@ -168,7 +168,7 @@ public class SecurityConfig {
 //                response.setContentType("application/json;charset=UTF-8");
 //                response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
 //            } else {
-                response.sendRedirect(request.getContextPath() + "/403");
+            response.sendRedirect(request.getContextPath() + "/403");
 //            }
         };
     }
