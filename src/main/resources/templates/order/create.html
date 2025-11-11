@@ -1,144 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Create Order | Cafe Management</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Main layout */
-        .main-container {
-            flex: 1;
-            padding: 15px 25px;
-            overflow-y: auto;
-        }
-
-        h2 {
-            margin-bottom: 10px;
-            font-size: 22px;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr; /* tăng tỉ lệ hai panel */
-            gap: 25px;
-            max-width: 2000px; /* tăng tổng chiều rộng */
-            margin: 0 auto;
-        }
-
-        .categories select {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px;
-            font-size: 14px;
-            width: 180px;
-        }
-
-        .categories button {
-            border: none;
-            background-color: #ff4d4d;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .categories button:hover {
-            background-color: #e60000;
-        }
-
-        .search-bar input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 150px;
-        }
-
-        /* Order panel */
-        .order-panel h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .order-list {
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            padding: 8px 0;
-            max-height :100px;
-            overflow-y: auto;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .order-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            object-fit: cover;
-            margin-right: 8px;
-        }
-
-        .voucher, .customer-info {
-            margin-top: 12px;
-        }
-
-        .redeem {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 5px;
-        }
-
-        .place-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .place-btn {
-            background-color: var(--brand-primary, #FF7A00);
-            color: #fff;
-            padding: 10px 30px;
-            border-radius: 10px;
-            font-size: 15px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            transition: 0.2s ease-in-out;
-        }
-
-        .place-btn:hover {
-            background-color: var(--brand-primary, #FF7A00);
-            transform: scale(1.05);
-        }
-
-    </style>
-</head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Create Order',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/order/create.css">
+</th:block>
 <body>
-
-<!-- Sidebar -->
-<div th:replace="fragments/common :: order-sidebar('create')"></div>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 
-<!-- Main Content -->
 <div class="main-container">
     <h2>Create In-Store Order</h2>
     <div th:if="${warning}" class="alert alert-warning mt-2" th:text="${warning}"></div>
@@ -147,13 +19,90 @@
 
     <form th:action="@{/order/create}" method="post" onsubmit="handleOrderSubmit(event)">
 
-        <div class="container">
+        <div class="mainContainer">
 
-            <!-- LEFT PANEL -->
-            <div th:replace="fragments/common :: menu-panel"></div>
+            <div class="menu-panel">
+                <div class="menu-header">
+                    <div class="categories">
+                        <h3 style="font-size:17px;">Menu Category</h3>
+
+                        <div id="categoryButtons" class="d-flex gap-2 flex-wrap">
+
+                            <button type="button"
+                                    class="btn btn-sm category-button"
+                                    th:classappend="${selectedCategoryId == 0 ? 'btn-custom-active' : 'btn-custom-inactive'}"
+                                    data-category-id="0">
+                                All
+                            </button>
+
+                            <button type="button"
+                                    th:each="category : ${categoryList}"
+                                    class="btn btn-sm category-button"
+                                    th:classappend="${selectedCategoryId == category.cateId ? 'btn-custom-active' : 'btn-custom-inactive'}"
+                                    th:data-category-id="${category.cateId}"
+                                    th:text="${category.cateName}">
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-bar">
+                        <div class="input-group">
+                            <input type="text"
+                                   id="searchInput"
+                                   name="query"
+                                   class="form-control"
+                                   placeholder="Search products..."
+                                   th:value="${query}">
+
+                            <button class="btn btn-orange" type="button" id="searchButton">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-grid">
+                    <div th:each="product : ${productList}" class="product-card"
+                         th:data-product-id="${product.proId}"><img th:src="@{/uploads/{img}(img=${product.img})}"
+                                                                    alt="Product Image"/>
+                        <p class="product-name fw-semibold" th:text="${product.proName}"></p>
+                        <p class="product-price mb-0">
+                            <b th:text="${#strings.concat(#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT'), ' VND')}"></b>
+                        </p>
+                    </div>
+                </div>
+
+                <nav aria-label="Product pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/order/create(page=${currentPage - 1}, categoryId=${selectedCategoryId}, query=${query})}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">Prev</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/order/create(page=${i}, categoryId=${selectedCategoryId}, query=${query})}"
+                               th:text="${i}"></a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/order/create(page=${currentPage + 1}, categoryId=${selectedCategoryId}, query=${query})}"
+                               aria-label="Next">
+                                <span aria-hidden="true">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
 
 
-            <!-- RIGHT PANEL -->
             <div class="order-panel">
                 <h3>Order Menu</h3>
                 <div class="order-list"></div>
@@ -168,7 +117,11 @@
                                th:value="${customerPhone}"
                                class="form-control form-control-sm" style="width: 150px;">
 
-                        <button type="button" name="action" value="check" class="btn btn-sm btn-primary">Check
+                        <button type="button"
+                                class="btn btn-block btn-orange"
+                                name="action"
+                                value="check">
+                            Check
                         </button>
                     </div>
 
@@ -180,23 +133,33 @@
                     <div class="redeem">
                         <label>Redeem Points:</label>
                         <div style="display:flex;align-items:center;gap:8px;">
-
-                            <button type="button" class="btn btn-danger btn-sm fw-bold"
-                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
-                                    onclick="redeemPoints(-5)">−
-                            </button>
-
-                            <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0" step="5" readonly
+                            <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0"
                                    th:attr="data-max=${customer != null ? customer.point : 0}"
-                                   style="width:60px;text-align:center;font-weight:600;">
-
-                            <button type="button" class="btn btn-success btn-sm fw-bold"
-                                    style="width:28px;height:28px; display:flex; align-items:center; justify-content:center; padding: 0;"
-                                    onclick="redeemPoints(5)">+
-                            </button>
+                                   style="width:80px;text-align:center;font-weight:600;"
+                                   class="form-control form-control-sm">
                         </div>
                     </div>
+                    <div class="table-info" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Table:</label>
 
+                        <div th:if="${bookedTable != null}">
+                            <input type="text" class="form-control form-control-sm"
+                                   th:value="|Table ${bookedTable.tableId} (checked-in)|"
+                                   disabled
+                                   style="width: 200px; background-color: #e9ecef;"/>
+                            <input type="hidden" name="tableId" th:value="${bookedTable.tableId}" />
+                        </div>
+
+                        <div th:if="${bookedTable == null}">
+                            <select name="tableId" class="form-select form-select-sm" style="width: 200px;">
+                                <option value="">Take-away</option>
+                                <option th:each="table : ${tableList}"
+                                        th:value="${table.tableId}"
+                                        th:text="|Table ${table.tableId} (Capacity: ${table.capacity})|">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="voucher" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
 
                         <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Voucher:</label>
@@ -247,7 +210,6 @@
         </div>
     </form>
 </div>
-<div th:insert="~{layout/footer}"></div>
 <script src="/assets/js/bootstrap.bundle.min.js"></script>
 <script>
     /* ===== Hàm hiển thị modal cảnh báo ===== */
@@ -366,7 +328,7 @@
                 // Kiểm tra lỗi validation (ví dụ: hết hàng)
                 const errorEl = doc.querySelector('.alert-danger');
                 if (errorEl) {
-                    showAlertModal(errorEl.textContent, true);
+                    showAlertModal(errorEl.textContent, true); // Hiển thị lỗi từ backend
                     return;
                 }
 
@@ -444,9 +406,15 @@
                             item.querySelector(".item-qty").textContent = qty;
                         }
                         updateTotal();
+
+                        // Tự động kiểm tra lại điểm sau khi xóa
+                        validateAndHandlePoints(document.getElementById('pointsUsed'), true);
                     });
                 }
                 updateTotal();
+
+                // Tự động kiểm tra lại điểm sau khi thêm
+                validateAndHandlePoints(document.getElementById('pointsUsed'), true);
             });
         });
     }
@@ -462,7 +430,7 @@
             subtotal += qty * price;
         });
 
-        // 2. [SỬA LẠI] Lọc và ẨN Voucher dựa trên Subtotal
+        // 2. Lọc và ẨN Voucher dựa trên Subtotal
         const voucherSelect = document.querySelector('select[name="voucherId"]');
         let currentVoucherIsValid = true;
 
@@ -487,37 +455,28 @@
 
         // 3. Lấy thông tin Voucher (Sau khi đã lọc)
         const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
-
-        // [SỬA 1] Lấy data-type và chuẩn hóa sang chữ hoa (để tránh lỗi 'percent' vs 'PERCENT')
         const voucherTypeAttr = selectedOption.getAttribute('data-type') || 'NONE';
-        const voucherType = voucherTypeAttr.toUpperCase(); // QUAN TRỌNG
-
+        const voucherType = voucherTypeAttr.toUpperCase();
         const voucherValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
 
-        let voucherDiscount = 0; // Số tiền thực tế sẽ giảm (để tính finalTotal)
-        let voucherText = "- 0 VND"; // Chuỗi sẽ hiển thị cho khách
+        let voucherDiscount = 0;
+        let voucherText = "- 0 VND";
 
-        // [SỬA 2] Thay đổi logic hiển thị theo yêu cầu mới của bạn
         if (voucherType === 'PERCENT' || voucherType === '%') {
-            // Tính số tiền giảm thực tế
             voucherDiscount = Math.ceil(subtotal * (voucherValue / 100.0));
-            // Hiển thị dạng phần trăm
             voucherText = `- ${voucherValue}%`;
 
         } else if (voucherType === 'AMOUNT' || voucherType === 'VND') {
-            // Số tiền giảm chính là value
             voucherDiscount = voucherValue;
-            // Hiển thị số tiền
             voucherText = `- ${voucherDiscount.toLocaleString()} VND`;
         }
 
-        // 4. Lấy thông tin Points (1 điểm = 2000 VND)
+        // 4. Lấy thông tin Points
         const pointsInput = document.getElementById('pointsUsed');
         const pointsUsed = parseInt(pointsInput.value) || 0;
-        const pointsDiscount = pointsUsed * 2000;
+        const pointsDiscount = pointsUsed * 2000.0; // Tỷ giá 1 điểm = 2000 VND
 
         // 5. Tính Final Total
-        // (Phép tính này vẫn đúng, vì 'voucherDiscount' luôn là số tiền, bất kể 'voucherText' hiển thị là gì)
         let finalTotal = subtotal - voucherDiscount - pointsDiscount;
         if (finalTotal < 0) {
             finalTotal = 0;
@@ -527,75 +486,130 @@
             finalTotal = Math.ceil(finalTotal / 1000) * 1000;
         }
 
-        // 6. Cập nhật HTML (Gán vào 4 ID ĐÚNG)
+        // 6. Cập nhật HTML
         document.getElementById("totalPrice").textContent = subtotal.toLocaleString() + " VND";
-        document.getElementById("displayVoucherDiscount").textContent = voucherText; // Sẽ hiển thị -10% hoặc -50000 VND
+        document.getElementById("displayVoucherDiscount").textContent = voucherText;
         document.getElementById("displayPointsDiscount").textContent = `- ${pointsDiscount.toLocaleString()} VND`;
-        document.getElementById("finalPrice").textContent = finalTotal.toLocaleString(); // Cập nhật nút place
+        document.getElementById("finalPrice").textContent = finalTotal.toLocaleString();
 
         // 7. Cập nhật hidden inputs
         updateHiddenInputs();
     }
 
-    /* ========== Điểm thưởng (Được gọi bằng onclick trong HTML) ========== */
-    function redeemPoints(delta) {
-        const input = document.getElementById('pointsUsed');
-        if (!input) return;
-        const maxPoint = parseInt(input.getAttribute('data-max')) || 0;
-        let current = parseInt(input.value) || 0;
-        current += delta;
-        if (current < 0) current = 0;
-        if (current > maxPoint) current = maxPoint;
-        current = Math.floor(current / 5) * 5;
-        input.value = current;
 
+    /* ========== Validate điểm khi nhập vào ========== */
+    function validateAndHandlePoints(input, silent = false) {
+        if (!input) return;
+
+        let pointsUsed_Input = parseInt(input.value) || 0;
+        if (pointsUsed_Input < 0) {
+            pointsUsed_Input = 0;
+            input.value = 0;
+        }
+
+        // 1. Lấy tổng điểm khách CÓ
+        const customerMaxPoints = parseInt(input.getAttribute('data-max')) || 0;
+
+        // 2. Tính Subtotal và Voucher Discount
+        const orderItems = document.querySelectorAll(".order-item");
+        let subtotal = 0;
+        orderItems.forEach(item => {
+            const qty = parseInt(item.querySelector(".item-qty").textContent);
+            const price = parseFloat(item.querySelector(".item-price").getAttribute("data-price"));
+            subtotal += qty * price;
+        });
+
+        const voucherSelect = document.querySelector('select[name="voucherId"]');
+        const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+        const voucherTypeAttr = selectedOption.getAttribute('data-type') || 'NONE';
+        const voucherType = voucherTypeAttr.toUpperCase();
+        const voucherValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+        let voucherDiscount = 0;
+        if (voucherType === 'PERCENT' || voucherType === '%') {
+            voucherDiscount = Math.ceil(subtotal * (voucherValue / 100.0));
+        } else if (voucherType === 'AMOUNT' || voucherType === 'VND') {
+            voucherDiscount = voucherValue;
+        }
+
+        // 4. Tính số tiền còn lại PHẢI TRẢ
+        let priceToPay = subtotal - voucherDiscount;
+        if (priceToPay < 0) priceToPay = 0;
+
+        // 5. Tính số điểm TỐI ĐA CẦN DÙNG
+        const orderMaxPointsNeeded = Math.ceil(priceToPay / 2000.0); // Tỷ giá 1 điểm = 2000 VND
+
+        // 6. Tìm giới hạn THỰC SỰ
+        const trueMaxPoints = Math.min(customerMaxPoints, orderMaxPointsNeeded);
+
+        // 7. Validate
+        if (pointsUsed_Input > trueMaxPoints) {
+
+            if (customerMaxPoints < orderMaxPointsNeeded && pointsUsed_Input > customerMaxPoints) {
+                if (!silent) {
+                    showAlertModal(`Warning: You only have ${customerMaxPoints} points.`);
+                }
+                input.value = customerMaxPoints; // Tự động sửa
+            } else {
+                if (!silent) {
+                    showAlertModal(`Warning: This order only requires ${orderMaxPointsNeeded} points.`);
+                }
+                input.value = orderMaxPointsNeeded; // Tự động sửa
+            }
+        } else {
+            input.value = pointsUsed_Input;
+        }
+
+        // 8. Cập nhật UI
         updateLockState();
         updateTotal();
     }
+
 
     /* ========== Cập nhật trạng thái Khóa (Disable) của các Input ========== */
     function updateLockState() {
         const orderPanel = document.querySelector('.order-panel');
         if (!orderPanel) return;
 
-        // Lấy tất cả các element điều khiển
         const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
         const voucherSelect = orderPanel.querySelector('select[name="voucherId"]');
         const pointsInput = orderPanel.querySelector('#pointsUsed');
-        const redeemButtons = orderPanel.querySelectorAll('.redeem button, .redeem input');
 
         if (!phoneInput || !voucherSelect || !pointsInput) return;
 
-        // Lấy trạng thái hiện tại
         const voucherHasValue = voucherSelect.value !== "";
         const pointsHaveValue = parseInt(pointsInput.value) > 0;
         const customerHasPoints = (parseInt(pointsInput.getAttribute('data-max')) || 0) > 0;
 
-        // --- Áp dụng Logic MỚI ---
-
-        // 1. Ô SĐT luôn luôn được bật (KHÔNG BAO GIỜ disable)
         phoneInput.disabled = false;
-
-        // 2. Mặc định, nút điểm chỉ bật khi khách hàng có điểm
         let redeemShouldBeDisabled = !customerHasPoints;
-
-        // 3. Mặc định, voucher được bật
         let voucherShouldBeDisabled = false;
 
-
-        // 4. Áp dụng luật khóa chéo:
         if (voucherHasValue) {
-            // NẾU ĐÃ CHỌN VOUCHER -> KHÓA NÚT ĐIỂM
             redeemShouldBeDisabled = true;
-
         } else if (pointsHaveValue) {
-            // NẾU ĐÃ DÙNG ĐIỂM -> KHÓA VOUCHER
             voucherShouldBeDisabled = true;
         }
 
-        // 5. Cập nhật trạng thái cuối cùng cho các nút
         voucherSelect.disabled = voucherShouldBeDisabled;
-        redeemButtons.forEach(el => el.disabled = redeemShouldBeDisabled);
+        if (pointsInput) {
+            pointsInput.disabled = redeemShouldBeDisabled;
+        }
+    }
+
+    /* ========== [HÀM MỚI] Thực thi Search ========== */
+    function performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        let url = '/order/create?page=1'; // Luôn về trang 1 khi search
+
+        if (selectedCategoryId && selectedCategoryId !== "0") { // Thêm check khác 0
+            url += `&categoryId=${selectedCategoryId}`;
+        }
+
+        if (query) {
+            url += `&query=${encodeURIComponent(query)}`;
+        }
+
+        fetchAndReplace(url, selectedCategoryId);
     }
 
     /* ========== AJAX load lại menu + phân trang ========== */
@@ -627,13 +641,23 @@
                     if (curPag) curPag.innerHTML = '';
                 }
 
-                selectedCategoryId = categoryId ? String(categoryId) : null;
-                document.querySelectorAll('.category-checkbox').forEach(cb => {
-                    cb.checked = selectedCategoryId === cb.value;
+                // --- [ĐÃ SỬA] ---
+                // Cập nhật trạng thái active cho các button (dùng class mới)
+                selectedCategoryId = categoryId ? String(categoryId) : "0"; // Default to "0" (All)
+                document.querySelectorAll('.category-button').forEach(button => {
+                    const buttonId = button.getAttribute('data-category-id');
+                    if (buttonId === selectedCategoryId) {
+                        button.classList.add('btn-custom-active');
+                        button.classList.remove('btn-custom-inactive');
+                    } else {
+                        button.classList.add('btn-custom-inactive');
+                        button.classList.remove('btn-custom-active');
+                    }
                 });
+                // --- [HẾT SỬA] ---
 
                 attachProductCardListeners(); // Gắn lại sự kiện click product
-                rebindLiveSearch(); // Gắn lại sự kiện search
+
                 history.pushState(null, '', url);
             })
             .catch(err => {
@@ -642,47 +666,8 @@
             });
     }
 
-    /* ========== Chọn danh mục (Được gọi bằng onchange trong HTML) ========== */
-    let selectedCategoryId = null;
-
-    function handleCategorySelect(checkbox) {
-        const allCheckboxes = document.querySelectorAll('.category-checkbox');
-        if (checkbox.checked) {
-            allCheckboxes.forEach(cb => {
-                if (cb !== checkbox) cb.checked = false;
-            });
-            selectedCategoryId = checkbox.value;
-            fetchAndReplace(`/order/create?categoryId=${selectedCategoryId}&page=1`, selectedCategoryId);
-        } else {
-            selectedCategoryId = null;
-            fetchAndReplace(`/order/create?page=1`, null);
-        }
-    }
-
-    /* ========== Live Search ========== */
-    function rebindLiveSearch() {
-        const searchInput = document.querySelector('.search-bar input');
-        if (!searchInput) return;
-        searchInput.removeEventListener('input', searchInput._handler || (() => {
-        }));
-        const handler = debounce(function () {
-            const query = this.value.trim();
-            let url = '/order/create?page=1';
-            if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
-            if (query) url += `&query=${encodeURIComponent(query)}`;
-            fetchAndReplace(url, selectedCategoryId);
-        }, 300);
-        searchInput._handler = handler;
-        searchInput.addEventListener('input', handler);
-    }
-
-    function debounce(fn, delay) {
-        let timer;
-        return function (...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
+    // Biến global để lưu category đang chọn
+    let selectedCategoryId = "0"; // Mặc định là "All"
 
     /* ========== Phân trang AJAX (Menu) ========== */
     document.addEventListener('click', function (e) {
@@ -702,18 +687,55 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Gắn sự kiện cho Menu (bên trái)
         attachProductCardListeners();
-        rebindLiveSearch();
 
-        // Gắn sự kiện cho Category Checkbox
-        document.querySelectorAll('.category-checkbox').forEach(cb => {
-            cb.removeEventListener('change', cb._handler || (() => {
-            }));
-            const handler = function () {
-                handleCategorySelect(this);
-            };
-            cb._handler = handler;
-            cb.addEventListener('change', handler);
-        });
+        // --- Gắn sự kiện cho nút Search ---
+        const searchBtn = document.getElementById('searchButton');
+        const searchInput = document.getElementById('searchInput');
+
+        if (searchBtn && searchInput) {
+            // 1. Click nút Search
+            searchBtn.addEventListener('click', performSearch);
+
+            // 2. Nhấn "Enter" trong ô input
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Ngăn form submit
+                    performSearch();
+                }
+            });
+        }
+
+        // --- [SỬA] Gắn sự kiện cho Category Buttons (dùng event delegation) ---
+        const categoryContainer = document.getElementById('categoryButtons');
+        if (categoryContainer) {
+
+            // --- [ĐÂY LÀ SỬA LỖI F5] ---
+            // Đọc trạng thái active mà Server đã render
+            const activeButton = categoryContainer.querySelector('.btn-custom-active');
+            selectedCategoryId = activeButton ? activeButton.getAttribute('data-category-id') : "0";
+            // --- [HẾT SỬA LỖI F5] ---
+
+            categoryContainer.addEventListener('click', function(e) {
+                const button = e.target.closest('.category-button');
+                if (!button) return; // Không phải click-nút
+
+                // Lấy ID mới từ nút vừa click
+                selectedCategoryId = button.getAttribute('data-category-id');
+
+                // Cập nhật UI ngay lập tức (không cần chờ fetch)
+                document.querySelectorAll('.category-button').forEach(btn => {
+                    btn.classList.add('btn-custom-inactive');
+                    btn.classList.remove('btn-custom-active');
+                });
+                button.classList.add('btn-custom-active');
+                button.classList.remove('btn-custom-inactive');
+
+                // Gọi hàm search với ID mới
+                performSearch();
+            });
+        }
+        // --- [HẾT SỬA] ---
+
 
         // Gắn sự kiện cho nút Back/Forward của trình duyệt
         window.addEventListener('popstate', function () {
@@ -740,6 +762,10 @@
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('action', 'check');
             currentUrl.searchParams.set('customerPhone', phone);
+            const query = document.getElementById('searchInput')?.value || "";
+            if (query) {
+                currentUrl.searchParams.set('query', query);
+            }
             const url = currentUrl.href;
 
             fetch(url, {method: 'GET', credentials: 'same-origin'})
@@ -784,13 +810,20 @@
                 });
         });
 
-        // 2. SỰ KIỆN CHANGE (cho ô Voucher)
+        // 2. SỰ KIỆN CHANGE (cho ô Voucher VÀ Ô ĐIỂM)
         orderPanel.addEventListener('change', function (e) {
             const voucherSelect = e.target.closest('select[name="voucherId"]');
+            const pointsInput = e.target.closest('input[name="pointsUsed"]');
+
             if (voucherSelect) {
-                // [SỬA] Chỉ cần gọi hàm update
                 updateLockState();
                 updateTotal();
+                // Khi đổi voucher, cũng phải check lại điểm
+                validateAndHandlePoints(document.getElementById('pointsUsed'), true);
+            }
+
+            if (pointsInput) {
+                validateAndHandlePoints(pointsInput, false); // false = KHÔNG im lặng (sẽ hiện alert)
             }
         });
 
@@ -798,7 +831,6 @@
         orderPanel.addEventListener('input', function (e) {
             const phoneInput = e.target.closest('input[name="customerPhone"]');
             if (phoneInput) {
-                // [SỬA] Chỉ cần gọi hàm update
                 updateLockState();
             }
         });
@@ -865,7 +897,6 @@
 </script>
 
 
-<!-- Modal cảnh báo -->
 <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content border-black">
@@ -876,7 +907,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center fs-5" id="alertMessage">
-                <!-- JS sẽ chèn nội dung cảnh báo vào đây -->
             </div>
             <div class="modal-footer justify-content-center">
                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">OK</button>
@@ -884,6 +914,6 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 </body>
 </html>

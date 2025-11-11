@@ -43,21 +43,21 @@
                         <!-- Tilte -->
                         <div class="mb-3">
                             <label for="name" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="name" th:field="*{title}" required>
+                            <input type="text" class="form-control" id="name" th:field="*{title}">
                             <div class="invalid-feedback">Title is required.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="orderNumber" class="form-label fw-bold">Order Number (Priority)</label>
                             <input type="number" class="form-control" id="orderNumber" th:field="*{orderNumber}"
-                                   required>
+                                   >
                             <div class="invalid-feedback">Order Number is required.</div>
                         </div>
 
                         <!-- Actions -->
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-4 border-top">
                             <a th:href="@{/dashboard/banners}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-brand-primary">Create Staff</button>
+                            <button type="submit" class="btn btn-brand-primary">Create Banner</button>
                         </div>
 
                     </form>
