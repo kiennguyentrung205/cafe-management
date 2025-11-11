@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,7 +20,11 @@ import java.util.Collection;
 @Component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomLoginSuccessHandler.class);
+    private LoggedUser loggedUser;
+
+    public CustomLoginSuccessHandler(LoggedUser loggedUser) {
+        this.loggedUser = loggedUser;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -29,7 +34,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 
         if(authentication.getPrincipal() instanceof OidcUser){
-            response.sendRedirect("/home");
+            Customer customer = loggedUser.getLoggedCustomer();
+            if(customer.getPhoneNumber() == null || customer.getDateOfBirth() == null){
+                request.getSession().setAttribute("profileReminder", "Welcome, please fill in your phone number and date of birth for a better experience");
+                response.sendRedirect("/profile/edit");
+            } else {
+                response.sendRedirect("/home");
+            }
             return;
         }
 
@@ -41,7 +52,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
-            logger.info("Processing role: {}", role);
 
             if (role.equals("ROLE_ADMIN")) {
                 redirectUrl = "/dashboard";
@@ -61,7 +71,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        logger.info("Redirecting to: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }
 }

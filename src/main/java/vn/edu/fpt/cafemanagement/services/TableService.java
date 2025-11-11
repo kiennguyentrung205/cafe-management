@@ -34,7 +34,6 @@ public class TableService {
         System.out.println("status: " + status);
 
         if ("available".equals(status)){
-            System.out.println("trigger");
             autoCompleteBookingOfTable(table.getTableId());
         }
     }

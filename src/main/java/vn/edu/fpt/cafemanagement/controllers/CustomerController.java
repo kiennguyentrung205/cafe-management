@@ -1,15 +1,20 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
+import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.CustomerService;
 
@@ -22,6 +27,8 @@ public class CustomerController {
     private CustomerService customerService;
     @Autowired
     private LoggedUser loggedUser;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @RequestMapping(value = "")
     public String viewProfile(Model model) {
@@ -57,14 +64,21 @@ public class CustomerController {
     }
 
     @GetMapping("/edit")
-    public String editProfile(Model model) {
+    public String editProfile(Model model, HttpSession httpSession) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String reminder = (String) httpSession.getAttribute("profileReminder");
+
         if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
             return "redirect:/login";
         }
         Customer sessionCustomer = loggedUser.getLoggedCustomer();
         if (sessionCustomer == null) {
             return "redirect:/login";
+        }
+
+        if (reminder != null) {
+            model.addAttribute("reminder", reminder);
+            httpSession.removeAttribute("profileReminder");
         }
         Customer customer = customerService.getCustomerById(sessionCustomer.getCusId());
         model.addAttribute("customer", customer);
@@ -87,6 +101,7 @@ public class CustomerController {
                 return "redirect:/profile/edit";
             }
             customerService.updateCustomer(customer, imgFile);
+
             return "redirect:/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());

@@ -50,12 +50,18 @@ public class TableBookingController {
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
+        LocalDateTime now = LocalDateTime.now();
+
         if (startDate != null) {
             if(endDate != null){
                 startDateTime = startDate.atStartOfDay();
                 endDateTime = endDate.atTime(23, 59, 59);
-            } else {
+            } else if (startDate.isAfter(now.toLocalDate())) {
+                endDateTime = startDate.atTime(23, 59, 59);
+                endDate = startDate;
+            } else{
                 endDateTime = LocalDateTime.now();
+                endDate =  endDateTime.toLocalDate();
             }
 
         }
@@ -88,8 +94,8 @@ public class TableBookingController {
         model.addAttribute("tableBooking", tableBooking);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
-        model.addAttribute("startDate", startDateTime);
-        model.addAttribute("endDate", endDateTime);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         model.addAttribute("status", status);
         return "table-booking/view-table-booking";
     }
@@ -167,9 +173,19 @@ public class TableBookingController {
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
-        if (startDate != null && endDate != null) {
-            startDateTime = startDate.atStartOfDay();
-            endDateTime = endDate.atTime(23, 59, 59);
+        LocalDateTime now = LocalDateTime.now();
+        if (startDate != null) {
+            if(endDate != null){
+                startDateTime = startDate.atStartOfDay();
+                endDateTime = endDate.atTime(23, 59, 59);
+            } else if (startDate.isAfter(now.toLocalDate())) {
+                endDateTime = startDate.atTime(23, 59, 59);
+                endDate = startDate;
+            } else{
+                endDateTime = LocalDateTime.now();
+                endDate =  endDateTime.toLocalDate();
+            }
+
         }
 
 

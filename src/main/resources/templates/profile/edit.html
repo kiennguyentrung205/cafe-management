@@ -3,7 +3,9 @@
 <head th:replace="~{fragments/common :: common-head(
             pageTitle='Profile',
             pageSpecificCss=~{:: .page-css}
-          )}"></head>
+          )}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 <th:block class="page-css">
     <link rel="stylesheet" href="/assets/css/dashboard/dashboard.css">
     <link rel="stylesheet" href="/assets/css/profile/edit.css">
@@ -15,6 +17,9 @@
         <div class="col-lg-10 col-xl-8">
 
             <h1 class="text-center mb-4">Edit Profile</h1>
+
+            <div id="reminder" th:text="${reminder}" style="display:none"></div>
+
             <div class="card">
                 <div class="card-body">
                     <form action="/profile/edit" enctype="multipart/form-data" method="post">
@@ -106,11 +111,68 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="welcomeModalLabel">Chào mừng bạn!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="welcomeMessage"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    OK
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const msg = document.getElementById('reminder').textContent.trim();
+        if (msg !== '') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Chào mừng bạn!',
+                text: msg,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const msg = document.getElementById('reminder').textContent.trim();
+
+        if (msg !== '') {
+            document.getElementById('welcomeMessage').textContent = msg;
+
+            const modal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+            modal.show();
+        }
+    });
+</script>
+
+
 <div th:insert="~{layout/footer}"></div>
+
+
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+
 
 </body>
 </html>
