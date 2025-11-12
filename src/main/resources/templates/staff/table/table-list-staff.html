@@ -354,6 +354,12 @@
         </form>
     </div>
 
+    <button class="btn btn-primary btn-lg my-3"
+            data-bs-target="#moveModal"
+            data-bs-toggle="modal">
+        <i class="fas fa-arrows-alt me-1"></i> Switch Table
+    </button>
+
     <!-- Table -->
     <div class="card">
         <div class="card-body p-0">
@@ -387,16 +393,17 @@
                             <select class="form-select table-status"
                                     name="status"
                                     th:data-id="${x.tableId}"
-                                    th:value="${x.status}">
+                                    th:value="${x.status}"
+                            disabled>
                                 <option class="status-available"
                                         th:selected="${x.status == 'available'}"
                                         value="available">
                                     <i class="fas fa-check-circle"></i> Available
                                 </option>
                                 <option class="status-booked"
+                                        disabled
                                         th:if="${x.status != 'occupied'}"
-                                        th:selected="${x.status == 'booked'}"
-                                        value="booked" disabled>
+                                        th:selected="${x.status == 'booked'}" value="booked">
                                     <i class="fas fa-calendar-check"></i> Booked
                                 </option>
                                 <option class="status-occupied"
@@ -424,6 +431,63 @@
         </div>
     </div>
 </main>
+
+<!-- Move Table Booking Modal -->
+<div aria-hidden="true" aria-labelledby="moveModalLabel" class="modal fade" id="moveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 0.75rem;">
+            <!-- Header -->
+            <div class="modal-header bg-info text-dark">
+                <h5 class="modal-title" id="moveModalLabel">Switch table</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body text-dark">
+                <form method="post" th:action="@{/table/management/move}">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="oldTableId">Current Table</label>
+                        <select class="form-select bg-white text-dark" id="oldTableId" name="oldTableId" required>
+                            <option value="">-- Select Current Table --</option>
+                            <option th:each="table : ${occupied}"
+                                    th:text="${table.tableId}"
+                                    th:value="${table.tableId}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="newTableId">New Table</label>
+                        <select class="form-select bg-white text-dark" id="newTableId" name="newTableId" required>
+                            <option value="">-- Select New Table --</option>
+                            <option th:each="table : ${available}"
+                                    th:text="${table.tableId}"
+                                    th:value="${table.tableId}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="text-end">
+                        <button class="btn btn-primary" type="submit">Confirm Move</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const moveModal = document.getElementById('moveModal');
+        moveModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+        });
+    });
+</script>
+
+
 <div th:insert="~{layout/footer}"></div>
 <!-- Bootstrap JS -->
 <script crossorigin="anonymous"

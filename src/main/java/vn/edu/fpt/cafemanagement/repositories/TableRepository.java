@@ -19,4 +19,6 @@ public interface TableRepository extends JpaRepository<Table, Integer> {
 
     @Query(value = "select distinct capacity from [table]", nativeQuery = true)
     List<Integer> capacityList();
+
+    List<Table> getTableByStatus(String status);
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.OrderItem;
+import vn.edu.fpt.cafemanagement.entities.Table;
 import vn.edu.fpt.cafemanagement.repositories.OrderItemRepository;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 
@@ -146,5 +147,9 @@ public class OrderService {
     public void deleteOrderById(int orderId) {
         orderItemRepository.deleteByOrder_OrderId(orderId);
         orderRepository.deleteById(orderId);
+    }
+
+    public Order findByTable(Table table) {
+        return orderRepository.findOrderByTable(table).orElse(null);
     }
 }

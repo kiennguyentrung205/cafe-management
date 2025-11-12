@@ -246,6 +246,7 @@
                         <p class="text-center auth-card-subtitle text-muted mb-0" style="font-size: 0.9rem;">
                             Access your management account
                         </p>
+                        <p  style="color: red; font-weight: 500"  th:text="${error}"></p>
                     </div>
 
                     <form th:action="@{/staff/login}" method="post">

@@ -34,7 +34,6 @@ public class TableService {
         System.out.println("status: " + status);
 
         if ("available".equals(status)){
-            System.out.println("trigger");
             autoCompleteBookingOfTable(table.getTableId());
         }
     }
@@ -54,4 +53,19 @@ public class TableService {
     public List<Integer> getCapacityList() {
         return tableRepository.capacityList();
     }
+
+    public List<Table> getAvailableTables(){
+        return tableRepository.getTableByStatus("available");
+    }
+
+
+    public List<Table> getOccupiedTables(){
+        return tableRepository.getTableByStatus("occupied");
+    }
+
+    public void save(Table table){
+        tableRepository.save(table);
+    }
+
+
 }

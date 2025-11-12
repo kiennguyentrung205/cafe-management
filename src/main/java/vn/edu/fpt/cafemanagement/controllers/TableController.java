@@ -2,10 +2,13 @@ package vn.edu.fpt.cafemanagement.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Table;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
+import vn.edu.fpt.cafemanagement.services.OrderService;
 import vn.edu.fpt.cafemanagement.services.TableService;
 
 import java.util.List;
@@ -16,10 +19,12 @@ import java.util.stream.Collectors;
 public class TableController {
     private final LoggedUser loggedUser;
     private final TableService tableService;
+    private final OrderService orderService;
 
-    public TableController(TableService tableService, LoggedUser loggedUser) {
+    public TableController(TableService tableService, LoggedUser loggedUser,  OrderService orderService) {
         this.tableService = tableService;
         this.loggedUser = loggedUser;
+        this.orderService = orderService;
     }
 
     @GetMapping(path = "/list")
@@ -52,6 +57,9 @@ public class TableController {
         model.addAttribute("status", status);
         model.addAttribute("capacity", capacity);
         model.addAttribute("tables", tables);
+        model.addAttribute("available", tableService.getAvailableTables());
+        model.addAttribute("occupied", tableService.getOccupiedTables());
+        model.addAttribute("tables", tables);
         model.addAttribute("capacityList", capacityList);
 
         return "staff/table/table-list-staff";
@@ -60,8 +68,47 @@ public class TableController {
     @PostMapping(path = "/management/update-status")
     @ResponseBody
     public String updateTableStatus(@RequestBody Table table) {
+//        Table oldTable = tableService.findById(table.getTableId());
+//
+//        if("available".equalsIgnoreCase(oldTable.getStatus())) {
+//            return "Update status error";
+//        }
+
         tableService.updateTableStatus(table.getTableId(), table.getStatus());
         return "Status updated successfully";
     }
 
+    @PostMapping("/management/move")
+    @Transactional
+    public String move(@RequestParam("oldTableId") int oldTableId, @RequestParam("newTableId") int newTableId) {
+        if(oldTableId == newTableId) {
+            return "redirect:/table/management";
+        }
+
+        Table oldTable = tableService.findById(oldTableId);
+        Table newTable = tableService.findById(newTableId);
+
+        if(oldTable ==  null || newTable == null) {
+            return "redirect:/table/list";
+        }
+
+        // Check if new table is available
+        if(!"available".equalsIgnoreCase(newTable.getStatus())){
+            return "redirect:/table/management";
+        }
+
+        Order order = orderService.findByTable(oldTable);
+
+        oldTable.setStatus("available");
+        newTable.setStatus("occupied");
+
+        order.setTable(newTable);
+
+        tableService.save(newTable);
+        tableService.save(oldTable);
+
+        orderService.saveOrder(order);
+
+        return "redirect:/table/management?move=success";
+    }
 }

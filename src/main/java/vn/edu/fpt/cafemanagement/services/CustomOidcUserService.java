@@ -45,6 +45,7 @@ public class CustomOidcUserService extends OidcUserService {
         if (existingCustomer.isPresent()) {
             customer = existingCustomer.get();
             customer.setImg(picture);
+            customer.setGoogleAccount(true);
         } else {
             customer = new Customer();
             customer.setUsername(googleId);
