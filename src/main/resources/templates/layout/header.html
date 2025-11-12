@@ -693,8 +693,11 @@
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
-                        <a class="nav-link active" th:href="@{/table/management}">Table Management</a>
+                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/order/edit}">Edit order</a>
+                    </li>s
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -814,6 +817,9 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
                         <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('WAITER')">
+                        <a class="nav-link" th:href="@{/order/edit}">Edit order</a>
                     </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"

@@ -211,8 +211,9 @@ public class CustomerController {
 
     @PostMapping("/edit")
     public String editProfile(@ModelAttribute(name = "customer") Customer customer, @RequestParam(value = "imgFile", required = false) MultipartFile imgFile, Model model) {
+        Customer sessionCustomer = null;
         try {
-            Customer sessionCustomer = loggedUser.getLoggedCustomer();
+            sessionCustomer = loggedUser.getLoggedCustomer();
             if (customer.getCusId() != sessionCustomer.getCusId()) {
                 System.err.println("SECURITY ALERT: Customer ID mismatch! Form ID = "
                         + customer.getCusId() + ", Logged ID = " + sessionCustomer.getCusId());
@@ -229,7 +230,7 @@ public class CustomerController {
             return "redirect:/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("customer", customer);
+            model.addAttribute("customer", sessionCustomer);
             return "profile/edit";
         }
     }

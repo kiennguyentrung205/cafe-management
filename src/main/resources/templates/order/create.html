@@ -474,7 +474,7 @@
         // 4. Lấy thông tin Points
         const pointsInput = document.getElementById('pointsUsed');
         const pointsUsed = parseInt(pointsInput.value) || 0;
-        const pointsDiscount = pointsUsed * 2000.0; // Tỷ giá 1 điểm = 2000 VND
+        const pointsDiscount = pointsUsed * 1000.0; // Tỷ giá 1 điểm = 2000 VND
 
         // 5. Tính Final Total
         let finalTotal = subtotal - voucherDiscount - pointsDiscount;
@@ -536,7 +536,7 @@
         if (priceToPay < 0) priceToPay = 0;
 
         // 5. Tính số điểm TỐI ĐA CẦN DÙNG
-        const orderMaxPointsNeeded = Math.ceil(priceToPay / 2000.0); // Tỷ giá 1 điểm = 2000 VND
+        const orderMaxPointsNeeded = Math.ceil(priceToPay / 1000.0); // Tỷ giá 1 điểm = 2000 VND
 
         // 6. Tìm giới hạn THỰC SỰ
         const trueMaxPoints = Math.min(customerMaxPoints, orderMaxPointsNeeded);

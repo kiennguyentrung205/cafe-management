@@ -44,29 +44,25 @@ public class PasswordService {
     }
 
     public void resetPassword(String email, String otp, String newPassword, String confirmPassword) {
+        if (otp == null || otp.isEmpty()) {
+            throw new IllegalArgumentException("The otp cannot be empty.");
+        }
         if (newPassword == null || newPassword.isEmpty()) {
             throw new IllegalArgumentException("The new password cannot be empty.");
         }
         if (confirmPassword == null || confirmPassword.isEmpty()) {
             throw new IllegalArgumentException("The confirm password cannot be empty.");
         }
-        if (otp == null || otp.isEmpty()) {
-            throw new IllegalArgumentException("The otp cannot be empty.");
-        }
         if (!newPassword.equals(confirmPassword)) {
             throw new IllegalArgumentException("Password does not match!");
         }
-
-
+        if (!otpService.validateOtp(email, otp)) {
+            throw new IllegalArgumentException("The OTP code is incorrect or has expired!");
+        }
         if (!newPassword.matches(PASSWORD_REGEX)) {
             throw new IllegalArgumentException("Password must be at least 8 characters long and include uppercase letters, " +
                     "lowercase letters, numbers, and special characters!\n");
         }
-
-        if (!otpService.validateOtp(email, otp)) {
-            throw new IllegalArgumentException("The OTP code is incorrect or has expired!");
-        }
-
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Customer not found!"));
         customer.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
