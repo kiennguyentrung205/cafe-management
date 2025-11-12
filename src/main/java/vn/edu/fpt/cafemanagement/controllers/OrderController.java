@@ -205,11 +205,12 @@ public class OrderController {
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";
 
             OrderItem item = new OrderItem();
+            item.setUnitPrice(product.getPrice());
             item.setProduct(product);
             item.setQuantity(qty);
             item.setNote(note);
             orderItems.add(item);
-            totalPrice += product.getPrice() * qty;
+            totalPrice += item.getUnitPrice() * qty;
         }
 
         // --- [STEP 8] Tính Voucher Discount ---
@@ -285,7 +286,7 @@ public class OrderController {
         // --- [HẾT LOGIC MỚI] ---
 
         // Gắn order vào items
-        for(OrderItem item : orderItems) {
+        for (OrderItem item : orderItems) {
             item.setOrder(order);
         }
         order.setOrderItems(orderItems);
@@ -525,7 +526,7 @@ public class OrderController {
         orderMap.put("products", items.stream()
                 .map(i -> Map.of( // Map.of() ở đây vẫn OK vì chỉ có 3 cặp
                         "name", i.getProduct().getProName(),
-                        "price", i.getProduct().getPrice(),
+                        "price", i.getUnitPrice(),
                         "quantity", i.getQuantity()
                 ))
                 .toList());
