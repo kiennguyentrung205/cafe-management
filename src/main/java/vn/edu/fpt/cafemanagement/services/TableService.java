@@ -53,4 +53,19 @@ public class TableService {
     public List<Integer> getCapacityList() {
         return tableRepository.capacityList();
     }
+
+    public List<Table> getAvailableTables(){
+        return tableRepository.getTableByStatus("available");
+    }
+
+
+    public List<Table> getOccupiedTables(){
+        return tableRepository.getTableByStatus("occupied");
+    }
+
+    public void save(Table table){
+        tableRepository.save(table);
+    }
+
+
 }

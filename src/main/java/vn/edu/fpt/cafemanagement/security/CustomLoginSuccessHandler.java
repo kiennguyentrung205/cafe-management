@@ -125,7 +125,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                 redirectUrl = "/dashboard";
                 break;
             } else if (role.equals("ROLE_CASHIER")) {
-                redirectUrl = "/table/booking/management";
+                redirectUrl = "/order/create";
                 break;
             } else if (role.equals("ROLE_CUSTOMER")) {
                 redirectUrl = "/home";

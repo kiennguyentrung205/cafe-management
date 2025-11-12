@@ -111,6 +111,7 @@ public class SecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(customLoginSuccessHandler)
+                        .failureUrl("/customer/login?error=true")
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
@@ -122,7 +123,7 @@ public class SecurityConfig {
                 )
 
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/customer/logout")
                         .addLogoutHandler(new SecurityContextLogoutHandler())
                         .logoutSuccessUrl("/customer/login?logout=success")
                         .invalidateHttpSession(true)

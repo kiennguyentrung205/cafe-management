@@ -197,9 +197,7 @@
                         <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/register}">Register</a>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasRole('admin')">
-                        <a class="nav-link" th:href="@{/invoice}">Invoice</a>
-                    </li>
+
 
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
@@ -214,9 +212,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -858,9 +861,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type="submit">Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>

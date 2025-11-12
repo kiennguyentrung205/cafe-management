@@ -115,8 +115,13 @@
                             <span sec:authentication="principal.fullName">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li>
-                                <form th:action="@{/logout}" method="post" class="d-inline">
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>

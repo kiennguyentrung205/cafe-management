@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.cafemanagement.entities.Order;
+import vn.edu.fpt.cafemanagement.entities.Table;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
@@ -36,4 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("endDate") LocalDateTime endDate);
 
     List<Order> findAllByCreatedAtGreaterThanEqualAndCreatedAtLessThan(LocalDateTime startDate, LocalDateTime endDate);
+
+    Optional<Order> findOrderByTable(Table table);
+
 }
