@@ -50,8 +50,30 @@
                             </tbody>
                         </table>
                     </div>
-
                 </div>
+                <nav aria-label="Order pagination"
+                     th:if="${pointHistoryList != null and !pointHistoryList.isEmpty() and totalPages > 0}"
+                     class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage - 1})}" aria-label="Previous">
+                                <span aria-hidden="true">Prev</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/profile/point-history(page=${i})}" th:text="${i}"></a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage + 1})}" aria-label="Next">
+                                <span aria-hidden="true">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
