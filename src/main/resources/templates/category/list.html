@@ -207,16 +207,7 @@
                 <!-- Bảng chỉ hiển thị khi list không rỗng -->
                 <div th:unless="${CategoryList.isEmpty()}">
 
-                    <div class="table-responsive">
-                        <!--
-                          THAY ĐỔI: Bỏ .table-bordered và .table-striped
-                          (trông hiện đại hơn)
-                          Bỏ .table-dark (header)
-                        -->
-                        <a class="btn btn-outline-primary" th:href="@{/category/create}">
-                            + Create new category
-                        </a>
-                    </div>
+
 
                     <!-- Thông báo khi list rỗng -->
                     <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
