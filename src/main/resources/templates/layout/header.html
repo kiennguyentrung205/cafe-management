@@ -69,6 +69,7 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
@@ -96,9 +97,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -167,6 +173,7 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
@@ -214,9 +221,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -456,6 +468,7 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
@@ -503,9 +516,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -572,6 +590,7 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
@@ -619,9 +638,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type.submit>Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -690,14 +714,15 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
-                        <a class="nav-link" th:href="@{/table/management}">Table Management</a>
+                        <a class="nav-link active" th:href="@{/table/management}">Table Management</a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
                         <a class="nav-link" th:href="@{/order/edit}">Edit order</a>
-                    </li>s
+                    </li>
                     <li sec:authorize="hasAnyRole('ROLE_CUSTOMER')" class="nav-item dropdown">
                         <!-- Added 'active' class here -->
                         <a aria-expanded="false" class="nav-link dropdown-toggle active d-flex align-items-center gap-2"
@@ -740,9 +765,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type="submit">Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
@@ -813,7 +843,11 @@
                             <li><a class="dropdown-item" th:href="@{/table/booking/management}">Booking History</a></li>
                             <li><a class="dropdown-item" th:href="@{/table/management}">Table Management</a></li>
                             <li><a class="dropdown-item" th:href="@{/order/create}">Create Order</a></li>
+                            <li><a class="dropdown-item" th:href="@{/order/list}">Order List</a></li>
                         </ul>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('BARISTA')">
+                        <a class="nav-link" th:href="@{/order/edit}">Edit Order</a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('WAITER')">
                         <a class="nav-link" th:href="@{/table/management}">Table Management</a>
@@ -841,9 +875,7 @@
                     <li class="nav-item">
                         <a class="nav-link" sec:authorize="!isAuthenticated()" th:href="@{/register}">Register</a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasRole('admin')">
-                        <a class="nav-link" th:href="@{/invoice}">Invoice</a>
-                    </li>
+
                     <!-- User Dropdown -->
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
@@ -858,9 +890,14 @@
                                     <hr class="dropdown-divider">
                                 </li>
                             </th:block>
-                            <li>
-                                <form class="d-inline" method="post" th:action="@{/logout}">
-                                    <button class="dropdown-item" type="submit">Log out</button>
+                            <li sec:authorize="hasRole('CUSTOMER')">
+                                <form th:action="@{/customer/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                            <li sec:authorize="!hasRole('CUSTOMER')">
+                                <form th:action="@{/staff/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
