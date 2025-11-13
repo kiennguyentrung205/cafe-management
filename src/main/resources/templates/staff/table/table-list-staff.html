@@ -376,6 +376,9 @@
                         <th class="p-3" style="width: 40%">
                             <i class="fas fa-edit me-2"></i>Status
                         </th>
+                        <th class="p-3" style="width: 35%">
+                            <i class="fas fa-users me-2"></i>Action
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -390,29 +393,45 @@
                             </div>
                         </td>
                         <td class="p-3">
-                            <select class="form-select table-status"
-                                    name="status"
-                                    th:data-id="${x.tableId}"
-                                    th:value="${x.status}"
-                            disabled>
-                                <option class="status-available"
-                                        th:selected="${x.status == 'available'}"
-                                        value="available">
-                                    <i class="fas fa-check-circle"></i> Available
-                                </option>
-                                <option class="status-booked"
-                                        disabled
-                                        th:if="${x.status != 'occupied'}"
-                                        th:selected="${x.status == 'booked'}" value="booked">
-                                    <i class="fas fa-calendar-check"></i> Booked
-                                </option>
-                                <option class="status-occupied"
-                                        th:if="${x.status != 'booked'}"
-                                        th:selected="${x.status == 'occupied'}"
-                                        value="occupied">
-                                    <i class="fas fa-users"></i> Occupied
-                                </option>
-                            </select>
+                            <!--                            <select class="form-select table-status"-->
+                            <!--                                    name="status"-->
+                            <!--                                    th:data-id="${x.tableId}"-->
+                            <!--                                    th:value="${x.status}"-->
+                            <!--                            disabled>-->
+                            <!--                                <option class="status-available"-->
+                            <!--                                        th:selected="${x.status == 'available'}"-->
+                            <!--                                        value="available">-->
+                            <!--                                    <i class="fas fa-check-circle"></i> Available-->
+                            <!--                                </option>-->
+                            <!--                                <option class="status-booked"-->
+                            <!--                                        disabled-->
+                            <!--                                        th:if="${x.status != 'occupied'}"-->
+                            <!--                                        th:selected="${x.status == 'booked'}" value="booked">-->
+                            <!--                                    <i class="fas fa-calendar-check"></i> Booked-->
+                            <!--                                </option>-->
+                            <!--                                <option class="status-occupied"-->
+                            <!--                                        th:if="${x.status != 'booked'}"-->
+                            <!--                                        th:selected="${x.status == 'occupied'}"-->
+                            <!--                                        value="occupied">-->
+                            <!--                                    <i class="fas fa-users"></i> Occupied-->
+                            <!--                                </option>-->
+                            <!--                            </select>-->
+                            <span class="badge"
+                                  th:classappend="|${
+        x.status == 'booked' ? 'text-bg-primary' :
+        (x.status == 'available' ? 'text-bg-success' :
+        (x.status == 'occupied' ? 'text-bg-danger' :
+        'text-bg-secondary'))}|" th:text="${x.status}">
+                            </span>
+                        </td>
+                        <td>
+                            <div th:if="${x.status == 'occupied'}">
+                                <form method="post" th:action="@{/table/management/update-status}">
+                                    <input name="tableId" th:value="${x.tableId}" type="hidden">
+                                    <input name="status" type="hidden" value="available">
+                                    <button class="btn btn-success" type="submit">Available</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <!-- Empty State -->

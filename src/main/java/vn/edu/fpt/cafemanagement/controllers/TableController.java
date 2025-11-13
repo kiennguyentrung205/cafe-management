@@ -65,17 +65,31 @@ public class TableController {
         return "staff/table/table-list-staff";
     }
 
+//    @PostMapping(path = "/management/update-status")
+//    @ResponseBody
+//    public String updateTableStatus(@RequestBody Table table) {
+////        Table oldTable = tableService.findById(table.getTableId());
+////
+////        if("available".equalsIgnoreCase(oldTable.getStatus())) {
+////            return "Update status error";
+////        }
+//
+//        tableService.updateTableStatus(table.getTableId(), table.getStatus());
+//        return "Status updated successfully";
+//        return "redirect:/table/management";
+//    }
+
+
     @PostMapping(path = "/management/update-status")
-    @ResponseBody
-    public String updateTableStatus(@RequestBody Table table) {
+    public String updateTableStatus(@RequestParam("status") String status, @RequestParam("tableId") int tableId) {
 //        Table oldTable = tableService.findById(table.getTableId());
 //
 //        if("available".equalsIgnoreCase(oldTable.getStatus())) {
 //            return "Update status error";
 //        }
 
-        tableService.updateTableStatus(table.getTableId(), table.getStatus());
-        return "Status updated successfully";
+        tableService.updateTableStatus(tableId, status);
+        return "redirect:/table/management";
     }
 
     @PostMapping("/management/move")
