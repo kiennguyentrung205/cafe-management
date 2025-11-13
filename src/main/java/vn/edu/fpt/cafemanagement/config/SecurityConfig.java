@@ -1,12 +1,9 @@
 package vn.edu.fpt.cafemanagement.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -114,6 +111,7 @@ public class SecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(customLoginSuccessHandler)
+                        .failureUrl("/customer/login?error=true")
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
@@ -125,7 +123,7 @@ public class SecurityConfig {
                 )
 
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/customer/logout")
                         .addLogoutHandler(new SecurityContextLogoutHandler())
                         .logoutSuccessUrl("/customer/login?logout=success")
                         .invalidateHttpSession(true)
@@ -159,17 +157,7 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-//            String accept = request.getHeader("Accept");
-//            String xrw = request.getHeader("X-Requested-With");
-//
-//            if ("XMLHttpRequest".equalsIgnoreCase(xrw) || (accept != null && accept.contains("application/json"))) {
-//
-//                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//                response.setContentType("application/json;charset=UTF-8");
-//                response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
-//            } else {
             response.sendRedirect(request.getContextPath() + "/403");
-//            }
         };
     }
 

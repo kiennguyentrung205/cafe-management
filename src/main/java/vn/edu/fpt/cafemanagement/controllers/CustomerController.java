@@ -126,8 +126,7 @@
 package vn.edu.fpt.cafemanagement.controllers;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -139,22 +138,33 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.cafemanagement.entities.CustomUserDetails;
 import vn.edu.fpt.cafemanagement.entities.Customer;
+import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.CustomerService;
+import vn.edu.fpt.cafemanagement.services.OrderService;
 
 import java.util.List;
 
 @Controller
 @RequestMapping(value = "/profile")
 public class CustomerController {
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private LoggedUser loggedUser;
-    @Autowired
-    private CustomerRepository customerRepository;
+
+    private final CustomerService customerService;
+    private final LoggedUser loggedUser;
+    private final CustomerRepository customerRepository;
+    private final OrderService orderService;
+
+    public CustomerController(CustomerService customerService,
+                              LoggedUser loggedUser,
+                              CustomerRepository customerRepository,
+                              OrderService orderService) {
+        this.customerService = customerService;
+        this.loggedUser = loggedUser;
+        this.customerRepository = customerRepository;
+        this.orderService = orderService;
+    }
 
     @RequestMapping(value = "")
     public String viewProfile(Model model) {
@@ -172,8 +182,8 @@ public class CustomerController {
         return "profile/view";
     }
 
-    @RequestMapping(value = "/pointhistory")
-    public String viewPointHistory(Model model) {
+    @GetMapping(value = "/point-history")
+    public String viewPointHistory(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
             return "redirect:/login";
@@ -184,9 +194,39 @@ public class CustomerController {
         }
 
         int cusId = sessionCustomer.getCusId();
-        List<PointHistory> pointHistoryList = customerService.getPointHistoryByCustomerId(cusId);
-        model.addAttribute("pointHistoryList", pointHistoryList);
-        return "profile/pointHistory";
+        int pageSize = 5;
+
+        Page<PointHistory> historyPage = customerService.getPointHistoryByCustomerId(cusId, page, pageSize);
+
+        model.addAttribute("pointHistoryList", historyPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", historyPage.getTotalPages());
+
+        return "profile/point-history";
+    }
+
+    @GetMapping(value = "/order-history")
+    public String viewOrderHistory(Model model,
+                                   @RequestParam(value = "page", defaultValue = "1") int page) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
+            return "redirect:/login";
+        }
+        Customer sessionCustomer = loggedUser.getLoggedCustomer();
+        if (sessionCustomer == null) {
+            return "redirect:/login";
+        }
+
+        int cusId = sessionCustomer.getCusId();
+        int pageSize = 5;
+
+        Page<Order> orderPage = orderService.getOrderHistoryByCustomerId(cusId, page, pageSize);
+
+        model.addAttribute("orderHistoryList", orderPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+
+        return "profile/order-history";
     }
 
     @GetMapping("/edit")

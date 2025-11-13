@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -12,8 +13,10 @@ import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/order")
@@ -64,17 +67,17 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Product> productPage;
 
-        Table bookedTable = null; // Biến để giữ bàn đã đặt
+        Table bookedTable = null;
+        Customer customer = null;
 
         if ("check".equals(action)) {
-            Customer customer = customerService.getCustomerByPhone(customerPhone);
+            customer = customerService.getCustomerByPhone(customerPhone);
             if (customer == null) {
                 model.addAttribute("error", "Customer not found!");
                 model.addAttribute("customer", null);
             } else {
                 model.addAttribute("customer", customer);
 
-                // [LOGIC MỚI]
                 // Kiểm tra xem khách này có đang ngồi ở bàn nào (đã check-in) không
                 TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer);
                 if (activeBooking != null) {
@@ -87,7 +90,7 @@ public class OrderController {
             model.addAttribute("customerPhone", null);
         }
 
-        // --- [LOGIC TÌM KIẾM SẢN PHẨM (ĐÃ ĐƯỢC THÊM LẠI)] ---
+        // --- TÌM KIẾM SẢN PHẨM ---
         if (query != null && !query.trim().isEmpty() && categoryId != null && categoryId > 0) {
             // tìm theo cả tên + category
             productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
@@ -101,15 +104,36 @@ public class OrderController {
             // Mặc định: lấy tất cả
             productPage = productService.getActiveProductsPaged(pageable);
         }
-        // --- [HẾT LOGIC TÌM KIẾM SẢN PHẨM] ---
 
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
         model.addAttribute("query", query != null ? query : "");
         model.addAttribute("productList", productPage.getContent());
-        model.addAttribute("voucherList", voucherService.getActiveVouchers());
 
-        // [LOGIC MỚI] Quyết định hiển thị dropdown bàn hay bàn cố định
+        if (customer != null) {
+            // 1. Lấy tất cả voucher (đã lọc theo SL/Ngày hết hạn từ VoucherService)
+            List<Voucher> allApplicableVouchers = voucherService.getActiveVouchers();
+
+            // 2. Lấy danh sách voucher đã dùng
+            List<Integer> usedVoucherIds = orderService.getUsedVoucherIdsByCustomer(customer);
+
+            // 3. Lọc danh sách voucher
+            if (usedVoucherIds != null && !usedVoucherIds.isEmpty()) {
+                List<Voucher> availableVouchers = allApplicableVouchers.stream()
+                        .filter(voucher -> !usedVoucherIds.contains(voucher.getVoucherId()))
+                        .collect(Collectors.toList());
+                model.addAttribute("voucherList", availableVouchers);
+            } else {
+                // Customer này chưa dùng voucher nào
+                model.addAttribute("voucherList", allApplicableVouchers);
+            }
+        } else {
+            // GUEST Không cho xem voucher
+            model.addAttribute("voucherList", Collections.emptyList());
+        }
+
+
+        // Hiển thị dropdown bàn hay bàn cố định
         if (bookedTable != null) {
             // Nếu khách đã check-in, chỉ gửi thông tin bàn đó
             model.addAttribute("bookedTable", bookedTable);
@@ -139,7 +163,7 @@ public class OrderController {
             @RequestParam(value = "quantities", required = false) List<Integer> quantities,
             @RequestParam(value = "notes", required = false) List<String> notes,
             @RequestParam(value = "voucherId", required = false) Optional<Integer> voucherId,
-            @RequestParam(value = "tableId", required = false) Integer tableId, // <-- [THÊM MỚI]
+            @RequestParam(value = "tableId", required = false) Integer tableId,
             @RequestParam(value = "customerPhone", required = false) String customerPhone,
             @RequestParam(value = "pointsUsed", defaultValue = "0") int pointsUsed,
             Model model
@@ -173,6 +197,13 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
+        // --- [THAY ĐỔI] CHECK 4.1: Guest không được dùng voucher ---
+        if (voucherIdValue != 0 && customer == null) {
+            model.addAttribute("error", "Vouchers are only applicable for registered customers. Please check phone number.");
+            return reloadCreatePage(model, null); // customer ở đây là null
+        }
+        // --- [HẾT THAY ĐỔI] ---
+
         // --- [CHECK 5] Staff check ---
         Staff staff = loggedUser.getLoggedManager();
         if (staff == null) {
@@ -184,8 +215,24 @@ public class OrderController {
         Voucher voucher = null;
         if (voucherIdValue != 0) {
             voucher = voucherService.getVoucherById(voucherIdValue);
+
+            // Check 6: Voucher không tồn tại hoặc hết số lượng (từ code cũ)
             if (voucher == null || voucher.getQuantity() <= 0) {
                 model.addAttribute("error", "Voucher invalid or out of stock!");
+                return reloadCreatePage(model, customer);
+            }
+
+            // Check 6.1: Voucher hết hạn
+            if (voucher.getEndDate() == null || voucher.getEndDate().isBefore(LocalDate.now())) {
+                model.addAttribute("error", "This voucher is expired!");
+                return reloadCreatePage(model, customer);
+            }
+
+            // Check 6.2: Khách hàng đã sử dụng voucher này
+            // (customer != null đã được đảm bảo bởi CHECK 4.1)
+            List<Integer> usedVoucherIds = orderService.getUsedVoucherIdsByCustomer(customer);
+            if (usedVoucherIds != null && usedVoucherIds.contains(voucher.getVoucherId())) {
+                model.addAttribute("error", "You have already used this voucher on a previous order.");
                 return reloadCreatePage(model, customer);
             }
         }
@@ -205,11 +252,12 @@ public class OrderController {
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";
 
             OrderItem item = new OrderItem();
+            item.setUnitPrice(product.getPrice());
             item.setProduct(product);
             item.setQuantity(qty);
             item.setNote(note);
             orderItems.add(item);
-            totalPrice += product.getPrice() * qty;
+            totalPrice += item.getUnitPrice() * qty;
         }
 
         // --- [STEP 8] Tính Voucher Discount ---
@@ -268,24 +316,23 @@ public class OrderController {
         order.setPointsUsed(actualPointsUsed);
         order.setTotalPrice(finalPrice);
 
-        // --- [LOGIC MỚI] GÁN BÀN VÀO ĐƠN HÀNG ---
+        // --- GÁN BÀN VÀO ĐƠN HÀNG ---
         if (tableId != null && tableId > 0) {
             Table table = tableService.findById(tableId);
             if (table != null) {
                 // 1. Gán bàn vào đơn hàng
                 order.setTable(table);
 
-                // 2. Cập nhật trạng thái bàn thành "occupied" (bận)
+                // 2. Cập nhật trạng thái bàn thành "occupied"
                 tableService.updateTableStatus(tableId, "occupied");
             } else {
-                // (Tùy chọn) Báo lỗi nếu ID bàn không hợp lệ
+                // Báo lỗi nếu ID bàn không hợp lệ
                 model.addAttribute("warning", "Invalid Table ID. Order created as 'Take-away'.");
             }
         }
-        // --- [HẾT LOGIC MỚI] ---
 
         // Gắn order vào items
-        for(OrderItem item : orderItems) {
+        for (OrderItem item : orderItems) {
             item.setOrder(order);
         }
         order.setOrderItems(orderItems);
@@ -332,11 +379,15 @@ public class OrderController {
     // ----------------------- [GET: Danh sách đơn hàng] -----------------------
     @GetMapping("/list")
     public String viewOrders(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 6;
-        Page<Order> orderPage = orderService.getActiveOrders(page, pageSize);
 
-        // [ĐÃ SỬA] Làm tròn giá trước khi gửi sang Thymeleaf
-        // (Đảm bảo các order cũ cũng được làm tròn khi hiển thị)
+        Staff currentUser = loggedUser.getLoggedManager();
+        if (currentUser == null) {
+            return "redirect:/login"; // Chưa đăng nhập, đá về trang login
+        }
+
+        int pageSize = 6;
+        Page<Order> orderPage = orderService.getActiveOrders(currentUser, page, pageSize);
+
         orderPage.getContent().forEach(order -> {
             double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
             order.setTotalPrice(roundedPrice);
@@ -350,11 +401,20 @@ public class OrderController {
     }
 
     @GetMapping("/history-list")
-    public String viewOrdersHistory(@RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 6;
-        Page<Order> orderPage = orderService.getHistoryOrders(page, pageSize);
+    public String viewOrdersHistory(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
 
-        // [ĐÃ SỬA] Làm tròn giá trước khi gửi sang Thymeleaf
+        Staff currentUser = loggedUser.getLoggedManager();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        int pageSize = 6;
+        Page<Order> orderPage = orderService.getHistoryOrders(currentUser, startDate, endDate, page, pageSize);
+
         orderPage.getContent().forEach(order -> {
             double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
             order.setTotalPrice(roundedPrice);
@@ -363,18 +423,24 @@ public class OrderController {
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
         return "order/history-list";
     }
 
     @GetMapping("/edit")
     public String showEditOrderPage(
             @RequestParam(defaultValue = "1") int page,
-            Model model
-    ) {
+            Model model) {
+
+        Staff currentUser = loggedUser.getLoggedManager();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
 
         int pageSize = 6;
-        // [ĐÃ SỬA] Gọi service method mới để lấy cả Pending và Ready
-        Page<Order> orderPage = orderService.getKitchenOrders(page, pageSize);
+        Page<Order> orderPage = orderService.getKitchenOrders(currentUser, page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -387,21 +453,29 @@ public class OrderController {
     @GetMapping("/edit-history")
     public String showEditOrderHistoryPage(
             @RequestParam(defaultValue = "1") int page,
-            Model model
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+
+        Staff currentUser = loggedUser.getLoggedManager();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
 
         int pageSize = 6;
-        Page<Order> orderPage = orderService.getServedOrCanceledOrders(page, pageSize);
+        Page<Order> orderPage = orderService.getServedOrCanceledOrders(currentUser, startDate, endDate, page, pageSize);
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
         model.addAttribute("title", "Edit Order History");
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
 
         return "order/edit-history";
     }
 
-    // ----------------------- [ĐÃ SỬA LỖI HOÀN CHỈNH] -----------------------
+    // ----------------------- [Post: Sửa trạng thái đơn hàng] -----------------------
     @PostMapping("/updateStatus")
     @Transactional
     public String updateOrderStatus(
@@ -429,19 +503,14 @@ public class OrderController {
             }
 
             try {
-                // [LOGIC MỚI] Chúng ta cũng nên gán Barista là người Hủy
-                // Lấy đơn hàng trước khi xóa
                 Optional<Order> optionalOrder = orderService.getOrderById(orderId);
                 if (optionalOrder.isPresent()) {
                     Order order = optionalOrder.get();
-                    order.setMadeBy(currentUser); // Gán Barista là người thực hiện
+                    order.setMadeBy(currentUser);
                     order.setStatus("Canceled");
-                    // Giả sử updateOrder sẽ set cả updatedBy và updatedAt
                     orderService.updateOrder(order, currentUser);
                 }
 
-                // Thay vì xóa, chúng ta chỉ cập nhật trạng thái
-                // orderService.deleteOrderById(orderId); // (Tùy chọn: bạn có thể giữ lại nếu muốn)
 
             } catch (Exception e) {
                 return "redirect:/order/edit?error=UpdateFailed";
@@ -457,7 +526,6 @@ public class OrderController {
 
         Order order = optionalOrder.get();
 
-        // [LOGIC MỚI] Gán đúng người vào đúng vai trò
         if (status.equals("Ready") && userRoleName.equals("Barista")) {
             order.setMadeBy(currentUser); // Gán Barista
         } else if (status.equals("Ready")) {
@@ -470,7 +538,6 @@ public class OrderController {
             return "redirect:/order/edit?error=UnauthorizedServed";
         }
 
-        // --- Nếu tất cả kiểm tra qua, code sẽ chạy tới đây ---
         order.setStatus(status);
 
         // Service sẽ lưu order (với madeBy/servedBy đã được set)
@@ -501,10 +568,8 @@ public class OrderController {
 
         double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
 
-        // [SỬA LỖI] Tạo một Map mới cho 'order' thay vì dùng Map.of()
         Map<String, Object> orderMap = new HashMap<>();
 
-        // [SỬA LỖI] Dùng put() cho từng mục
         orderMap.put("id", order.getOrderId());
         orderMap.put("customer", customer != null ? customer.getName() : "N/A");
         orderMap.put("staff", order.getStaff() != null ? order.getStaff().getName() : "N/A");
@@ -515,26 +580,22 @@ public class OrderController {
         orderMap.put("totalPrice", roundedPrice);
         orderMap.put("date", order.getCreatedAt());
 
-        // [SỬA LỖI] Cải thiện logic "Completed At"
-        // Chỉ gửi ngày update nếu status là 'Served' hoặc 'Canceled'
         LocalDateTime completedAt = (order.getUpdatedAt() != null &&
                 (order.getStatus().equals("Served") || order.getStatus().equals("Canceled")))
                 ? order.getUpdatedAt() : null;
-        orderMap.put("update", completedAt); // JavaScript 'formatDateTime' sẽ tự xử lý 'null'
+        orderMap.put("update", completedAt);
 
         orderMap.put("products", items.stream()
-                .map(i -> Map.of( // Map.of() ở đây vẫn OK vì chỉ có 3 cặp
+                .map(i -> Map.of(
                         "name", i.getProduct().getProName(),
-                        "price", i.getProduct().getPrice(),
+                        "price", i.getUnitPrice(),
                         "quantity", i.getQuantity()
                 ))
                 .toList());
 
-        // Đặt 'orderMap' (đã sửa) vào response chính
         response.put("order", orderMap);
         response.put("success", true);
 
-        // --- Phần code xử lý customer giữ nguyên ---
         if (customer != null) {
             Map<String, Object> customerMap = new HashMap<>();
             customerMap.put("id", customer.getCusId());
@@ -564,13 +625,26 @@ public class OrderController {
     private String reloadCreatePage(Model model, Customer customer) {
         model.addAttribute("categoryList", categoryService.getCategories());
 
-        // Tải lại product list với phân trang cơ bản
         Page<Product> productPage = productService.getActiveProductsPaged(PageRequest.of(0, 10));
         model.addAttribute("productList", productPage.getContent());
         model.addAttribute("currentPage", 1);
         model.addAttribute("totalPages", productPage.getTotalPages());
 
-        model.addAttribute("voucherList", voucherService.getActiveVouchers());
+        if (customer != null) {
+            List<Voucher> allApplicableVouchers = voucherService.getActiveVouchers();
+            List<Integer> usedVoucherIds = orderService.getUsedVoucherIdsByCustomer(customer);
+            if (usedVoucherIds != null && !usedVoucherIds.isEmpty()) {
+                List<Voucher> availableVouchers = allApplicableVouchers.stream()
+                        .filter(voucher -> !usedVoucherIds.contains(voucher.getVoucherId()))
+                        .collect(Collectors.toList());
+                model.addAttribute("voucherList", availableVouchers);
+            } else {
+                model.addAttribute("voucherList", allApplicableVouchers);
+            }
+        } else {
+            // GUEST Không cho xem voucher
+            model.addAttribute("voucherList", Collections.emptyList());
+        }
 
         // Giữ lại customer (dù là null hay không)
         model.addAttribute("customer", customer);
@@ -585,6 +659,12 @@ public class OrderController {
         model.addAttribute("selectedCategoryId", 0);
         model.addAttribute("query", "");
         model.addAttribute("title", "Create In-Store Order");
+
+        List<Table> availableTables = tableService.getTablesList().stream()
+                .filter(table -> "available".equalsIgnoreCase(table.getStatus()))
+                .toList();
+        model.addAttribute("tableList", availableTables);
+        model.addAttribute("bookedTable", null); // Reset bookedTable khi reload
 
         return "order/create";
     }

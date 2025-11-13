@@ -185,3 +185,16 @@ tr:nth-child(even) {
     color: red !important;
     font-weight: bold;
 }
+
+
+.btn-orange {
+    background-color: #FF7A00 !important;
+    border-color: #FF7A00 !important;
+    color: #ffffff !important;
+}
+
+.btn-orange:hover {
+    background-color: #e66a00 !important;
+    border-color: #e66a00 !important;
+    color: #ffffff !important;
+}

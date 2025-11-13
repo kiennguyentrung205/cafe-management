@@ -203,7 +203,7 @@
                         <div class="mb-3">
                             <label for="dobInput" class="form-label">Date of birth:</label>
                             <input class="form-control" type="date" id="dobInput" name="dateOfBirth"
-                                   th:readonly="${!customer.googleAccount}"
+                                   th:readonly="${customer.dateOfBirth != null}"
                                    th:value="${#temporals.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
                         </div>
 

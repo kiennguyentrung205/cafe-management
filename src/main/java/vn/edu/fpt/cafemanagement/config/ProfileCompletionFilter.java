@@ -16,11 +16,13 @@ import java.io.IOException;
 @Component
 public class ProfileCompletionFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private LoggedUser loggedUser; // hoặc Security context → tuỳ dự án
-    @Autowired
+    private LoggedUser loggedUser;
     private CustomerRepository customerRepository;
 
+    public ProfileCompletionFilter(LoggedUser loggedUser, CustomerRepository customerRepository) {
+        this.loggedUser = loggedUser;
+        this.customerRepository = customerRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

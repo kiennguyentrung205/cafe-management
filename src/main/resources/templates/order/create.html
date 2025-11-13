@@ -50,8 +50,7 @@
                             <input type="text"
                                    id="searchInput"
                                    name="query"
-                                   class="form-control"
-                                   placeholder="Search products..."
+                                   placeholder="Search..."
                                    th:value="${query}">
 
                             <button class="btn btn-orange" type="button" id="searchButton">
@@ -132,14 +131,21 @@
 
                     <div class="redeem">
                         <label>Redeem Points:</label>
+
                         <div style="display:flex;align-items:center;gap:8px;">
                             <input type="number" name="pointsUsed" id="pointsUsed" value="0" min="0"
                                    th:attr="data-max=${customer != null ? customer.point : 0}"
                                    style="width:80px;text-align:center;font-weight:600;"
                                    class="form-control form-control-sm">
+
+                            <button type="button" class="btn btn-sm btn-orange"
+                                    id="maxPointsButton"
+                                    style="height: 31px; line-height: 1;"
+                                    th:disabled="${customer == null}"> Max
+                            </button>
                         </div>
                     </div>
-                    <div class="table-info" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
+                    <div class="table-info" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px; margin-top: 15px;">
                         <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Table:</label>
 
                         <div th:if="${bookedTable != null}">
@@ -160,12 +166,22 @@
                             </select>
                         </div>
                     </div>
+
                     <div class="voucher" style="display:flex;gap:8px;align-items:center; margin-bottom: 10px;">
 
-                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Voucher:</label>
+                        <label style="font-size:16px; font-weight: 600; margin-bottom: 0; margin-top: 15px; white-space: nowrap;">Voucher:</label>
 
-                        <select name="voucherId" class="form-select form-select-sm" style="width: 150px;">
-                            <option value="" data-type="NONE" data-value="0" data-min-order="0">None</option>
+                        <select name="voucherId" class="form-select form-select-sm" style="width: 150px;"
+                                th:disabled="${customer == null}">
+
+                            <option value=""
+                                    data-type="NONE"
+                                    data-value="0"
+                                    data-min-order="0"
+                                    selected>
+                                None
+                            </option>
+
                             <option th:each="v : ${voucherList}"
                                     th:value="${v.voucherId}"
                                     th:text="${v.voucherName}"
@@ -201,7 +217,7 @@
 
                     <div id="hiddenInputs"></div>
 
-                    <button type="submit" class="place-btn" name="action" value="create">
+                    <button type="submit" class="place-btn btn btn-sm btn-orange" name="action" value="create">
                         <span style="font-size: 16px; font-weight: 600;">Place</span><br>
                         <span style="font-size: 13px;">(<span id="finalPrice">0</span> VND)</span>
                     </button>
@@ -282,12 +298,12 @@
         const orderItems = document.querySelectorAll(".order-item");
         if (orderItems.length === 0) {
             showAlertModal('Please select at least one product before placing the order.');
-            return; // Dừng lại
+            return;
         }
         const productInputs = document.querySelectorAll("input[name='productIds']");
         if (productInputs.length === 0) {
             showAlertModal('No products found in form. Please re-add items.');
-            return; // Dừng lại
+            return;
         }
 
         // 5. Chuẩn bị FormData để gửi
@@ -307,16 +323,16 @@
                     showAlertModal('Your session may have expired. Reloading page...', true);
                     // Tự động tải lại trang sau 2 giây
                     setTimeout(() => window.location.reload(), 2000);
-                    return null; // Dừng xử lý
+                    return null;
                 }
 
                 // Xử lý lỗi 500 (Server Error)
                 if (!res.ok) {
                     showAlertModal(`Server Error (${res.status}). Please check the server log.`, true);
-                    return null; // Dừng xử lý
+                    return null;
                 }
 
-                return res.text(); // Mọi thứ OK, tiếp tục
+                return res.text();
             })
             .then(html => {
                 // Nếu là null (do lỗi ở trên), thì không làm gì cả
@@ -350,12 +366,10 @@
 
     /* ========== Gắn sự kiện cho product cards ========== */
     function attachProductCardListeners() {
-        // Xóa listener cũ để tránh gọi nhiều lần
         document.querySelectorAll(".product-card").forEach(card => {
             card.replaceWith(card.cloneNode(true));
         });
 
-        // Gắn listener mới
         document.querySelectorAll(".product-card").forEach(card => {
             card.addEventListener("click", () => {
                 const name = card.querySelector(".product-name").textContent.trim();
@@ -474,7 +488,7 @@
         // 4. Lấy thông tin Points
         const pointsInput = document.getElementById('pointsUsed');
         const pointsUsed = parseInt(pointsInput.value) || 0;
-        const pointsDiscount = pointsUsed * 1000.0; // Tỷ giá 1 điểm = 2000 VND
+        const pointsDiscount = pointsUsed * 1000.0;
 
         // 5. Tính Final Total
         let finalTotal = subtotal - voucherDiscount - pointsDiscount;
@@ -497,18 +511,10 @@
     }
 
 
-    /* ========== Validate điểm khi nhập vào ========== */
-    function validateAndHandlePoints(input, silent = false) {
-        if (!input) return;
-
-        let pointsUsed_Input = parseInt(input.value) || 0;
-        if (pointsUsed_Input < 0) {
-            pointsUsed_Input = 0;
-            input.value = 0;
-        }
-
+    function getMaxPointsInfo() {
+        const input = document.getElementById('pointsUsed');
         // 1. Lấy tổng điểm khách CÓ
-        const customerMaxPoints = parseInt(input.getAttribute('data-max')) || 0;
+        const customerMaxPoints = (input ? parseInt(input.getAttribute('data-max')) : 0) || 0;
 
         // 2. Tính Subtotal và Voucher Discount
         const orderItems = document.querySelectorAll(".order-item");
@@ -536,24 +542,44 @@
         if (priceToPay < 0) priceToPay = 0;
 
         // 5. Tính số điểm TỐI ĐA CẦN DÙNG
-        const orderMaxPointsNeeded = Math.ceil(priceToPay / 1000.0); // Tỷ giá 1 điểm = 2000 VND
+        const orderMaxPointsNeeded = Math.ceil(priceToPay / 1000.0); // Tỷ giá 1 điểm = 1000 VND
 
         // 6. Tìm giới hạn THỰC SỰ
         const trueMaxPoints = Math.min(customerMaxPoints, orderMaxPointsNeeded);
 
-        // 7. Validate
-        if (pointsUsed_Input > trueMaxPoints) {
+        return {
+            customerMaxPoints: customerMaxPoints,
+            orderMaxPointsNeeded: orderMaxPointsNeeded,
+            trueMaxPoints: trueMaxPoints
+        };
+    }
 
-            if (customerMaxPoints < orderMaxPointsNeeded && pointsUsed_Input > customerMaxPoints) {
+    /* ========== Validate điểm khi nhập vào ========== */
+    function validateAndHandlePoints(input, silent = false) {
+        if (!input) return;
+
+        let pointsUsed_Input = parseInt(input.value) || 0;
+        if (pointsUsed_Input < 0) {
+            pointsUsed_Input = 0;
+            input.value = 0;
+        }
+
+        // 1. Lấy thông tin điểm từ hàm helper
+        const pointsInfo = getMaxPointsInfo();
+
+        // 7. Validate
+        if (pointsUsed_Input > pointsInfo.trueMaxPoints) {
+
+            if (pointsInfo.customerMaxPoints < pointsInfo.orderMaxPointsNeeded && pointsUsed_Input > pointsInfo.customerMaxPoints) {
                 if (!silent) {
-                    showAlertModal(`Warning: You only have ${customerMaxPoints} points.`);
+                    showAlertModal(`Warning: You only have ${pointsInfo.customerMaxPoints} points.`);
                 }
-                input.value = customerMaxPoints; // Tự động sửa
+                input.value = pointsInfo.customerMaxPoints; // Tự động sửa
             } else {
                 if (!silent) {
-                    showAlertModal(`Warning: This order only requires ${orderMaxPointsNeeded} points.`);
+                    showAlertModal(`Warning: This order only requires ${pointsInfo.orderMaxPointsNeeded} points.`);
                 }
-                input.value = orderMaxPointsNeeded; // Tự động sửa
+                input.value = pointsInfo.orderMaxPointsNeeded; // Tự động sửa
             }
         } else {
             input.value = pointsUsed_Input;
@@ -641,8 +667,7 @@
                     if (curPag) curPag.innerHTML = '';
                 }
 
-                // --- [ĐÃ SỬA] ---
-                // Cập nhật trạng thái active cho các button (dùng class mới)
+                // Cập nhật trạng thái active cho các button
                 selectedCategoryId = categoryId ? String(categoryId) : "0"; // Default to "0" (All)
                 document.querySelectorAll('.category-button').forEach(button => {
                     const buttonId = button.getAttribute('data-category-id');
@@ -654,9 +679,8 @@
                         button.classList.remove('btn-custom-active');
                     }
                 });
-                // --- [HẾT SỬA] ---
 
-                attachProductCardListeners(); // Gắn lại sự kiện click product
+                attachProductCardListeners();
 
                 history.pushState(null, '', url);
             })
@@ -684,6 +708,7 @@
     });
 
     /* ========== DOM Ready (Chỉ gọi 1 lần duy nhất) ========== */
+    /* ========== DOM Ready (Chỉ gọi 1 lần duy nhất) ========== */
     document.addEventListener('DOMContentLoaded', () => {
         // Gắn sự kiện cho Menu (bên trái)
         attachProductCardListeners();
@@ -705,24 +730,21 @@
             });
         }
 
-        // --- [SỬA] Gắn sự kiện cho Category Buttons (dùng event delegation) ---
+        // --- Gắn sự kiện cho Category Buttons (dùng event delegation) ---
         const categoryContainer = document.getElementById('categoryButtons');
         if (categoryContainer) {
 
-            // --- [ĐÂY LÀ SỬA LỖI F5] ---
-            // Đọc trạng thái active mà Server đã render
+            // Đọc trạng thái active mà Server đã render (Sửa lỗi F5)
             const activeButton = categoryContainer.querySelector('.btn-custom-active');
             selectedCategoryId = activeButton ? activeButton.getAttribute('data-category-id') : "0";
-            // --- [HẾT SỬA LỖI F5] ---
 
             categoryContainer.addEventListener('click', function(e) {
                 const button = e.target.closest('.category-button');
                 if (!button) return; // Không phải click-nút
 
-                // Lấy ID mới từ nút vừa click
                 selectedCategoryId = button.getAttribute('data-category-id');
 
-                // Cập nhật UI ngay lập tức (không cần chờ fetch)
+                // Cập nhật UI ngay lập tức
                 document.querySelectorAll('.category-button').forEach(btn => {
                     btn.classList.add('btn-custom-inactive');
                     btn.classList.remove('btn-custom-active');
@@ -734,7 +756,6 @@
                 performSearch();
             });
         }
-        // --- [HẾT SỬA] ---
 
 
         // Gắn sự kiện cho nút Back/Forward của trình duyệt
@@ -746,68 +767,96 @@
         const orderPanel = document.querySelector('.order-panel');
         if (!orderPanel) return;
 
-        // 1. SỰ KIỆN CLICK (cho nút "Check")
+        // 1. SỰ KIỆN CLICK (cho nút "Check" VÀ "Max")
         orderPanel.addEventListener('click', function (e) {
-            const checkBtn = e.target.closest('button[name="action"][value="check"]');
-            if (!checkBtn) return; // Click vào thứ khác, bỏ qua
 
-            const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
-            if (!phoneInput) return;
-            const phone = phoneInput.value.trim();
-            if (!phone) {
-                showAlertModal('Please enter a phone number.');
+            // --- XỬ LÝ NÚT "CHECK" ---
+            const checkBtn = e.target.closest('button[name="action"][value="check"]');
+            if (checkBtn) {
+                const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
+                if (!phoneInput) return;
+                const phone = phoneInput.value.trim();
+                if (!phone) {
+                    showAlertModal('Please enter a phone number.');
+                    return;
+                }
+
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('action', 'check');
+                currentUrl.searchParams.set('customerPhone', phone);
+                const query = document.getElementById('searchInput')?.value || "";
+                if (query) {
+                    currentUrl.searchParams.set('query', query);
+                }
+                const url = currentUrl.href;
+
+                fetch(url, {method: 'GET', credentials: 'same-origin'})
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                        return res.text();
+                    })
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        const newCustomerInfo = doc.querySelector('.customer-info');
+                        const curCustomerInfo = document.querySelector('.customer-info');
+                        const newVoucher = doc.querySelector('.voucher');
+                        const curVoucher = document.querySelector('.voucher');
+                        const errorAlert = doc.querySelector('.alert-danger');
+                        const curError = document.querySelector('.alert-danger');
+
+                        if (curError) curError.remove();
+                        if (errorAlert) {
+                            showAlertModal(errorAlert.textContent);
+                        }
+                        if (curCustomerInfo && newCustomerInfo) {
+                            curCustomerInfo.innerHTML = newCustomerInfo.innerHTML;
+                        }
+                        if (curVoucher && newVoucher) {
+                            curVoucher.innerHTML = newVoucher.innerHTML;
+                        }
+
+                        const newPhoneVal = doc.querySelector('input[name="customerPhone"]')?.value;
+                        const currentPhoneInput = orderPanel.querySelector('input[name="customerPhone"]');
+                        if (currentPhoneInput && newPhoneVal !== undefined) {
+                            currentPhoneInput.value = newPhoneVal;
+                        }
+
+                        // Cập nhật lại trạng thái khóa (ví dụ: mở khóa ô voucher/điểm)
+                        updateLockState();
+                        // Tính lại tổng tiền (vì có thể voucher đã thay đổi)
+                        updateTotal();
+                    })
+                    .catch(err => {
+                        console.error('Fetch error:', err);
+                        showAlertModal('Failed to load customer info. Check connection.');
+                    });
+
+                // Dừng lại sau khi xử lý nút Check
                 return;
             }
 
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('action', 'check');
-            currentUrl.searchParams.set('customerPhone', phone);
-            const query = document.getElementById('searchInput')?.value || "";
-            if (query) {
-                currentUrl.searchParams.set('query', query);
+            // --- XỬ LÝ NÚT "MAX" ---
+            // (Code này chỉ chạy nếu nút được bấm không phải là "Check")
+            const maxPointsBtn = e.target.closest('#maxPointsButton');
+            if (maxPointsBtn) {
+                const pointsInput = document.getElementById('pointsUsed');
+                if (!pointsInput) return;
+
+                // 1. Lấy giá trị max thực sự
+                const pointsInfo = getMaxPointsInfo();
+
+                // 2. Gán giá trị vào input
+                pointsInput.value = pointsInfo.trueMaxPoints;
+
+                // 3. Kích hoạt validation (để cập nhật UI, lock, và total price)
+                //    Gọi silent=true để không hiện alert
+                validateAndHandlePoints(pointsInput, true);
+
+                // Dừng lại sau khi xử lý nút Max
+                return;
             }
-            const url = currentUrl.href;
-
-            fetch(url, {method: 'GET', credentials: 'same-origin'})
-                .then(res => {
-                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                    return res.text();
-                })
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    const newCustomerInfo = doc.querySelector('.customer-info');
-                    const curCustomerInfo = document.querySelector('.customer-info');
-                    const newVoucher = doc.querySelector('.voucher');
-                    const curVoucher = document.querySelector('.voucher');
-                    const errorAlert = doc.querySelector('.alert-danger');
-                    const curError = document.querySelector('.alert-danger');
-
-                    if (curError) curError.remove();
-                    if (errorAlert) {
-                        showAlertModal(errorAlert.textContent);
-                    }
-                    if (curCustomerInfo && newCustomerInfo) {
-                        curCustomerInfo.innerHTML = newCustomerInfo.innerHTML;
-                    }
-                    if (curVoucher && newVoucher) {
-                        curVoucher.innerHTML = newVoucher.innerHTML;
-                    }
-
-                    const newPhoneVal = doc.querySelector('input[name="customerPhone"]')?.value;
-                    const currentPhoneInput = orderPanel.querySelector('input[name="customerPhone"]');
-                    if (currentPhoneInput && newPhoneVal !== undefined) {
-                        currentPhoneInput.value = newPhoneVal;
-                    }
-
-                    updateLockState();
-                    updateTotal();
-                })
-                .catch(err => {
-                    console.error('Fetch error:', err);
-                    showAlertModal('Failed to load customer info. Check connection.');
-                });
         });
 
         // 2. SỰ KIỆN CHANGE (cho ô Voucher VÀ Ô ĐIỂM)
@@ -831,10 +880,12 @@
         orderPanel.addEventListener('input', function (e) {
             const phoneInput = e.target.closest('input[name="customerPhone"]');
             if (phoneInput) {
+                // Chỉ khóa/mở ô, không tính lại tổng tiền
                 updateLockState();
             }
         });
 
+        // Chạy lần đầu khi tải trang
         updateLockState();
         updateTotal();
 

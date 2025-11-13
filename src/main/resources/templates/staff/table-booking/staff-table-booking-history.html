@@ -55,7 +55,8 @@
                         <th class="p-3">Customer Name</th>
                         <th class="p-3">Phone Number</th>
                         <th class="p-3">Booking Status</th>
-                        <th class="p-3">Date and Time</th>
+                        <th class="p-3">Date and Time
+                            (MM/dd/yyyy)</th>
                         <th class="p-3">Note</th>
                         <th class="p-3">Action</th>
                     </tr>
@@ -74,12 +75,11 @@
         (x.status == 'completed' ? 'text-bg-success-subtle text-success' :
         (x.status == 'canceled' ? 'text-bg-danger' :
         (x.status == 'auto-canceled' ? 'text-bg-warning text-dark' :
-        'text-bg-secondary'))))}|"
-                                  th:text="${x.status}">
+        'text-bg-secondary'))))}|" th:text="${x.status}">
                             </span>
 
                         </td>
-                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'MM/dd/yyyy HH:mm:ss')}"></td>
 
                         <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
                         <td classs="p-3">

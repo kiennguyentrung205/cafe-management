@@ -266,6 +266,7 @@
                         </p>
                         <p th:text="${param.successMessage}" style="color: #20c997; font-weight: bold;"></p>
                         <p th:text="${param.errorMessage}" style="color: #842029; font-weight: bold;"></p>
+                        <p style="color: red; font-weight: 500"  th:text="${error}"></p>
                     </div>
 
                     <form th:action="@{/customer/login}" method="post">

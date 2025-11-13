@@ -23,7 +23,7 @@
     <table>
         <thead>
         <tr>
-            <th>Order#</th>
+            <th>#</th>
             <th>Created By (Cashier)</th>
             <th>Table</th>
             <th>Product(s)</th>
@@ -60,7 +60,7 @@
 
                     <th:block th:if="${order.status == 'Pending'}">
                         <select name="status" class="form-select form-select-sm me-2" sec:authorize="hasRole('BARISTA')">
-                            <option value="" selected disabled>Pending (Select action)</option>
+                            <option value="" selected disabled>Pending</option>
                             <option value="Ready">Ready</option>
                             <option value="Canceled">Canceled</option>
                         </select>
@@ -69,7 +69,7 @@
 
                     <th:block th:if="${order.status == 'Ready'}">
                         <select name="status" class="form-select form-select-sm me-2" sec:authorize="hasAnyRole('WAITER', 'ROLE_WAITER')">
-                            <option value="Ready" selected disabled>Ready (Select action)</option>
+                            <option value="Ready" selected disabled>Ready</option>
                             <option value="Served">Served</option>
                         </select>
                         <span sec:authorize="!hasAnyRole('WAITER', 'ROLE_WAITER')" th:text="${order.status}">Ready</span>
