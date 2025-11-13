@@ -208,12 +208,11 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
-        // --- [THAY ĐỔI] CHECK 4.1: Guest không được dùng voucher ---
+        // --- CHECK 4.1: Guest không được dùng voucher ---
         if (voucherIdValue != 0 && customer == null) {
             model.addAttribute("error", "Vouchers are only applicable for registered customers. Please check phone number.");
             return reloadCreatePage(model, null); // customer ở đây là null
         }
-        // --- [HẾT THAY ĐỔI] ---
 
         // --- [CHECK 5] Staff check ---
         Staff staff = loggedUser.getLoggedManager();
@@ -248,7 +247,7 @@ public class OrderController {
             }
         }
 
-        // --- [STEP 7] Tính Subtotal (totalPrice) ---
+        // --- [STEP 7] Tính Subtotal ---
         double totalPrice = 0; // Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
@@ -393,7 +392,7 @@ public class OrderController {
 
         Staff currentUser = loggedUser.getLoggedManager();
         if (currentUser == null) {
-            return "redirect:/login"; // Chưa đăng nhập, đá về trang login
+            return "redirect:/login";
         }
 
         int pageSize = 6;
