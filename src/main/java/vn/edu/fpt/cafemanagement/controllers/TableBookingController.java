@@ -316,18 +316,21 @@ public class TableBookingController {
         LocalDateTime now = LocalDateTime.now();
 
         if (startDate != null) {
-            if(endDate != null){
+            if (endDate != null) {
+                if (startDate.isAfter(endDate)) {
+                    endDate = startDate;
+                }
                 startDateTime = startDate.atStartOfDay();
                 endDateTime = endDate.atTime(23, 59, 59);
             } else if (startDate.isAfter(now.toLocalDate())) {
                 endDateTime = startDate.atTime(23, 59, 59);
                 endDate = startDate;
-            } else{
+            } else {
                 endDateTime = LocalDateTime.now();
-                endDate =  endDateTime.toLocalDate();
+                endDate = endDateTime.toLocalDate();
             }
-
         }
+
 
 
         // Pagination
@@ -365,10 +368,6 @@ public class TableBookingController {
 
     @GetMapping(path = "/new")
     public String showBookingTableForm(Model model, @RequestParam("table-id") int tableId) {
-
-//        if (model.containsAttribute("errorMessage")) {
-//            System.out.println("Có lỗi: " + model.getAttribute("errorMessage"));
-//        }
 
         Customer loggedCustomer = loggedUser.getLoggedCustomer();
         Table table = tableService.findById(tableId);
@@ -437,18 +436,22 @@ public class TableBookingController {
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
         LocalDateTime now = LocalDateTime.now();
+
+
         if (startDate != null) {
-            if(endDate != null){
+            if (endDate != null) {
+                if (startDate.isAfter(endDate)) {
+                    endDate = startDate;
+                }
                 startDateTime = startDate.atStartOfDay();
                 endDateTime = endDate.atTime(23, 59, 59);
             } else if (startDate.isAfter(now.toLocalDate())) {
                 endDateTime = startDate.atTime(23, 59, 59);
                 endDate = startDate;
-            } else{
+            } else {
                 endDateTime = LocalDateTime.now();
-                endDate =  endDateTime.toLocalDate();
+                endDate = endDateTime.toLocalDate();
             }
-
         }
 
 
@@ -535,8 +538,4 @@ public class TableBookingController {
         tableBookingService.save(booking);
         return "redirect:/table/booking/management?update=success";
     }
-
-
-
-
 }

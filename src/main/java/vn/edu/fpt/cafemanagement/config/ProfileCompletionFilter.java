@@ -45,7 +45,7 @@ public class ProfileCompletionFilter extends OncePerRequestFilter {
         Customer user = loggedUser.getLoggedCustomer();
 
         if (user != null ) {
-            user = customerRepository.findByEmail(user.getEmail()).orElse(null);
+            user = customerRepository.getCustomerByCusId(user.getCusId());
             if(user.getPhoneNumber() == null || user.getDateOfBirth() == null){
                 if (!allowed) {
                     response.sendRedirect("/profile/edit");
