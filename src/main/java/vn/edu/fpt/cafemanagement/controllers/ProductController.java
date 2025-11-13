@@ -21,6 +21,7 @@ import vn.edu.fpt.cafemanagement.services.FeedbackService;
 import vn.edu.fpt.cafemanagement.services.OrderItemService;
 import vn.edu.fpt.cafemanagement.services.ProductService;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -286,7 +287,7 @@ public class ProductController {
             // 1. Chỉ cập nhật Status (và các trường liên quan đến trạng thái)
             originalProduct.setStatus(product.getStatus());
             productService.saveProduct(originalProduct);
-            return "redirect:/menu";
+            return "redirect:/home";
             // 2. Không cho phép Barista sửa các trường khác
             // (Đảm bảo các giá trị khác của product từ form KHÔNG được gán)
             // Validation Namejkjkj
@@ -308,17 +309,33 @@ public class ProductController {
                 FieldError priceError = bindingResult.getFieldError("price");
 
                 // Trường hợp lỗi binding là do nhập chữ hoặc bỏ trống.
-                model.addAttribute("priceError", "Giá sản phẩm không hợp lệ. Vui lòng nhập một số.");
+                model.addAttribute("priceError", "Price must be a number");
                 hasError = true;
             }
+
+            if (bindingResult.hasFieldErrors("quantity")) {
+
+                FieldError quantityError = bindingResult.getFieldError("quantity");
+
+                model.addAttribute("quantityError", "Quantity must ve a number");
+                hasError = true;
+            }
+
+
             if (!hasError) {
                 double priceValue = product.getPrice(); // Lấy giá trị double
 
                 // Kiểm tra giá trị tối thiểu
                 if (priceValue < 1000) {
                     // Lỗi này bao gồm cả trường hợp người dùng nhập 0 (vì 0 < 1000)
-                    model.addAttribute("priceError", "Giá sản phẩm phải tối thiểu 1000.");
+                    model.addAttribute("priceError", "Minimum price is 1000.");
                     hasError = true;
+                }
+
+                int quantityValue = product.getQuantity();
+                if (quantityValue < 0) {
+                    model.addAttribute("quantityError", "Quantity must be a non-negative number");
+
                 }
             }
 
@@ -340,14 +357,14 @@ public class ProductController {
                 // 1. Kiểm tra Kích thước file (ví dụ: Max 5MB)
                 final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
                 if (file.getSize() > MAX_FILE_SIZE) {
-                    model.addAttribute("fileError", "Kích thước file vượt quá giới hạn cho phép (5MB).");
+                    model.addAttribute("fileError", "File size is larger than 5MB");
                     hasError = true;
                 }
 
                 // 2. Kiểm tra Loại file (MIME Type)
                 List<String> allowedContentTypes = Arrays.asList("image/jpeg", "image/png", "image/gif");
                 if (!allowedContentTypes.contains(file.getContentType())) {
-                    model.addAttribute("fileError", "File không phải là định dạng hình ảnh hợp lệ (JPEG, PNG, GIF).");
+                    model.addAttribute("fileError", "Not valid file type (JPEG, PNG, GIF).");
                     hasError = true;
                 }
 
@@ -373,7 +390,7 @@ public class ProductController {
 
                     } catch (IOException e) {
                         // Xử lý lỗi khi lưu file (lỗi I/O, lỗi hệ thống)
-                        model.addAttribute("fileError", "Lỗi hệ thống khi lưu file ảnh lên ổ đĩa.");
+                        model.addAttribute("fileError", " Error to save img");
                         hasError = true; // Đánh dấu lỗi hệ thống
                         e.printStackTrace();
                     }
@@ -401,12 +418,9 @@ public class ProductController {
         originalProduct.setImg(product.getImg());
         originalProduct.setCategory(product.getCategory());
         originalProduct.setStatus(product.getStatus());
+        originalProduct.setQuantity(product.getQuantity());
         System.out.println("Product nay la: " + originalProduct.isActive());
-        // ELSE: Nếu file.isEmpty() (người dùng không chọn file mới),
-        // thì trường product.getImg() vẫn giữ lại tên file CŨ
-        // nhờ vào input hidden trong form. KHÔNG CẦN làm gì thêm.
 
-        // BƯỚC 2: Lưu Product (đã có tên ảnh mới hoặc cũ) vào Database
         productService.saveProduct(originalProduct);
 
         return "redirect:/product/list";

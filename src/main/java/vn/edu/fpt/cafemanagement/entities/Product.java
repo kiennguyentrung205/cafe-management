@@ -35,6 +35,7 @@ public class Product {
     @Column(name = "is_active")
     private boolean isActive;
 
+    private int quantity;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Feedback> feedbacks;
 
@@ -44,8 +45,21 @@ public class Product {
     public Product() {
     }
 
-    public Product(int proId, String proName, String img, Category category, double price, String status,
-                   String description, boolean isActive, List<Feedback> feedbacks, List<OrderItem> orderItems) {
+//    public Product(int proId, String proName, String img, Category category, double price, String status,
+//                   String description, boolean isActive, List<Feedback> feedbacks, List<OrderItem> orderItems) {
+//        this.proId = proId;
+//        this.proName = proName;
+//        this.img = img;
+//        this.category = category;
+//        this.price = price;
+//        this.status = status;
+//        this.description = description;
+//        this.isActive = isActive;
+//        this.feedbacks = feedbacks;
+//        this.orderItems = orderItems;
+//    }
+
+    public Product(int proId, String proName, String img, Category category, double price, String status, String description, boolean isActive, int quantity, List<Feedback> feedbacks, List<OrderItem> orderItems) {
         this.proId = proId;
         this.proName = proName;
         this.img = img;
@@ -54,6 +68,7 @@ public class Product {
         this.status = status;
         this.description = description;
         this.isActive = isActive;
+        this.quantity = quantity;
         this.feedbacks = feedbacks;
         this.orderItems = orderItems;
     }
@@ -137,4 +152,14 @@ public class Product {
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+
 }
