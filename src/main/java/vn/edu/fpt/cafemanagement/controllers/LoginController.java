@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class LoginController {
-//    @GetMapping(path="/login")
-//    public String login() {
-//        return "account/login";
-//    }
 
     @GetMapping(path={"/customer/login","/login"})
     public String customerLogin(Model model,

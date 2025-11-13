@@ -1,6 +1,7 @@
 package vn.edu.fpt.cafemanagement.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class CustomerService {
     CustomerRepository customerRepository;
     PointHistoryRepository pointHistoryRepository;
     StaffService staffService;
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     public CustomerService(CustomerRepository customerRepository, StaffService staffService, PointHistoryRepository pointHistoryRepository) {
         this.customerRepository = customerRepository;
@@ -68,8 +70,8 @@ public class CustomerService {
         Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
         if (!existingCustomer.isGoogleAccount()) {
             if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
-                if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
-                    throw new IllegalArgumentException("The email already exists, please use a different one!");
+                if (!customer.getEmail().matches(EMAIL_REGEX)) {
+                    throw new IllegalArgumentException("Email format is invalid! Example: example@gmail.com");
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
@@ -95,9 +97,6 @@ public class CustomerService {
             if (!customer.getUsername().matches("^[a-z_][a-z0-9_]{0,14}$")) {
                 throw new IllegalArgumentException("The username must be 2-15 characters long and contain only lowercase letters, digits, and underscores (_).");
             }
-            if (customerRepository.existsByUsername(customer.getUsername())) {
-                throw new IllegalArgumentException("The username already exists, please use a different one!");
-            }
             existingCustomer.setUsername(customer.getUsername());
         }
 
@@ -113,9 +112,6 @@ public class CustomerService {
             }
             if (!customer.getPhoneNumber().matches("^(0)(?!\\1{9})\\d{9}$")) {
                 throw new IllegalArgumentException("Invalid phone number! It must start with 0, contain exactly 10 digits, and not be all repeated digits.");
-            }
-            if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
-                throw new IllegalArgumentException("The phone number already exists, please use a different one!");
             }
             existingCustomer.setPhoneNumber(customer.getPhoneNumber());
         }
@@ -138,7 +134,19 @@ public class CustomerService {
             }
             existingCustomer.setDateOfBirth(customer.getDateOfBirth());
         }
-        customerRepository.save(existingCustomer);
+        try {
+            customerRepository.save(existingCustomer);
+        } catch (DataIntegrityViolationException e) {
+            String message = e.getMessage();
+            if (message.contains("UQ_Customer_username")) {
+                throw new IllegalArgumentException("The username already exists, please use a different one!");
+            } else if (message.contains("UQ_Customer_phoneNumber")) {
+                throw new IllegalArgumentException("The phone number already exists, please use a different one!");
+            } else if (message.contains("UQ_Customer_email")) {
+                throw new IllegalArgumentException("The email address already exists, please use a different one!");
+            }
+            throw new IllegalArgumentException("Duplicate data detected!");
+        }
 
     }
 
