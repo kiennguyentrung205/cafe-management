@@ -56,7 +56,8 @@
                         <th class="p-3">Customer Name</th>
                         <th class="p-3">Phone Number</th>
                         <th class="p-3">Booking Status</th>
-                        <th class="p-3">Date and Time</th>
+                        <th class="p-3">Date and Time
+                        (MM/dd/yyyy)</th>
                         <th class="p-3">Action</th>
                     </tr>
                     </thead>
@@ -78,7 +79,7 @@
                                   th:text="${x.status}">
                             </span>
                         </td>
-                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                        <td class="p-3" th:text="${#temporals.format(x.bookingTime, 'MM/dd/yyyy HH:mm:ss')}"></td>
 <!--                        <td class="p-3" th:text="${x.bookingTime}">${x.bookingTime}</td>-->
                         <td class="p-3">
                             <button class="btn btn-outline-danger btn-sm" th:if="${x.status == 'booked'}" th:onclick="openCancelPopup([[${x.bookingId}]] ,[[${x.table.tableId}]] ,
