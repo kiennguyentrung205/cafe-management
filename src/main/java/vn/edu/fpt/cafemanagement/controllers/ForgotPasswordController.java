@@ -42,8 +42,7 @@ public class ForgotPasswordController {
 
     @GetMapping("/resend-otp")
     public String resendOtp(@RequestParam String email,
-                            HttpSession session,
-                            RedirectAttributes redirectAttributes) {
+                            HttpSession session) {
         String sessionEmail = (String) session.getAttribute("otpEmail");
 
         if (sessionEmail == null || !sessionEmail.equals(email)) {
