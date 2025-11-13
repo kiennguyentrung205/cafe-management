@@ -21,11 +21,7 @@
                 <div class="card-body">
 
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <!--
-                              Class .table-hover: Thêm hiệu ứng khi rê chuột
-                              Class .align-middle: Căn giữa text theo chiều dọc
-                            -->
+                        <table class="table table-hover align-middle" th:if="${pointHistoryList != null and !pointHistoryList.isEmpty()}">
                             <thead>
                             <tr>
                                 <th>Date</th>
@@ -34,21 +30,35 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="list : ${pointHistoryList}">
-                                <td th:text="${#temporals.format(list.changeTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
-                                <td th:text="${list.typeOfChange}">Purchase</td>
-                                <td th:text="${list.amount >= 0 ? '+' + list.amount : list.amount}"
-                                    th:classappend="${list.amount >= 0 ? 'text-success' : 'text-danger'}"
-                                    class="text-end fw-bold">
-                                    <!--
-                                      Thêm class .text-end và .fw-bold
-                                      để làm nổi bật cột số
-                                    -->
-                                    -50
-                                </td>
-                            </tr>
+                            <div th:if="${pointHistoryList != null}">
+                                <tr th:each="list : ${pointHistoryList}">
+                                    <td th:text="${#temporals.format(list.changeTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                                    <td th:text="${list.typeOfChange}">Purchase</td>
+                                    <td th:text="${list.amount >= 0 ? '+' + list.amount : list.amount}"
+                                        th:classappend="${list.amount >= 0 ? 'text-success' : 'text-danger'}"
+                                        class="text-end fw-bold">
+                                        <!--
+                                          Thêm class .text-end và .fw-bold
+                                          để làm nổi bật cột số
+                                        -->
+                                        -50
+                                    </td>
+                                </tr>
+                            </div>
                             </tbody>
                         </table>
+                        <div th:if="${pointHistoryList == null or pointHistoryList.isEmpty()}"
+                             class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No transaction history available.
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="/profile" class="text-decoration-none"
+                               style="color: var(--brand-primary); font-weight: 500;">
+                                <i class="fa-solid fa-arrow-left me-1"></i>
+                                Back to Profile
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <nav aria-label="Order pagination"
@@ -56,7 +66,8 @@
                      class="mt-4">
                     <ul class="pagination justify-content-center">
                         <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage - 1})}" aria-label="Previous">
+                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage - 1})}"
+                               aria-label="Previous">
                                 <span aria-hidden="true">Prev</span>
                             </a>
                         </li>
@@ -68,7 +79,8 @@
                         </li>
 
                         <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage + 1})}" aria-label="Next">
+                            <a class="page-link" th:href="@{/profile/point-history(page=${currentPage + 1})}"
+                               aria-label="Next">
                                 <span aria-hidden="true">Next</span>
                             </a>
                         </li>

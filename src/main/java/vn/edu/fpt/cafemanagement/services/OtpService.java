@@ -34,11 +34,13 @@ public class OtpService {
         // Sinh OTP 6 chữ số (có thể có 0 ở đầu)
         String otp = String.format("%06d", new Random().nextInt(1_000_000));
         otpStorage.put(email, new OtpData(otp, LocalDateTime.now().plusMinutes(15)));
+        System.out.println("[DEBUG] Generated OTP for " + email + " = " + otp);
         return otp;
     }
 
     public boolean validateOtp(String email, String otp) {
         OtpData data = otpStorage.get(email);
+        System.out.println("[DEBUG] Input OTP: " + otp + " | Stored OTP: " + data.getOtp());
         if (data == null) {
             return false;
         }
