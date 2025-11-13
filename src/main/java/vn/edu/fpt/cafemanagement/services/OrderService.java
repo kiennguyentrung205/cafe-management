@@ -6,10 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.cafemanagement.entities.Staff;
-import vn.edu.fpt.cafemanagement.entities.Order;
-import vn.edu.fpt.cafemanagement.entities.OrderItem;
-import vn.edu.fpt.cafemanagement.entities.Table;
+import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.repositories.OrderItemRepository;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 
@@ -53,15 +50,23 @@ public class OrderService {
     }
 
     // Lấy đơn đang hoạt động
-    public Page<Order> getActiveOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return orderRepository.findActiveOrders(pageable);
+    public Page<Order> getActiveOrders(Staff currentUser, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findActiveOrdersForUser(currentUser, userRole, pageable);
     }
 
     // Lấy đơn lịch sử (Served, Canceled)
-    public Page<Order> getHistoryOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("orderId").descending());
-        return orderRepository.findHistoryOrders(pageable);
+    public Page<Order> getHistoryOrders(Staff currentUser, LocalDate startDate, LocalDate endDate, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findCompletedOrdersByDateRange(currentUser, userRole, startDateTime, endDateTime, pageable);
     }
 
     public Page<Order> getUnservedOrders(int page, int size) {
@@ -77,12 +82,10 @@ public class OrderService {
         Map<String, Object> summaryMap = new HashMap<>();
 
         if (startDate == null || endDate == null) {
-            // Trả về Map rỗng nếu không có ngày
             return createEmptySummaryMap();
         }
         LocalDateTime startDateTime = startDate.atStartOfDay();
 
-        // endDate = 07/10 -> 08/10 00:00:00 (để query < 08/10)
         LocalDateTime adjustedEndDateTime = endDate.plusDays(1).atStartOfDay();
 
         List<Object[]> results = orderRepository.getSalesSummaryObject(startDateTime, adjustedEndDateTime);
@@ -120,27 +123,27 @@ public class OrderService {
         return orderRepository.findAllByCreatedAtGreaterThanEqualAndCreatedAtLessThan(startDateTime, adjustedEndDateTime);
     }
 
-    public Page<Order> getServedOrCanceledOrders(int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("orderId").descending());
-        return orderRepository.findByStatusIn(List.of("Served", "Canceled"), pageable);
+    public Page<Order> getServedOrCanceledOrders(Staff currentUser, LocalDate startDate, LocalDate endDate, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findCompletedOrdersByDateRange(currentUser, userRole, startDateTime, endDateTime, pageable);
     }
 
-    // --- [ĐÃ SỬA] ---
     public void updateOrder(Order order, Staff currentStaff) {
         order.setUpdatedAt(LocalDateTime.now());
-
-        // Dòng này gây lỗi vì entity 'Order' không còn trường 'updatedBy'
-        // order.setUpdatedBy(currentStaff);
-
-        // Controller đã set 'madeBy' hoặc 'servedBy' (sử dụng 'currentStaff')
-        // Service chỉ cần lưu lại các thay đổi đó
         orderRepository.save(order);
     }
 
-    public Page<Order> getKitchenOrders(int page, int pageSize) {
+    public Page<Order> getKitchenOrders(Staff currentUser, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
-        List<String> statuses = List.of("Pending", "Ready");
-        return orderRepository.findByStatusIn(statuses, pageable);
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findActiveOrdersForUser(currentUser, userRole, pageable);
     }
 
     @Transactional
@@ -151,5 +154,17 @@ public class OrderService {
 
     public Order findByTable(Table table) {
         return orderRepository.findOrderByTable(table).orElse(null);
+    }
+
+    public List<Integer> getUsedVoucherIdsByCustomer(Customer customer) {
+        if (customer == null) {
+            return Collections.emptyList();
+        }
+        return orderRepository.findUsedVoucherIdsByCustomerId(customer.getCusId());
+    }
+
+    public Page<Order> getOrderHistoryByCustomerId(int customerId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        return orderRepository.findByCustomerCusIdOrderByCreatedAtDesc(customerId, pageable);
     }
 }

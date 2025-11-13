@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.cafemanagement.entities.Order;
+import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Table;
 
 import java.time.LocalDateTime;
@@ -18,8 +19,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findByCustomerCusId(int cusId);
 
-    // Chỉ lấy đơn đang hoạt động (Pending, Paid)
-    @Query("SELECT o FROM Order o WHERE LOWER(o.status) IN ('Pending', 'Paid')")
+    // Chỉ lấy đơn đang hoạt động (Pending)
+    @Query("SELECT o FROM Order o WHERE LOWER(o.status) IN ('Paid')")
     Page<Order> findActiveOrders(Pageable pageable);
 
     // Lấy đơn lịch sử (Served, Canceled)
@@ -41,4 +42,37 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     Optional<Order> findOrderByTable(Table table);
 
-}
+    @Query("SELECT DISTINCT o.voucher.voucherId FROM Order o WHERE o.customer.cusId = :customerId AND o.voucher IS NOT NULL")
+    List<Integer> findUsedVoucherIdsByCustomerId(@Param("customerId") Integer customerId);
+
+    @Query("SELECT o FROM Order o " +
+            "WHERE (o.status = 'Served' OR o.status = 'Canceled') " +
+            "AND (cast(:startDateTime as timestamp) IS NULL OR o.createdAt >= :startDateTime) " +
+            "AND (cast(:endDateTime as timestamp) IS NULL OR o.createdAt <= :endDateTime) " +
+            "AND ( " +
+            "  :userRole = 'ADMIN' " + // 1. Nếu là ADMIN, điều kiện này đúng, trả về tất cả
+            "  OR (:userRole = 'CASHIER' AND o.staff = :currentUser) " + // 2. Nếu là Cashier, chỉ xem order họ tạo
+            "  OR (:userRole = 'BARISTA' AND o.madeBy = :currentUser) " + // 3. Nếu là Barista, chỉ xem order họ làm
+            "  OR (:userRole = 'WAITER' AND o.servedBy = :currentUser) " + // 4. Nếu là Waiter, chỉ xem order họ phục vụ
+            ")")
+    Page<Order> findCompletedOrdersByDateRange(
+            @Param("currentUser") Staff currentUser,
+            @Param("userRole") String userRole,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            Pageable pageable);
+
+    @Query("SELECT o FROM Order o " +
+            "WHERE (o.status = 'Pending' OR o.status = 'Ready') " + // <-- Chỉ lấy Pending/Ready
+            "AND ( " +
+            "  :userRole = 'ADMIN' " + // 1. ADMIN thấy hết
+            "  OR (:userRole = 'CASHIER' AND o.staff = :currentUser) " + // 2. Cashier chỉ thấy order mình tạo
+            "  OR (:userRole = 'BARISTA') " + // 3. Barista thấy hết (để làm)
+            "  OR (:userRole = 'WAITER') " + // 4. Waiter thấy hết (để phục vụ)
+            ")")
+    Page<Order> findActiveOrdersForUser(
+            @Param("currentUser") Staff currentUser,
+            @Param("userRole") String userRole,
+            Pageable pageable);
+
+    Page<Order> findByCustomerCusIdOrderByCreatedAtDesc(int customerId, Pageable pageable);}

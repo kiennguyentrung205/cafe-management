@@ -1,6 +1,9 @@
 package vn.edu.fpt.cafemanagement.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
@@ -56,8 +59,9 @@ public class CustomerService {
         return customerRepository.getCustomerByCusId(cusId);
     }
 
-    public List<PointHistory> getPointHistoryByCustomerId(int cusId) {
-        return customerRepository.getPointHistoryByCustomerId(cusId);
+    public Page<PointHistory> getPointHistoryByCustomerId(int cusId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        return pointHistoryRepository.findByCustomerCusIdOrderByChangeTimeDesc(cusId, pageable);
     }
 
     public void updateCustomer(Customer customer, MultipartFile imgFile) {

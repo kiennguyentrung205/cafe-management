@@ -12,7 +12,6 @@
 <div th:replace="~{fragments/common :: navbar-main}"></div>
 <div class="container py-5">
     <div class="row justify-content-center">
-        <!-- Đưa nội dung vào một cột giới hạn chiều rộng và căn giữa -->
         <div class="col-lg-10 col-xl-8">
 
             <h1 class="text-center mb-4">Customer Profile</h1>
@@ -20,7 +19,6 @@
             <div class="card">
                 <div class="card-body">
 
-                    <!-- 1. Phần Avatar và Tên -->
                     <div class="text-center mb-4">
                         <img th:if="${customer.googleAccount}"
                              th:src="${customer.img}"
@@ -35,11 +33,9 @@
                         <div class="text-muted" th:text="'@' + ${customer.username}">@username</div>
                     </div>
 
-                    <!-- 2. Phần thông tin chi tiết -->
                     <h3 class="h5 mb-3">Profile Details</h3>
 
                     <div class="profile-details-list">
-                        <!-- Hàng Point -->
                         <div class="row profile-details-row">
                             <div class="col-4 col-md-3 profile-label">Point</div>
                             <div class="col-8 col-md-9 profile-value">
@@ -47,46 +43,40 @@
                             </div>
                         </div>
 
-                        <!-- Hàng Email -->
                         <div class="row profile-details-row">
                             <div class="col-4 col-md-3 profile-label">Email</div>
                             <div class="col-8 col-md-9 profile-value" th:text="${customer.email}">customer@email.com
                             </div>
                         </div>
 
-                        <!-- Hàng Phone -->
                         <div class="row profile-details-row">
                             <div class="col-4 col-md-3 profile-label">Phone</div>
                             <div class="col-8 col-md-9 profile-value" th:text="${customer.phoneNumber}">0909123456</div>
                         </div>
 
-                        <!-- Hàng DOB -->
                         <div class="row profile-details-row">
                             <div class="col-4 col-md-3 profile-label">Date of birth</div>
                             <div class="col-8 col-md-9 profile-value" th:text="${customer.dateOfBirth}">19/05/1990</div>
                         </div>
                     </div>
 
-                    <!-- 3. Phần Nút bấm (Actions) -->
                     <div class="text-center mt-5">
-                        <!--
-                          Đây là nút chính (primary), quan trọng nhất.
-                          Tôi đã thay .btn-warning bằng .btn-primary
-                        -->
                         <a th:href="@{/profile/edit}"
                            type="button"
                            class="btn btn-primary btn-lg mx-1 my-1">
                             Edit profile
                         </a>
 
-                        <!--
-                          Đây là các nút phụ, tôi dùng .btn-outline-primary
-                          để tạo sự tương phản
-                        -->
-                        <a th:href="@{/profile/pointhistory}"
+                        <a th:href="@{/profile/point-history}"
                            type="button"
                            class="btn btn-outline-primary mx-1 my-1">
                             Point History
+                        </a>
+
+                        <a th:href="@{/profile/order-history}"
+                           type="button"
+                           class="btn btn-outline-primary mx-1 my-1">
+                            Order History
                         </a>
                         <a th:href="@{/profile/changePassword}"
                            type="button"
@@ -101,9 +91,8 @@
     </div>
 </div>
 <div th:insert="~{layout/footer}"></div>
-<!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
 </body>
