@@ -49,6 +49,7 @@ public class ProductService {
     public List<Product> getProductsByCategory(int categoryId) {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId);
     }
+
     public Page<Product> getProductsByCategory(int categoryId, Pageable pageable) {
         return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrue(categoryId, pageable);
     }
@@ -130,6 +131,8 @@ public class ProductService {
 
     public void deleteSortProduct(Product product) {
         product.setActive(false);
+        product.setQuantity(0);
+        product.setStatus("unavailable");
         productRepository.save(product);
     }
 

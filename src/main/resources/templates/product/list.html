@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/common :: common-head(
             pageTitle='Product',
             pageSpecificCss=~{:: .page-css}
@@ -107,6 +108,7 @@
                                 <th scope="col">Price</th>
                                 <th scope="col">Category</th>
                                 <th scope="col">Status</th>
+                                <th scope="col">Quantity</th>
                                 <th scope="col">Active</th>
                                 <th scope="col" class="pe-4">Actions</th>
                             </tr>
@@ -138,12 +140,15 @@
                                           class="badge text-bg-danger">Unavailable</span>
                                 </td>
 
+                                <td th:text="*{quantity}">
+                                </td>
                                 <td>
                                     <span th:if="*{active}" class="badge text-bg-success">Yes</span>
                                     <span th:unless="*{active}" class="badge text-bg-secondary">No</span>
                                 </td>
 
                                 <td class="pe-4 text-nowrap">
+
                                     <a class="btn btn-sm btn-outline-primary"
                                        th:href="@{/product/edit/{id}(id=*{proId})}">
                                         Edit
@@ -151,14 +156,16 @@
                                     <a class="btn btn-sm btn-outline-secondary" th:href="@{/product/{id}(id=*{proId})}">
                                         Details
                                     </a>
-                                    <!-- Delete Button triggers modal -->
-                                    <button class="btn btn-sm btn-outline-danger btn-delete"
-                                            th:data-id="*{proId}"
-                                            th:data-name="*{proName}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteModal">
-                                        Delete
-                                    </button>
+                                    <div sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                                        <!-- Delete Button triggers modal -->
+                                        <button class="btn btn-sm btn-outline-danger btn-delete"
+                                                th:data-id="*{proId}"
+                                                th:data-name="*{proName}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
