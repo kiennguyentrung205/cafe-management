@@ -247,7 +247,6 @@
 <script>
     /* ===== Hàm hiển thị modal cảnh báo ===== */
     function showAlertModal(message, isError = true) {
-        // ... (Giữ nguyên)
         const modalEl = document.getElementById('alertModal');
         const msgEl = document.getElementById('alertMessage');
         const header = modalEl.querySelector('.modal-header');
@@ -268,7 +267,6 @@
 
     /* ===== Dọn dẹp panel sau khi thành công ===== */
     function resetOrderPanel() {
-        // ... (Giữ nguyên)
         document.querySelector(".order-list").innerHTML = "";
         document.querySelector('select[name="voucherId"]').value = "";
         const phoneInput = document.querySelector('input[name="customerPhone"]');
@@ -290,7 +288,6 @@
 
     /* ===== Xử lý Submit Order (AJAX) ===== */
     function handleOrderSubmit(event) {
-        // ... (Giữ nguyên)
         event.preventDefault();
         updateHiddenInputs();
         const form = event.target;
@@ -349,7 +346,6 @@
 
     /* ========== Gắn listener cho các nút trong Order Item ========== */
     function addListenersToOrderItem(item) {
-        // ... (Giữ nguyên logic của hàm này)
         const qtyInput = item.querySelector(".item-qty-input");
         const removeBtn = item.querySelector(".btn-remove-item");
         const maxStock = parseInt(item.getAttribute('data-max-stock')) || 999;
@@ -384,7 +380,6 @@
 
     /* ========== Logic Thêm/Cập nhật Sản phẩm (trả về true/false) ========== */
     function addProductToOrder(productId, name, price, img, quantityToAdd, maxStock) {
-        // ... (Giữ nguyên logic của hàm này)
         if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
             showAlertModal("Invalid quantity.");
             return false;
@@ -444,7 +439,6 @@
             // --- Listener 1: Nút Dấu Cộng (+) ---
             if (addButton) {
                 addButton.addEventListener('click', (event) => {
-                    // (Logic này giữ nguyên)
                     event.stopPropagation();
                     const name = card.querySelector(".product-name").textContent.trim();
                     const priceText = card.querySelector(".product-price").textContent.trim();
@@ -483,8 +477,6 @@
                 stockEl.textContent = totalStock;
                 document.getElementById('modalProductDescription').textContent = (description === "null" || description === "") ? "No description available." : description;
 
-                // --- [ĐÂY LÀ PHẦN SỬA CHÍNH] ---
-
                 // 3. Tìm số lượng đã có trong giỏ
                 let existingItem = Array.from(document.querySelectorAll(".order-item"))
                     .find(item => item.getAttribute("data-product-id") === productId);
@@ -508,7 +500,6 @@
                     qtyInput.value = 1; // Mặc định là 1
                     qtyInput.disabled = false; // Bật input
                 }
-                // --- [HẾT PHẦN SỬA] ---
 
                 // 6. Gắn dữ liệu vào nút "Add to Order"
                 const modalAddButton = document.getElementById('modalAddToCartButton');
@@ -528,7 +519,6 @@
 
     /* ========== Tính tổng tiền ========== */
     function updateTotal() {
-        // ... (Giữ nguyên)
         const orderItems = document.querySelectorAll(".order-item");
         let subtotal = 0;
         orderItems.forEach(item => {
@@ -592,7 +582,6 @@
 
     /* ===== Các hàm Helper (getMaxPointsInfo, v.v...) ===== */
     function getMaxPointsInfo() {
-        // ... (Giữ nguyên)
         const input = document.getElementById('pointsUsed');
         const customerMaxPoints = (input ? parseInt(input.getAttribute('data-max')) : 0) || 0;
         const orderItems = document.querySelectorAll(".order-item");
@@ -625,7 +614,6 @@
     }
 
     function validateAndHandlePoints(input, silent = false) {
-        // ... (Giữ nguyên)
         if (!input) return;
         let pointsUsed_Input = parseInt(input.value) || 0;
         if (pointsUsed_Input < 0) {
@@ -654,7 +642,6 @@
 
 
     function updateLockState() {
-        // ... (Giữ nguyên)
         const orderPanel = document.querySelector('.order-panel');
         if (!orderPanel) return;
         const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
@@ -680,7 +667,6 @@
 
     /* ===== Các hàm AJAX (performSearch, fetchAndReplace) ===== */
     function performSearch() {
-        // ... (Giữ nguyên)
         const query = document.getElementById('searchInput').value.trim();
         let url = '/order/create?page=1';
         if (selectedCategoryId && selectedCategoryId !== "0") {
@@ -693,7 +679,6 @@
     }
 
     function fetchAndReplace(url, categoryId) {
-        // ... (Giữ nguyên)
         fetch(url, {credentials: 'same-origin'})
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -742,7 +727,6 @@
 
     /* ========== Phân trang AJAX (Menu) ========== */
     document.addEventListener('click', function (e) {
-        // ... (Giữ nguyên)
         const menuPanel = e.target.closest('.menu-panel');
         if (!menuPanel) return;
         const a = e.target.closest('.pagination a');
@@ -760,9 +744,7 @@
 
         if (modalAddBtn && modalQtyInput) {
 
-            // [SỬA] Listener 'input' của modal (Giữ nguyên)
             modalQtyInput.addEventListener('input', () => {
-                // Đọc 'max' attribute (ví dụ: 29)
                 const maxStock = parseInt(modalQtyInput.getAttribute('max')) || 999;
                 let qty = parseInt(modalQtyInput.value);
 
@@ -770,16 +752,13 @@
                     modalQtyInput.value = 1;
                 }
 
-                // Tự động sửa nếu gõ > 29
                 if (qty > maxStock) {
                     modalQtyInput.value = maxStock;
                 }
             });
 
 
-            // Listener cho nút "Add to Order"
             modalAddBtn.addEventListener('click', () => {
-                // 1. Lấy dữ liệu (Giữ nguyên)
                 const addButton = document.getElementById('modalAddToCartButton');
                 const productId = addButton.getAttribute('data-product-id');
                 const name = addButton.getAttribute('data-name');
@@ -787,35 +766,27 @@
                 const img = addButton.getAttribute('data-img');
                 const quantityToAdd = parseInt(modalQtyInput.value);
 
-                // Lấy TỔNG stock (ví dụ: 30)
                 const maxStock = parseInt(addButton.getAttribute('data-max-stock')) || 0;
 
-                // 2. Validate cơ bản
                 if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
                     showAlertModal("Please enter a valid quantity.");
                     return;
                 }
 
-                // 3. Gọi hàm helper (Giữ nguyên)
-                // Hàm này sẽ tự check (1(trong giỏ) + 29(thêm) > 30) -> false
-                // (1(trong giỏ) + 30(thêm) > 30) -> true (báo lỗi)
                 const success = addProductToOrder(productId, name, price, img, quantityToAdd, maxStock);
 
-                // 4. Chỉ đóng modal nếu thành công
                 if (success) {
                     const productModal = bootstrap.Modal.getInstance(document.getElementById('productDetailModal'));
                     productModal.hide();
                 }
-                // Nếu false, modal sẽ không đóng
             });
         }
 
 
-        // Gắn sự kiện cho Menu (bên trái)
+        // Gắn sự kiện cho Menu
         attachProductCardListeners();
 
         // --- Gắn sự kiện cho nút Search ---
-        // ... (Giữ nguyên)
         const searchBtn = document.getElementById('searchButton');
         const searchInput = document.getElementById('searchInput');
         if (searchBtn && searchInput) {
@@ -829,7 +800,6 @@
         }
 
         // --- Gắn sự kiện cho Category Buttons ---
-        // ... (Giữ nguyên)
         const categoryContainer = document.getElementById('categoryButtons');
         if (categoryContainer) {
             const activeButton = categoryContainer.querySelector('.btn-custom-active');
@@ -849,13 +819,11 @@
         }
 
         // --- Gắn sự kiện Back/Forward ---
-        // ... (Giữ nguyên)
         window.addEventListener('popstate', function () {
             fetchAndReplace(location.href, null);
         });
 
         // --- EVENT DELEGATION CHO ORDER PANEL ---
-        // ... (Giữ nguyên)
         const orderPanel = document.querySelector('.order-panel');
         if (!orderPanel) return;
         orderPanel.addEventListener('click', function (e) {
@@ -943,7 +911,6 @@
             }
         });
 
-        // Chạy lần đầu
         updateLockState();
         updateTotal();
 
@@ -951,7 +918,6 @@
 
     /* ========== Hidden inputs ========== */
     function updateHiddenInputs() {
-        // ... (Giữ nguyên)
         const container = document.getElementById("hiddenInputs");
         container.innerHTML = "";
         const orderItems = document.querySelectorAll(".order-item");
@@ -983,7 +949,6 @@
 
     /* ========== Validate đặt hàng ========== */
     function validateOrderForm() {
-        // ... (Giữ nguyên)
         updateHiddenInputs();
         const orderItems = document.querySelectorAll(".order-item");
         if (orderItems.length === 0) {
