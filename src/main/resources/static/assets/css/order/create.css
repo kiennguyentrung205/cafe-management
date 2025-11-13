@@ -74,21 +74,19 @@ h2 {
 .btn-custom-active {
     background-color: #FF7A00 !important;
     border-color: #FF7A00 !important;
-    color: #ffffff !important; /* Chữ trắng */
+    color: #ffffff !important;
 }
 
-/* Nút KHÔNG được chọn (Inactive) */
 .btn-custom-inactive {
     background-color: #ffffff !important;
     border-color: #FF7A00 !important;
-    color: #FF7A00 !important; /* Chữ cam */
+    color: #FF7A00 !important;
 }
 
-/* [ĐÃ SỬA] Khi di chuột (Hover) vào nút KHÔNG được chọn */
 .btn-custom-inactive:hover {
-    background-color: #FF7A00 !important;  /* Đổi nền thành cam */
+    background-color: #FF7A00 !important;
     border-color: #FF7A00 !important;
-    color: #ffffff !important; /* Đổi chữ thành trắng */
+    color: #ffffff !important;
 }
 
 .btn-orange {
@@ -98,7 +96,7 @@ h2 {
 }
 
 .btn-orange:hover {
-    background-color: #e66a00 !important; /* Cam đậm hơn một chút khi hover */
+    background-color: #e66a00 !important;
     border-color: #e66a00 !important;
     color: #ffffff !important;
 }
@@ -120,7 +118,7 @@ h2 {
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     padding: 8px 0;
-    max-height: 100px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -133,8 +131,8 @@ h2 {
 }
 
 .order-item img {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     border-radius: 4px;
     object-fit: cover;
     margin-right: 8px;
@@ -206,6 +204,40 @@ h2 {
     color: var(--brand-gray);
 }
 
+#productDetailModal .modal-body {
+    /* (Có thể bỏ trống nếu bạn không muốn giới hạn chiều cao) */
+}
+#modalProductImage {
+    width: 100%;
+    height: 350px; /* Cố định chiều cao ảnh */
+    object-fit: cover;
+}
+
+/* Style cho giá tiền (chữ cam) */
+.modal-price {
+    color: var(--brand-primary, #FF7A00);
+}
+
+/* Style chung cho lưới thông tin (CATEGORY, STATUS...) */
+.modal-info-grid strong {
+    font-size: 0.8rem;
+    color: var(--brand-gray, #6c757d);
+    display: block;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.modal-info-grid p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Style riêng cho giá tiền khi nằm trong lưới */
+.modal-info-grid .modal-price {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700;   /* Đậm */
+}
+
 .product-card {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -216,6 +248,36 @@ h2 {
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+}
+
+.btn-add-product {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background-color: var(--brand-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: background-color 0.2s;
+    cursor: pointer; /* Thêm con trỏ */
+}
+
+.btn-add-product:hover {
+    background-color: #e66a00;
+}
+
+.product-card.out-of-stock .btn-add-product {
+    display: none;
 }
 
 .product-card .product-price {
@@ -230,7 +292,7 @@ h2 {
 
 .product-card img {
     width: 100%;
-    height: 80px;
+    height: 140px;
     object-fit: cover;
     border-radius: 6px;
 }
@@ -264,4 +326,15 @@ h2 {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.product-card.out-of-stock {
+    background-color: #f8f9fa;
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.product-card.out-of-stock .product-name {
+    text-decoration: line-through;
 }
