@@ -35,9 +35,9 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
     Page<TableBooking> findByStatusAndBookingTimeBetweenOrderByBookingTimeDesc(String status, LocalDateTime bookingTimeAfter, LocalDateTime bookingTimeBefore, Pageable pageable);
 
     @Query(value="select * from TableBooking where table_id = :tableId and status = 'checked-in'", nativeQuery = true)
-    TableBooking findActiveBookingByTable(int tableId);
+    List<TableBooking> findActiveBookingByTable(int tableId);
 
-    @Query(value="select * from tablebooking where booking_time < :expiredTime and status = 'booked'", nativeQuery = true)
+    @Query(value="select * from tablebooking where booking_time < :expiredTime and status in ('booked','pending')", nativeQuery = true)
     List<TableBooking> findExpiredBooking(LocalDateTime expiredTime);
 
     @Query("SELECT COUNT(b) FROM TableBooking b " +

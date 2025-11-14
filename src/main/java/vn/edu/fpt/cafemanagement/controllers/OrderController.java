@@ -166,6 +166,7 @@ public class OrderController {
             model.addAttribute("tableList", availableTables);
         }
 
+        model.addAttribute("customerPhone", customerPhone);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("title", "Create In-Store Order");
@@ -340,7 +341,6 @@ public class OrderController {
             TableBooking tableBooking = tableBookingRepository.findFirstByTableAndStatus(table, "booked");
 
             System.out.println("0000000000000000000000000000000000000");
-            System.out.println(tableBooking.getTable().getTableId());
 
             if (table != null) {
                 // 1. Gán bàn vào đơn hàng

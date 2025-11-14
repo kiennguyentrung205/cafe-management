@@ -72,20 +72,6 @@ public class TableController {
         return "staff/table/table-list-staff";
     }
 
-//    @PostMapping(path = "/management/update-status")
-//    @ResponseBody
-//    public String updateTableStatus(@RequestBody Table table) {
-
-    /// /        Table oldTable = tableService.findById(table.getTableId());
-    /// /
-    /// /        if("available".equalsIgnoreCase(oldTable.getStatus())) {
-    /// /            return "Update status error";
-    /// /        }
-//
-//        tableService.updateTableStatus(table.getTableId(), table.getStatus());
-//        return "Status updated successfully";
-//        return "redirect:/table/management";
-//    }
     @PostMapping(path = "/management/update-status")
     public String updateTableStatus(@RequestParam("status") String status, @RequestParam("tableId") int tableId) {
 //        Table oldTable = tableService.findById(table.getTableId());
@@ -95,7 +81,7 @@ public class TableController {
 //        }
 
         tableService.updateTableStatus(tableId, status);
-        return "redirect:/table/management";
+        return "redirect:/table/management?success=Update table status successfully";
     }
 
     @PostMapping("/management/move")
@@ -104,24 +90,24 @@ public class TableController {
                        @RequestParam("newTableId") int newTableId) {
 
         if (oldTableId == newTableId) {
-            return "redirect:/table/management?error=sameTable";
+            return "redirect:/table/management?error=Same Table";
         }
 
         Table oldTable = tableService.findById(oldTableId);
         Table newTable = tableService.findById(newTableId);
 
         if (oldTable == null || newTable == null) {
-            return "redirect:/table/list?error=notFound";
+            return "redirect:/table/list?error=Old table or new table not found";
         }
 
         if (!"available".equalsIgnoreCase(newTable.getStatus())) {
-            return "redirect:/table/management?error=newTableNotAvailable";
+            return "redirect:/table/management?error=New table is not available";
         }
 
         // Move table in table booking
         TableBooking tableBooking = tableBookingRepository.findFirstByTable(oldTable);
         if (tableBooking == null) {
-            return "redirect:/table/management?error=notFound";
+            return "redirect:/table/management?error=Table booking not found";
         }
 
         tableBooking.setTable(newTable);
@@ -131,7 +117,7 @@ public class TableController {
         Order order = orderService.findByTable(oldTable);
 
         if (order == null) {
-            return "redirect:/table/management?error=noOrder";
+            return "redirect:/table/management?error=No order found";
         }
 
         // Update table status
@@ -145,7 +131,7 @@ public class TableController {
         tableService.save(newTable);
         orderService.saveOrder(order);
 
-        return "redirect:/table/management?move=success";
+        return "redirect:/table/management?success=Move table successfully";
     }
 
 }
