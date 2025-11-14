@@ -39,13 +39,16 @@ public class TableService {
     }
 
     public void autoCompleteBookingOfTable (int tableId){
-        TableBooking  booking = tableBookingRepository.findActiveBookingByTable(tableId);
+        List<TableBooking> bookings = tableBookingRepository.findActiveBookingByTable(tableId);
 
-        if (booking != null &&
-                (booking.getStatus().equalsIgnoreCase("CHECKED-IN"))) {
-
+//        if (booking != null &&
+//                (booking.getStatus().equalsIgnoreCase("CHECKED-IN"))) {
+//
+//            booking.setStatus("completed");
+////            booking.setCheckoutTime(LocalDateTime.now());
+//            tableBookingRepository.save(booking);
+        for (TableBooking booking : bookings) {
             booking.setStatus("completed");
-//            booking.setCheckoutTime(LocalDateTime.now());
             tableBookingRepository.save(booking);
         }
     }

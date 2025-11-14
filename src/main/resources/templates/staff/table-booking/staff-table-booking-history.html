@@ -9,6 +9,17 @@
     <!-- Header -->
     <h1 class="text-center mb-4">Table Booking Management</h1>
 
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${param.success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Error Alert -->
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${param.error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <!-- Filter Section (Re-styled for consistency) -->
     <div class="card p-4 mb-4">
         <form method="get" th:action="@{/table/booking/management}">
@@ -73,7 +84,7 @@
         x.status == 'booked' ? 'text-bg-primary' :
         (x.status == 'checked-in' ? 'text-bg-success' :
         (x.status == 'completed' ? 'text-bg-success-subtle text-success' :
-        (x.status == 'canceled' ? 'text-bg-danger' :
+        (x.status == 'canceled' || x.status == 'rejected' ? 'text-bg-danger' :
         (x.status == 'auto-canceled' ? 'text-bg-warning text-dark' :
         'text-bg-secondary'))))}|" th:text="${x.status}">
                             </span>
@@ -83,13 +94,22 @@
 
                         <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
                         <td classs="p-3">
-                            <a class="btn btn-success btn-sm" th:href="@{/order/create}"
-                               th:if="${x.status == 'booked'}">Check in</a>
+<!--                            <a class="btn btn-success btn-sm" th:href="@{/order/create}"-->
+<!--                               th:if="${x.status == 'booked'}">Check in</a>-->
+                            <form th:action="@{/order/create}" method="get">
+                                <input type="hidden" name="customerPhone" th:value="${x.customer.phoneNumber}">
+                                <button class="btn btn-success btn-sm"  th:if="${x.status == 'booked'}">Check in</button>
+                            </form>
                             <div th:if="${x.status == 'pending'}">
                                 <form method="post" th:action="@{/table/booking/management/update-status}">
                                     <input name="tableBookingId" th:value="${x.bookingId}" type="hidden">
                                     <input name="action" value="confirm" type="hidden">
                                     <button class="btn btn-primary" type="submit">Confirm</button>
+                                </form>
+                                <form method="post" th:action="@{/table/booking/management/update-status}">
+                                    <input name="tableBookingId" th:value="${x.bookingId}" type="hidden">
+                                    <input name="action" value="reject" type="hidden">
+                                    <button class="btn btn-danger" type="submit">Reject</button>
                                 </form>
                             </div>
 <!--                            <button class="btn btn-success btn-sm" th:if="${x.status == 'booked'}"-->
@@ -110,6 +130,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Pagination -->
     <nav class="mt-4" aria-label="Page navigation">
