@@ -32,7 +32,7 @@ public class ProfileCompletionFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        // Cho phép vào các trang này dù thiếu info
+
         boolean allowed =
                 uri.startsWith("/profile/edit") ||
                         uri.startsWith("/home") ||
