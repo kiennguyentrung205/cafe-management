@@ -69,7 +69,20 @@
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_BARISTA')">
-                        <a class="nav-link active" th:href="@{/order/edit}">Edit Order</a>
+                        <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           data-bs-toggle="dropdown"
+                           href="#" id="tableDropdown" role="button">
+                            <span>Operations</span>
+                        </a>
+                        <ul aria-labelledby="tableDropdown" class="dropdown-menu">
+                            <li>
+                                <a class="nav-link active" th:href="@{/order/edit}">Edit Order</a>
+                            </li>
+                            <li>
+                                <a class="nav-link active" th:href="@{/product/list}">Edit Product</a>
+                            </li>
+
+                        </ul>
                     </li>
 
                     <li class="nav-item dropdown" sec:authorize="hasAnyRole('ROLE_WAITER')">

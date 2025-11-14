@@ -87,6 +87,14 @@
                                         </p>
                                     </div>
 
+                                    <div class="col-md-6 mb-3">
+                                        <span class="detail-label">Quantity</span>
+
+                                        <span
+                                              th:text="${product.quantity}"></span>
+                                    </div>
+
+
                                     <a class="btn btn-sm btn-outline-primary"
                                        sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_BARISTA')"
                                        th:href="@{/product/edit/{id}(id=${product.proId})}">
