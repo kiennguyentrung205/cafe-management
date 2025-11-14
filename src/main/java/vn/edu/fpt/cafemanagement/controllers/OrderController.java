@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import vn.edu.fpt.cafemanagement.entities.*;
+import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.*;
 
@@ -33,6 +34,7 @@ public class OrderController {
     private final TableService tableService;
     private final TableBookingService tableBookingService;
     private final LoggedUser loggedUser;
+    private final TableBookingRepository tableBookingRepository;
 
     public OrderController(ProductService productService,
                            OrderService orderService,
@@ -42,8 +44,8 @@ public class OrderController {
                            PointHistoryService pointHistoryService,
                            TableService tableService,
                            TableBookingService tableBookingService,
-                           LoggedUser loggedUser
-    ) {
+                           LoggedUser loggedUser,
+                           TableBookingRepository tableBookingRepository) {
         this.productService = productService;
         this.orderService = orderService;
         this.voucherService = voucherService;
@@ -53,6 +55,7 @@ public class OrderController {
         this.tableService = tableService;
         this.tableBookingService = tableBookingService;
         this.loggedUser = loggedUser;
+        this.tableBookingRepository = tableBookingRepository;
     }
 
     // ----------------------- [GET: Hiển thị form tạo order + tìm kiếm + phân trang] -----------------------
@@ -70,6 +73,7 @@ public class OrderController {
         Page<Product> productPage;
 
         Table bookedTable = null;
+        List<Table> bookedTables = null;
         Customer customer = null;
 
         if ("check".equals(action)) {
@@ -82,6 +86,10 @@ public class OrderController {
 
                 // Kiểm tra xem khách này có đang ngồi ở bàn nào (đã check-in) không
                 TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer);
+
+//                 bookedTables = tableBookingRepository.findTableByCustomer_CusIdAndStatus(customer.getCusId(), "booked");
+
+
                 if (activeBooking != null) {
                     bookedTable = activeBooking.getTable();
                 }
@@ -329,12 +337,23 @@ public class OrderController {
         // --- GÁN BÀN VÀO ĐƠN HÀNG ---
         if (tableId != null && tableId > 0) {
             Table table = tableService.findById(tableId);
+            TableBooking tableBooking = tableBookingRepository.findFirstByTableAndStatus(table, "booked");
+
+            System.out.println("0000000000000000000000000000000000000");
+            System.out.println(tableBooking.getTable().getTableId());
+
             if (table != null) {
                 // 1. Gán bàn vào đơn hàng
                 order.setTable(table);
 
                 // 2. Cập nhật trạng thái bàn thành "occupied"
                 tableService.updateTableStatus(tableId, "occupied");
+
+                if (tableBooking != null){
+                   tableBooking.setStatus("checked-in");
+                   tableBookingRepository.save(tableBooking);
+                }
+
             } else {
                 // Báo lỗi nếu ID bàn không hợp lệ
                 model.addAttribute("warning", "Invalid Table ID. Order created as 'Take-away'.");

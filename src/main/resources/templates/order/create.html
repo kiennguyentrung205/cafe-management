@@ -166,10 +166,22 @@
                         <label style="font-size:16px; font-weight: 600; margin-bottom: 0; white-space: nowrap;">Table:</label>
 
                         <div th:if="${bookedTable != null}">
+
                             <input type="text" class="form-control form-control-sm"
-                                   th:value="|Table ${bookedTable.tableId} (checked-in)|"
+                                   th:value="|Table ${bookedTable.tableId} (Booked)|"
                                    style="width: 200px; background-color: #e9ecef;"/>
                             <input type="hidden" name="tableId" th:value="${bookedTable.tableId}" />
+<!--                            <div style="display:flex; flex-direction: column; gap: 5px;">-->
+<!--                                <div th:each="table : ${bookedTables}">-->
+<!--                                    <input type="text" class="form-control form-control-sm"-->
+<!--                                           th:value="|Table ${table.tableId} (booked)|"-->
+<!--                                           disabled-->
+<!--                                           style="width: 200px; background-color: #e9ecef;"/>-->
+<!--                                    <input type="hidden" name="tableIds[]" th:value="${table.tableId}" />-->
+<!--                                </div>-->
+
+<!--                                <span style="font-size: 12px; color: green;">* Đã check-in toàn bộ đặt bàn.</span>-->
+<!--                            </div>-->
                         </div>
 
                         <div th:if="${bookedTable == null}">
@@ -177,7 +189,9 @@
                                 <option value="">Take-away</option>
                                 <option th:each="table : ${tableList}"
                                         th:value="${table.tableId}"
-                                        th:text="|Table ${table.tableId} (Capacity: ${table.capacity})|">
+                                        th:text="|Table ${table.tableId} (Capacity: ${table.capacity}) ${table.status == 'booked' ? 'BOOKED' : ''}|"
+                                        th:disabled="${table.status == 'booked'}"
+                                >
                                 </option>
                             </select>
                         </div>

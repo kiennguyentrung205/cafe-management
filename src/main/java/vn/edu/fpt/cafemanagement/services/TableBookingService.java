@@ -45,7 +45,7 @@ public class TableBookingService {
             throw new RuntimeException("You cannot book table after 22:00!");
         }
 
-        tableBooking.setStatus("booked");
+        tableBooking.setStatus("pending");
 
         return tableBookingRepository.save(tableBooking);
     }

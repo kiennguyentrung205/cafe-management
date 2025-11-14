@@ -48,5 +48,12 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
 
     TableBooking findFirstByCustomerCusIdAndStatus(int cusId, String status);
 
+    TableBooking findFirstByTableAndStatus(Table table, String status);
+
+    TableBooking findFirstByTable(Table table);
+
+    @Query("SELECT tb.table FROM TableBooking tb WHERE tb.customer.cusId = :cusId AND tb.status = :status")
+    List<Table> findTableByCustomer_CusIdAndStatus(int cusId, String status);
+
 //    List<TableBooking> findExpiredBookings();
 }
