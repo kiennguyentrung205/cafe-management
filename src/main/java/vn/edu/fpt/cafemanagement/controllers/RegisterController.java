@@ -14,19 +14,17 @@ import java.time.LocalDate;
 import java.time.Period;
 import vn.edu.fpt.cafemanagement.services.OtpService;
 import vn.edu.fpt.cafemanagement.services.PasswordService;
-import vn.edu.fpt.cafemanagement.services.RegisterService;
 
 @Controller
 public class RegisterController {
-    private final RegisterService registerService;
     private OtpService otpService;
     private PasswordService passwordService;
     private final CustomerService customerService;
 
-    public RegisterController(RegisterService registerService, OtpService otpService, PasswordService passwordService) {
-        this.registerService = registerService;
+    public RegisterController(OtpService otpService, PasswordService passwordService, CustomerService customerService) {
         this.otpService = otpService;
         this.passwordService = passwordService;
+        this.customerService = customerService;
     }
 
     @GetMapping(path = "/register")
@@ -42,44 +40,6 @@ public class RegisterController {
         customer.setPassword(hashPassword);
         customer.setImg("avatar.jpeg");
         session.setAttribute("pendingCustomer", customer);
-
-        passwordService.sendOtpForRegister(customer.getEmail());
-
-        // Chuyển hướng sang trang xác thực
-        return "redirect:/verify-email";
-
-    }
-
-    @GetMapping("/verify-email")
-    public String showVerifyOtp(HttpSession session, Model model) {
-        Customer pendingCustomer = (Customer) session.getAttribute("pendingCustomer");
-
-        if (pendingCustomer == null) {
-            return "redirect:/register?error=expired";
-        }
-
-        model.addAttribute("email", pendingCustomer.getEmail());
-        return "account/verify-email";
-    }
-
-
-    @PostMapping("/verify-email")
-    public String verifyOtp(String otp,
-                            Model model,
-                            HttpSession session) {
-
-        Customer pendingCustomer = (Customer) session.getAttribute("pendingCustomer");
-
-        if (pendingCustomer == null) {
-            model.addAttribute("errorMessage", "Phiên đăng ký đã hết hạn.");
-            return "account/verify-email";
-        }
-
-        boolean valid = otpService.validateOtp(pendingCustomer.getEmail(), otp);
-
-        if (!valid) {
-            return "redirect:/login?errorMessage=The OTP code is incorrect or has expired!";
-        }
 
         String fullName = customer.getName();
         String username = customer.getUsername();
@@ -168,17 +128,50 @@ public class RegisterController {
             return "account/register";
         }
 
-        String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        customer.setPassword(hashPassword);
+        passwordService.sendOtpForRegister(customer.getEmail());
+
+        return "redirect:/verify-email";
+
+    }
+
+    @GetMapping("/verify-email")
+    public String showVerifyOtp(HttpSession session, Model model) {
+        Customer pendingCustomer = (Customer) session.getAttribute("pendingCustomer");
+
+        if (pendingCustomer == null) {
+            return "redirect:/register?error=expired";
+        }
+
+        model.addAttribute("email", pendingCustomer.getEmail());
+        return "account/verify-email";
+    }
+
+
+    @PostMapping("/verify-email")
+    public String verifyOtp(String otp,
+                            Model model,
+                            HttpSession session) {
+
+        Customer pendingCustomer = (Customer) session.getAttribute("pendingCustomer");
+
+        if (pendingCustomer == null) {
+            model.addAttribute("errorMessage", "Session has expired!");
+            return "account/register";
+        }
+
+        boolean valid = otpService.validateOtp(pendingCustomer.getEmail(), otp);
+
+        if (!valid) {
+            return "redirect:/login?errorMessage=The OTP code is incorrect or has expired!";
+        }
 
         try {
-            registerService.createCustomer(pendingCustomer);
+            customerService.save(pendingCustomer);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "account/verify-email";
         }
 
-        // Xóa session tạm
         session.removeAttribute("pendingCustomer");
 
         return "redirect:/login?successMessage=Your account has been successfully registered. Welcome aboard!";
