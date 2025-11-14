@@ -78,7 +78,10 @@
 
                         <p class="product-quantity mb-1 fw-bold"
                            th:classappend="${product.quantity <= 0} ? 'text-danger' : ''">
-                            <span th:text="|In-stock: ${product.quantity}|"></span>
+
+                            <span th:if="${product.quantity > 0}" th:text="|In-stock: ${product.quantity}|"></span>
+
+                            <span th:if="${product.quantity <= 0}">Out-of-stock</span>
                         </p>
 
                         <p class="product-price mb-0">
