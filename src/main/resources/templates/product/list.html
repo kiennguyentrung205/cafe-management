@@ -8,6 +8,32 @@
     <link rel="stylesheet" href="/assets/css/dashboard/product/list.css">
 </th:block>
 <body>
+<style>
+    .action-btn {
+        border-radius: 10px !important;
+        padding: 6px 18px !important;
+        font-size: 0.9rem !important;
+        font-weight: 600;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+    /* Colors */
+    .btn-details {
+        border: 1px solid #d0d5dd !important;
+        color: #344054 !important;
+    }
+
+    .btn-edit {
+        border: 1px solid #feca57 !important;
+        color: #d48700 !important;
+    }
+
+    .btn-delete {
+        border: 1px solid #ff6b6b !important;
+        color: #d62828 !important;
+    }
+</style>
 <div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main Content -->
@@ -147,26 +173,31 @@
                                     <span th:unless="*{active}" class="badge text-bg-secondary">No</span>
                                 </td>
 
-                                <td class="pe-4 text-nowrap">
+                                <td class="pe-4">
+                                    <div class="d-flex gap-2">
 
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       th:href="@{/product/edit/{id}(id=*{proId})}">
-                                        Edit
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/product/{id}(id=*{proId})}">
-                                        Details
-                                    </a>
-                                    <div sec:authorize="hasAnyRole('ROLE_ADMIN')">
-                                        <!-- Delete Button triggers modal -->
-                                        <button class="btn btn-sm btn-outline-danger btn-delete"
+                                        <a class="btn action-btn btn-details"
+                                           th:href="@{/product/{id}(id=*{proId})}">
+                                            Details
+                                        </a>
+
+                                        <a class="btn action-btn btn-edit"
+                                           th:href="@{/product/edit/{id}(id=*{proId})}">
+                                            Edit
+                                        </a>
+
+                                        <button class="btn action-btn btn-delete"
                                                 th:data-id="*{proId}"
                                                 th:data-name="*{proName}"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal">
+                                                data-bs-target="#deleteModal"
+                                                sec:authorize="hasAnyRole('ROLE_ADMIN')">
                                             Delete
                                         </button>
+
                                     </div>
                                 </td>
+
                             </tr>
                             </tbody>
                         </table>
