@@ -33,7 +33,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0), COUNT(o), COUNT(o.voucher) " +
             "FROM Order o " +
-            "WHERE o.createdAt >= :startDate AND o.createdAt < :endDate")
+            "WHERE o.createdAt >= :startDate AND o.createdAt < :endDate " +
+            "AND o.status != 'Canceled'")
+        // <-- Đã thêm điều kiện này
     List<Object[]> getSalesSummaryObject(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
