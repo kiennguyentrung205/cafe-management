@@ -21,6 +21,29 @@ public class PasswordService {
         this.mailSender = mailSender;
     }
 
+    public void sendOtpForRegister(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("The email cannot be empty!");
+        }
+
+        if (!email.matches(EMAIL_REGEX)) {
+            throw new IllegalArgumentException("Email format is invalid! Example: example@gmail.com");
+        }
+
+        if (customerRepository.existsByEmailIgnoreCase(email)) {
+            throw new IllegalArgumentException("trùng lặp");
+        }
+
+        String otp = otpService.generateOtp(email);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Password reset code (valid for 15 minutes)");
+        message.setText("Your OTP code is: " + otp + "\n\nThis code will expire in 15 minutes!");
+
+        mailSender.send(message);
+    }
+
     public void sendOtpToEmail(String email) {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("The email cannot be empty!");

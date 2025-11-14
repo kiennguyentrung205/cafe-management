@@ -101,7 +101,7 @@ public class SecurityConfig {
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login**", "/assets/**", "/forgot-password", "/product/**", "/product/{id}",
-                                "/set-password**", "/resend-otp", "/register", "/home", "/customer/login", "/uploads/**", "/api/banners")
+                                "/set-password**", "/resend-otp", "/verify-email", "/register", "/home", "/customer/login", "/uploads/**", "/api/banners")
                         .permitAll()
                         .anyRequest().authenticated())
 
