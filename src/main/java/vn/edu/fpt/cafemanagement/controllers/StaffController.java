@@ -45,7 +45,7 @@ public class StaffController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
 
-        int size = 15; // số phần tử mỗi trang
+        int size = 15;
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Staff> staffPage;
 
@@ -62,10 +62,13 @@ public class StaffController {
             return "dashboard/staff/list";
         }
 
-        List<Staff> activeStaffs = staffService.findAllStaffs().stream().filter(Staff::isActive).collect(Collectors.toList());
+        List<Staff> filteredStaffs = staffPage.getContent()
+                .stream()
+                .filter(Staff::isActive)
+                .filter(s -> !s.getRole().getRoleName().equalsIgnoreCase("ADMIN"))
+                .toList();
 
-        model.addAttribute("activeStaffs", activeStaffs);
-        model.addAttribute("staffs", staffPage.getContent());
+        model.addAttribute("staffs", filteredStaffs);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", staffPage.getTotalPages());
 
@@ -123,7 +126,7 @@ public class StaffController {
                 staff.setPassword(hashedPassword);
             }
         } else {
-            // Kiểm tra mật khẩu có được nhập ko
+// Kiểm tra mật khẩu có được nhập ko
             if (newPassword == null || newPassword.isBlank()) {
             } else {
 
@@ -131,16 +134,13 @@ public class StaffController {
                 staff.setPassword(hashedPassword);
             }
         }
-
-
-// Validate blank
+// Trống
         if (staff.getName().isBlank() || staff.getEmail().isBlank()
                 || staff.getPhoneNumber().isBlank() || staff.getUsername().isBlank()
                 || staff.getPassword().isBlank() || staff.getRole() == null) {
 
             model.addAttribute("error", "Please fill all required fields!");
             model.addAttribute("roles", roleService.getAllRoles()); // Load lại roles
-
             // Nếu là create thì quay lại create, nếu là edit thì quay lại edit
             return (staff.getManagerId() == 0) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
@@ -166,7 +166,7 @@ public class StaffController {
             return (idForCheck == null) ? "dashboard/staff/create" : "dashboard/staff/edit";
         }
 
-// Validate blank
+// Validate trống
         if (staff.getName().isBlank() || staff.getEmail().isBlank()
                 || staff.getPhoneNumber().isBlank() || staff.getUsername().isBlank()
                 || staff.getPassword().isBlank() || staff.getRole() == null) {
@@ -246,7 +246,6 @@ public class StaffController {
                     if (existingStaff != null && existingStaff.getImg() != null) {
                         staff.setImg(existingStaff.getImg());
                     }
-                    // Nếu existingStaff == null hoặc ảnh cũ cũng null, staff.img sẽ là null
                 }
             }
 
@@ -261,8 +260,8 @@ public class StaffController {
 
     // Xóa mềm
     @PostMapping("/delete/{id}")
-    public String softDelete(@PathVariable int id) {
-        staffService.softDelete(id); // chỉ set isActive = false
+    public String softDelete(@PathVariable("id") int id) {
+        staffService.softDelete(id);
         return "redirect:/dashboard/staff";
     }
 
@@ -287,14 +286,14 @@ public class StaffController {
 
     //Restore
     @GetMapping("/restore/{id}")
-    public String restore(@PathVariable int id) {
+    public String restore(@PathVariable("id") int id) {
         staffService.restore(id);
         return "redirect:/dashboard/staff/deleted";
     }
 
     //Xóa cứng
     @GetMapping("/delete-forever/{id}")
-    public String hardDelete(@PathVariable int id) {
+    public String hardDelete(@PathVariable("id") int id) {
         staffService.hardDelete(id);
         return "redirect:/dashboard/staff/deleted";
     }

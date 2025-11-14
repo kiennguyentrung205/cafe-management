@@ -14,18 +14,9 @@ import java.util.Optional;
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
-    boolean existsByUsername(String username);
-
-    boolean existsByEmail(String email);
-
-    boolean existsByPhoneNumber(String phoneNumber);
-
     Optional<Staff> findByUsername(String username);
 
     Optional<Staff> findByUsernameAndIsActive(String username, boolean isActive);
-
-    Optional<Staff> findActiveByUsername(String username);
-    
 
     Optional<Staff> findByEmail(String email);
 
@@ -45,8 +36,5 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     // Lấy danh sách nhân viên đã xóa
     List<Staff> findByIsActiveFalse();
-
-
-
 
 }

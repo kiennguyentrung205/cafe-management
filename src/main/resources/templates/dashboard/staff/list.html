@@ -62,28 +62,32 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="staff : ${staffs}">
-                        <tr th:if="${staff.active}" th:each="staff, iterStat : ${staffs}" th:object="${staff}">
+                        <tr th:each="staff, iterStat : ${staffs}" th:if="${staff.active}" th:object="${staff}">
                             <td class="p-3 text-center">
                                 <img th:src="${staff.img != null ? staff.img : 'https://placehold.co/60x60/f4f7f6/6c757d?text=No+Img'}"
                                      th:onerror="|this.src='https://placehold.co/60x60/f4f7f6/6c757d?text=No+Img'|"
                                      style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem;">
-
-                            <td class="p-3" th:text="${iterStat.count}" scope="row"></td>
-                            <td class="p-3" th:text="${staff.name}">Nguyen Van A</td>
-                            <td class="p-3" th:text="${staff.email}">abc@gmail.com</td>
-                            <td class="p-3" th:text="${staff.phoneNumber}">0123456789</td>
-                            <td class="p-3" th:text="${staff.role != null ? staff.role.roleName : 'Unknown'}"></td>
-                            <td class="p-3">
-                                <span th:text="${staff.isActive ? 'Active' : 'Not Active'}"
-                                      th:classappend="${staff.isActive ? 'text-success' : 'text-danger'}"
-                                      class="fw-bold"></span>
                             </td>
+
+                            <td class="p-3" th:text="${iterStat.count}"></td>
+                            <td class="p-3" th:text="${staff.name}"></td>
+                            <td class="p-3" th:text="${staff.email}"></td>
+                            <td class="p-3" th:text="${staff.phoneNumber}"></td>
+                            <td class="p-3" th:text="${staff.role != null ? staff.role.roleName : 'Unknown'}"></td>
+
+                            <td class="p-3">
+        <span th:text="${staff.isActive ? 'Active' : 'Not Active'}"
+              th:classappend="${staff.isActive ? 'text-success' : 'text-danger'}"
+              class="fw-bold"></span>
+                            </td>
+
                             <td class="p-3 text-center" style="white-space: nowrap;">
                                 <a th:href="@{/dashboard/staff/{id}(id=${staff.managerId})}"
                                    class="btn btn-sm btn-outline-secondary">Details</a>
+
                                 <a th:href="@{/dashboard/staff/edit/{id}(id=${staff.managerId})}"
                                    class="btn btn-sm btn-outline-warning text-dark">Edit</a>
+
                                 <button class="btn btn-sm btn-outline-danger btn-delete"
                                         th:data-id="${staff.managerId}"
                                         th:data-name="${staff.name}"
@@ -95,6 +99,7 @@
                             </td>
                         </tr>
                         </tbody>
+
                     </table>
                 </div>
             </div>

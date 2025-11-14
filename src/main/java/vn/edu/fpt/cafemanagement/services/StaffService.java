@@ -48,27 +48,10 @@ public class StaffService {
         return staffRepository.findByEmail(email).orElse(null);
     }
 
-    public Staff saveManager(Staff staff) {
-        return staffRepository.save(staff);
-    }
 
     @Transactional
-    public void deleteById(int id) {
-        staffRepository.deleteById(id);
-    }
-
-    public Page<Staff> findByIsActiveTrue(Pageable pageable) {
-        return staffRepository.findAll(pageable);
-    }
-
-    public Staff getDefaultManager() {
-        return staffRepository.findAll().isEmpty() ? null : staffRepository.findAll().get(0);
-    }
-
     public boolean isUsernameTaken(String username, Integer idToExclude) {
         Optional<Staff> existing = staffRepository.findByUsername(username);
-        // nếu không tồn tại -> false (chưa bị lấy)
-        // nếu tồn tại và id của existing khác idToExclude -> true (bị lấy bởi người khác)
         return existing.isPresent() && !Objects.equals(existing.get().getManagerId(), idToExclude);
     }
 
@@ -94,14 +77,6 @@ public class StaffService {
         return staffRepository.search(keyword.trim(), pageable);
     }
 
-
-    public List<Staff> getActiveStaffs() {
-        return staffRepository.findByIsActiveTrue();
-    }
-
-    public List<Staff> getDeletedStaffs() {
-        return staffRepository.findByIsActiveFalse();
-    }
 
     @Transactional
     public void softDelete(int id) {
