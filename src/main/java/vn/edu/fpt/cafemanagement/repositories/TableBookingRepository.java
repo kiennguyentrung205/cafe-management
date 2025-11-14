@@ -48,5 +48,7 @@ public interface TableBookingRepository extends JpaRepository<TableBooking, Inte
 
     TableBooking findFirstByCustomerCusIdAndStatus(int cusId, String status);
 
+    TableBooking findByTableAndStatus(Table table, String status);
+
 //    List<TableBooking> findExpiredBookings();
 }

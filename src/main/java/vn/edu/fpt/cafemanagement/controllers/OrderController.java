@@ -82,6 +82,9 @@ public class OrderController {
 
                 // Kiểm tra xem khách này có đang ngồi ở bàn nào (đã check-in) không
                 TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer);
+
+//                System.out.println("9999999999999999999999999999999999999999" +
+//                        "\n Table " + activeBooking.getTable());
                 if (activeBooking != null) {
                     bookedTable = activeBooking.getTable();
                 }

@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Table;
+import vn.edu.fpt.cafemanagement.entities.TableBooking;
+import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.OrderService;
 import vn.edu.fpt.cafemanagement.services.TableService;
@@ -20,11 +22,13 @@ public class TableController {
     private final LoggedUser loggedUser;
     private final TableService tableService;
     private final OrderService orderService;
+    private final TableBookingRepository tableBookingRepository;
 
-    public TableController(TableService tableService, LoggedUser loggedUser,  OrderService orderService) {
+    public TableController(TableService tableService, LoggedUser loggedUser, OrderService orderService, TableBookingRepository tableBookingRepository) {
         this.tableService = tableService;
         this.loggedUser = loggedUser;
         this.orderService = orderService;
+        this.tableBookingRepository = tableBookingRepository;
     }
 
     @GetMapping(path = "/list")
@@ -111,6 +115,11 @@ public class TableController {
         if (!"available".equalsIgnoreCase(newTable.getStatus())) {
             return "redirect:/table/management?error=newTableNotAvailable";
         }
+
+        // Move table in table booking
+        TableBooking tableBooking = tableBookingRepository.findByTableAndStatus (oldTable, "booked");
+        tableBooking.setTable(newTable);
+        tableBookingRepository.save(tableBooking);
 
         Order order = orderService.findByTable(oldTable);
 
