@@ -109,6 +109,6 @@ public class TableBookingService {
         if (customer == null) {
             return null;
         }
-        return tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "checked-in");
+        return tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "booked");
     }
 }

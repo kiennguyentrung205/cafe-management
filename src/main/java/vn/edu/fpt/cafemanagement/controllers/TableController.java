@@ -94,35 +94,42 @@ public class TableController {
 
     @PostMapping("/management/move")
     @Transactional
-    public String move(@RequestParam("oldTableId") int oldTableId, @RequestParam("newTableId") int newTableId) {
-        if(oldTableId == newTableId) {
-            return "redirect:/table/management";
+    public String move(@RequestParam("oldTableId") int oldTableId,
+                       @RequestParam("newTableId") int newTableId) {
+
+        if (oldTableId == newTableId) {
+            return "redirect:/table/management?error=sameTable";
         }
 
         Table oldTable = tableService.findById(oldTableId);
         Table newTable = tableService.findById(newTableId);
 
-        if(oldTable ==  null || newTable == null) {
-            return "redirect:/table/list";
+        if (oldTable == null || newTable == null) {
+            return "redirect:/table/list?error=notFound";
         }
 
-        // Check if new table is available
-        if(!"available".equalsIgnoreCase(newTable.getStatus())){
-            return "redirect:/table/management";
+        if (!"available".equalsIgnoreCase(newTable.getStatus())) {
+            return "redirect:/table/management?error=newTableNotAvailable";
         }
 
         Order order = orderService.findByTable(oldTable);
 
+        if (order == null) {
+            return "redirect:/table/management?error=noOrder";
+        }
+
+        // Update table status
         oldTable.setStatus("available");
         newTable.setStatus("occupied");
 
+        // Move the order
         order.setTable(newTable);
 
-        tableService.save(newTable);
         tableService.save(oldTable);
-
+        tableService.save(newTable);
         orderService.saveOrder(order);
 
         return "redirect:/table/management?move=success";
     }
+
 }

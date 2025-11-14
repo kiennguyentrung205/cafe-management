@@ -83,10 +83,10 @@
 
                         <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
                         <td classs="p-3">
-                            <button class="btn btn-warning btn-sm" th:if="${x.status == 'booked'}"
-                                    th:onclick="openCancelPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"
-                                    type="button">Cancel
-                            </button>
+<!--                            <button class="btn btn-warning btn-sm" th:if="${x.status == 'booked'}"-->
+<!--                                    th:onclick="openCancelPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"-->
+<!--                                    type="button">Cancel-->
+<!--                            </button>-->
                             <button class="btn btn-success btn-sm" th:if="${x.status == 'booked'}"
                                     th:onclick="openCheckinPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"
                                     type="button">Check in
