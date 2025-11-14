@@ -91,11 +91,10 @@ public class OrderController {
                     bookedTable = activeBooking.getTable();
                 } else {
                     // Ưu tiên 2: Kiểm tra ĐƠN HÀNG (Order) đang hoạt động
-                    // Bạn cần tạo hàm findActiveOrderByCustomer (tìm các order có status "Pending", "Ready")
-                    Order activeOrder = orderService.findActiveOrderByCustomer(customer);
+                    Table occupiedTable = orderService.findOccupiedTableByCustomer(customer);
 
-                    if (activeOrder != null && activeOrder.getTable() != null) {
-                        bookedTable = activeOrder.getTable();
+                    if (occupiedTable != null) {
+                        bookedTable = occupiedTable;
                     }
                 }
             }

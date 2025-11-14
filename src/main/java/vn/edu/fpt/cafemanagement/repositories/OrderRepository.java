@@ -85,9 +85,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     Order findFirstByTable(Table table);
 
-    // Tìm các đơn hàng chưa "Served" hoặc "Canceled" VÀ có bàn
     @Query("SELECT o FROM Order o WHERE o.customer = :customer AND o.table IS NOT NULL AND o.status NOT IN ('Served', 'Canceled') ORDER BY o.createdAt DESC")
     List<Order> findActiveOrdersByCustomer(@Param("customer") Customer customer);
+
+    @Query("SELECT o FROM Order o WHERE o.customer = :customer AND o.table.status = 'occupied' ORDER BY o.createdAt DESC")
+    List<Order> findOrderByCustomerAndOccupiedTable(@Param("customer") Customer customer);
 }
 
 

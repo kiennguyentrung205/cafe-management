@@ -169,10 +169,14 @@ public class OrderService {
         return orderRepository.findByCustomerCusIdOrderByCreatedAtDesc(customerId, pageable);
     }
 
-    public Order findActiveOrderByCustomer(Customer customer) {
-        List<Order> activeOrders = orderRepository.findActiveOrdersByCustomer(customer);
-        if (activeOrders != null && !activeOrders.isEmpty()) {
-            return activeOrders.get(0); // Lấy đơn hàng mới nhất
+    public Table findOccupiedTableByCustomer(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+        List<Order> orders = orderRepository.findOrderByCustomerAndOccupiedTable(customer);
+        if (orders != null && !orders.isEmpty()) {
+            // Tìm thấy, trả về bàn của đơn hàng mới nhất
+            return orders.get(0).getTable();
         }
         return null;
     }
