@@ -168,7 +168,6 @@
                         <div th:if="${bookedTable != null}">
                             <input type="text" class="form-control form-control-sm"
                                    th:value="|Table ${bookedTable.tableId} (checked-in)|"
-                                   disabled
                                    style="width: 200px; background-color: #e9ecef;"/>
                             <input type="hidden" name="tableId" th:value="${bookedTable.tableId}" />
                         </div>

@@ -153,7 +153,7 @@ public class OrderController {
             // Nếu không, gửi danh sách các bàn 'available'
             model.addAttribute("bookedTable", null);
             List<Table> availableTables = tableService.getTablesList().stream()
-                    .filter(table -> "available".equalsIgnoreCase(table.getStatus()))
+                    .filter(table -> "available".equalsIgnoreCase(table.getStatus()) || "booked".equalsIgnoreCase(table.getStatus()))
                     .toList();
             model.addAttribute("tableList", availableTables);
         }
