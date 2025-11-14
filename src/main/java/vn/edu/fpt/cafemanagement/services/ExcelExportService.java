@@ -148,7 +148,7 @@ public class ExcelExportService {
             createCell(row, 0, "#" + order.getOrderId(), currentDataStyle);
             Date orderDate = Date.from(order.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant());
             createCell(row, 1, orderDate, currentDateStyle);
-            createCell(row, 2, order.getCustomer().getName(), currentDataStyle);
+            createCell(row, 2, order.getCustomer() != null ? order.getCustomer().getName() : "Guest", currentDataStyle);
             createCell(row, 3, order.getTotalPrice(), currentCurrencyStyle);
             createCell(row, 4, order.getPointsUsed(), currentDataStyle);
             createCell(row, 5, order.getVoucher() != null ? order.getVoucher().getVoucherName() : "-", currentDataStyle);

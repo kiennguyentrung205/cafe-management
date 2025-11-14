@@ -40,9 +40,9 @@ public class CategoryController {
         try {
             idInt = Integer.parseInt(id);
         } catch (NumberFormatException e) {
-            // ID là chữ! Gán null hoặc -1 để đảm bảo productService trả về null
+
             System.err.println("ID nhập vào không phải là số: " + id);
-            idInt = -1; // Hoặc một giá trị chắc chắn không tồn tại
+            idInt = -1;
         }
         model.addAttribute("title", "Edit Category");
 
@@ -63,7 +63,7 @@ public class CategoryController {
                                @PathVariable("id") int cateId, Model model) {
         boolean hasError = false;
 
-        // 1. KIỂM TRA MÂU THUẪN ID
+
         if (cateId != category.getCateId()) {
             System.err.println("SECURITY ALERT: Product ID mismatch. URL ID: " + cateId + ", Form ID: " + category.getCateId());
 
@@ -84,7 +84,7 @@ public class CategoryController {
             hasError = true;
         }
         if (hasError) {
-            // Đảm bảo truyền lại danh sách category nếu có lỗi
+
             // model.addAttribute("categoryList", categoryService.findAll());
             return "/category/edit";
         }
