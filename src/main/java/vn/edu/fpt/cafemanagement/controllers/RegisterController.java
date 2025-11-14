@@ -77,7 +77,6 @@ public class RegisterController {
             return "redirect:/login?errorMessage=The OTP code is incorrect or has expired!";
         }
 
-        // OTP hợp lệ → lưu vào DB
         try {
             registerService.createCustomer(pendingCustomer);
         } catch (Exception e) {
