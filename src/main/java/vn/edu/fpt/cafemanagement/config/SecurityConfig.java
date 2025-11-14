@@ -4,8 +4,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -66,14 +68,20 @@ public class SecurityConfig {
                         .requestMatchers("/product/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
+//                .formLogin(form -> form
+//                        .loginPage("/staff/login")
+//                        .loginProcessingUrl("/staff/login")
+//                        .usernameParameter("username")
+//                        .passwordParameter("password")
+//                        .successHandler(customLoginSuccessHandler)
+//                        .failureUrl("/staff/login?error=true")
+//                        .permitAll())
                 .formLogin(form -> form
-                        .loginPage("/staff/login")
-                        .loginProcessingUrl("/staff/login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
+                                .loginPage("/staff/login")
                         .successHandler(customLoginSuccessHandler)
                         .failureUrl("/staff/login?error=true")
-                        .permitAll())
+                                .permitAll()
+                )
 
                 .logout(logout -> logout
                         .logoutUrl("/staff/logout")
@@ -107,9 +115,6 @@ public class SecurityConfig {
 
                 .formLogin(form -> form
                         .loginPage("/customer/login")
-                        .loginProcessingUrl("/customer/login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
                         .successHandler(customLoginSuccessHandler)
                         .failureUrl("/customer/login?error=true")
                         .permitAll())
@@ -151,6 +156,11 @@ public class SecurityConfig {
         provider.setUserDetailsService(staffUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
 

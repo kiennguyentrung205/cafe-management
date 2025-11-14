@@ -71,9 +71,6 @@ package vn.edu.fpt.cafemanagement.security;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -88,7 +85,7 @@ import java.util.Collection;
 @Component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private LoggedUser loggedUser;
+    private final LoggedUser loggedUser;
 
     public CustomLoginSuccessHandler(LoggedUser loggedUser) {
         this.loggedUser = loggedUser;
@@ -114,31 +111,31 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        System.out.println(userDetails.getUsername());
+
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String redirectUrl = "/home"; // default
 
+        label:
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
 
-            if (role.equals("ROLE_ADMIN")) {
-                redirectUrl = "/dashboard";
-                break;
-            } else if (role.equals("ROLE_CASHIER")) {
-                redirectUrl = "/order/create";
-                break;
-            } else if (role.equals("ROLE_CUSTOMER")) {
-                redirectUrl = "/home";
-                break;
-            } else if (role.equals("ROLE_BARISTA")) {
-                redirectUrl = "/order/edit";
-                break;
-            } else if (role.equals("ROLE_WAITER")) {
-                redirectUrl = "/home";
-                break;
+            switch (role) {
+                case "ROLE_ADMIN":
+                    redirectUrl = "/dashboard";
+                    break label;
+                case "ROLE_CASHIER":
+                    redirectUrl = "/order/create";
+                    break label;
+                case "ROLE_CUSTOMER", "ROLE_WAITER":
+                    redirectUrl = "/home";
+                    break label;
+                case "ROLE_BARISTA":
+                    redirectUrl = "/order/edit";
+                    break label;
             }
         }
-
         response.sendRedirect(redirectUrl);
     }
 }
