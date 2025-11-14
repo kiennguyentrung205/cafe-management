@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.security.LoggedUser;
 import vn.edu.fpt.cafemanagement.services.*;
@@ -105,6 +107,15 @@ public class OrderController {
             productPage = productService.getActiveProductsPaged(pageable);
         }
 
+        int totalPages = productPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                return "error/404 :: content";
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+            }
+        }
+
         model.addAttribute("categoryList", categoryService.getCategories());
         model.addAttribute("selectedCategoryId", categoryId != null ? categoryId : 0);
         model.addAttribute("query", query != null ? query : "");
@@ -197,12 +208,11 @@ public class OrderController {
             return reloadCreatePage(model, customer);
         }
 
-        // --- [THAY ĐỔI] CHECK 4.1: Guest không được dùng voucher ---
+        // --- CHECK 4.1: Guest không được dùng voucher ---
         if (voucherIdValue != 0 && customer == null) {
             model.addAttribute("error", "Vouchers are only applicable for registered customers. Please check phone number.");
             return reloadCreatePage(model, null); // customer ở đây là null
         }
-        // --- [HẾT THAY ĐỔI] ---
 
         // --- [CHECK 5] Staff check ---
         Staff staff = loggedUser.getLoggedManager();
@@ -237,7 +247,7 @@ public class OrderController {
             }
         }
 
-        // --- [STEP 7] Tính Subtotal (totalPrice) ---
+        // --- [STEP 7] Tính Subtotal ---
         double totalPrice = 0; // Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
@@ -382,7 +392,7 @@ public class OrderController {
 
         Staff currentUser = loggedUser.getLoggedManager();
         if (currentUser == null) {
-            return "redirect:/login"; // Chưa đăng nhập, đá về trang login
+            return "redirect:/login";
         }
 
         int pageSize = 6;
@@ -392,6 +402,11 @@ public class OrderController {
             double roundedPrice = Math.ceil(order.getTotalPrice() / 1000) * 1000;
             order.setTotalPrice(roundedPrice);
         });
+
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -420,6 +435,11 @@ public class OrderController {
             order.setTotalPrice(roundedPrice);
         });
 
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
+
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -441,6 +461,11 @@ public class OrderController {
 
         int pageSize = 6;
         Page<Order> orderPage = orderService.getKitchenOrders(currentUser, page, pageSize);
+
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
@@ -464,6 +489,11 @@ public class OrderController {
 
         int pageSize = 6;
         Page<Order> orderPage = orderService.getServedOrCanceledOrders(currentUser, startDate, endDate, page, pageSize);
+
+        int totalPages = orderPage.getTotalPages();
+        if (page > totalPages && totalPages > 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
 
         model.addAttribute("orders", orderPage.getContent());
         model.addAttribute("currentPage", page);
