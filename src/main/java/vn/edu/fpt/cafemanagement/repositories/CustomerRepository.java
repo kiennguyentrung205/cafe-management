@@ -26,8 +26,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<PointHistory> getPointHistoryByCustomerId(@Param("cusId") int cusId);
 
     boolean existsByEmailIgnoreCase(String email);
-    boolean existsByPhoneNumber(String phoneNumber);
-    boolean existsByUsername(String username);
 
 
 //Tặng điểm sinh nhật khách

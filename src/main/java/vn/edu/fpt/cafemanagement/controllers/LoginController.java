@@ -21,10 +21,6 @@ import java.io.IOException;
 
 @Controller
 public class LoginController {
-//    @GetMapping(path="/login")
-//    public String login() {
-//        return "account/login";
-//    }
 
     private final AuthenticationManager authenticationManager;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
