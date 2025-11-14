@@ -208,7 +208,6 @@
                 <div th:unless="${CategoryList.isEmpty()}">
 
 
-
                     <!-- Thông báo khi list rỗng -->
                     <div th:if="${CategoryList.isEmpty()}" class="alert alert-info" role="alert">
                         There are any category in the system
@@ -309,8 +308,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc muốn xóa Category này không? <br/>
-                Hành động này không thể hoàn tác.
+                Are you sure to delete this category? <br/>
             </div>
             <div class="modal-footer border-0">
                 <!-- Nút Cancel (sử dụng style phụ) -->

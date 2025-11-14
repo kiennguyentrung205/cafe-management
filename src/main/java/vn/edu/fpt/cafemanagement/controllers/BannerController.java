@@ -76,11 +76,10 @@ public class BannerController {
         boolean isEdit = banner.getId() > 0;
         String targetView = isEdit ? "dashboard/banners/edit" : "dashboard/banners/create";
 
-        // 1. LẤY ĐƯỜNG DẪN ẢNH CŨ (NẾU CÓ) ĐỂ HỖ TRỢ VALIDATION VÀ FORWARD
         String existingImagePath = banner.getImagePath(); // Lấy từ Model Attribute (nếu có từ hidden field)
 
         if (isEdit && (existingImagePath == null || existingImagePath.isEmpty())) {
-            // Nếu là Edit nhưng đường dẫn ảnh bị mất/trống (có thể do lỗi binding form), lấy lại từ DB
+
             Optional<Banner> existingBannerOpt = bannerService.findBannerById(banner.getId());
             if (existingBannerOpt.isPresent()) {
                 existingImagePath = existingBannerOpt.get().getImagePath();
@@ -88,7 +87,7 @@ public class BannerController {
             }
         }
 
-        // --- KHỐI VALIDATION BẮT BUỘC ---
+
 
         // 1. Title Validation
         if (banner.getTitle() == null || banner.getTitle().isBlank()) {
@@ -108,14 +107,14 @@ public class BannerController {
         boolean hasNewFile = !imageFile.isEmpty();
         boolean hasExistingPath = existingImagePath != null && !existingImagePath.isEmpty();
 
-        // Báo lỗi nếu: KHÔNG có file mới VÀ Banner KHÔNG có đường dẫn ảnh cũ nào
+
         if (!hasNewFile && !hasExistingPath) {
             model.addAttribute("error", "Image file is required for this banner.");
             model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
             return targetView;
         }
 
-        // --- KHỐI XỬ LÝ LƯU (Đã được đơn giản hóa) ---
+
 
         try {
             String uploadDir = "D:/SWP/Project/uploads/";
@@ -123,7 +122,7 @@ public class BannerController {
             if (!dir.exists()) dir.mkdirs();
 
             if (hasNewFile) {
-                // Logic upload ảnh mới và cập nhật đường dẫn
+
                 String originalFileName = imageFile.getOriginalFilename();
                 String extension = "";
                 if (originalFileName != null && originalFileName.contains(".")) {
@@ -137,11 +136,11 @@ public class BannerController {
                 banner.setImagePath("/uploads/" + newFileName);
 
             } else if (isEdit && hasExistingPath) {
-                // Trường hợp Edit và không upload file mới: Giữ đường dẫn ảnh cũ đã lấy ở trên
+
                 banner.setImagePath(existingImagePath);
 
             } else if (!isEdit) {
-                // Nếu là Create, nhưng validation không chạy (ví dụ ảnh là file rỗng)
+
                 banner.setImagePath(null);
             }
 
