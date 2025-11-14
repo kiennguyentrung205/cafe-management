@@ -56,7 +56,7 @@ public class BannerController {
     }
 
     @GetMapping("/edit/{id}")
-    public String editBanner(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+    public String editBanner(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Banner> banner = bannerService.findBannerById(id);
         if (banner.isPresent()) {
             model.addAttribute("banner", banner.get());
@@ -76,35 +76,30 @@ public class BannerController {
         boolean isEdit = banner.getId() > 0;
         String targetView = isEdit ? "dashboard/banners/edit" : "dashboard/banners/create";
 
-        // 1. LẤY ĐƯỜNG DẪN ẢNH CŨ (NẾU CÓ) ĐỂ HỖ TRỢ VALIDATION VÀ FORWARD
-        String existingImagePath = banner.getImagePath(); // Lấy từ Model Attribute (nếu có từ hidden field)
+        String existingImagePath = banner.getImagePath();
 
         if (isEdit && (existingImagePath == null || existingImagePath.isEmpty())) {
-            // Nếu là Edit nhưng đường dẫn ảnh bị mất/trống (có thể do lỗi binding form), lấy lại từ DB
             Optional<Banner> existingBannerOpt = bannerService.findBannerById(banner.getId());
             if (existingBannerOpt.isPresent()) {
                 existingImagePath = existingBannerOpt.get().getImagePath();
-                banner.setImagePath(existingImagePath); // Gán lại cho model attribute
+                banner.setImagePath(existingImagePath);
             }
         }
-
-        // --- KHỐI VALIDATION BẮT BUỘC ---
-
-        // 1. Title Validation
+        // Title
         if (banner.getTitle() == null || banner.getTitle().isBlank()) {
             model.addAttribute("error", "Banner Title cannot be empty.");
             model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
             return targetView;
         }
 
-        // 2. Order Number Validation (Giữ nguyên)
+        // Order Number
         if (banner.getOrderNumber() < 0) {
             model.addAttribute("error", "Order Number must be a non-negative value");
             model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
             return targetView;
         }
 
-        // 3. Image Validation (Sửa logic)
+        // Image
         boolean hasNewFile = !imageFile.isEmpty();
         boolean hasExistingPath = existingImagePath != null && !existingImagePath.isEmpty();
 
@@ -114,8 +109,6 @@ public class BannerController {
             model.addAttribute("pageTitle", isEdit ? "Edit Banner (" + banner.getTitle() + ")" : "Add Banner");
             return targetView;
         }
-
-        // --- KHỐI XỬ LÝ LƯU (Đã được đơn giản hóa) ---
 
         try {
             String uploadDir = "D:/SWP/Project/uploads/";
@@ -137,11 +130,9 @@ public class BannerController {
                 banner.setImagePath("/uploads/" + newFileName);
 
             } else if (isEdit && hasExistingPath) {
-                // Trường hợp Edit và không upload file mới: Giữ đường dẫn ảnh cũ đã lấy ở trên
                 banner.setImagePath(existingImagePath);
 
             } else if (!isEdit) {
-                // Nếu là Create, nhưng validation không chạy (ví dụ ảnh là file rỗng)
                 banner.setImagePath(null);
             }
 
@@ -158,7 +149,7 @@ public class BannerController {
 
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String delete(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         // 1. Thực hiện logic xóa
         bannerService.delete(id);
         redirectAttributes.addFlashAttribute("completeInfo", "Banner has been deleted successfully!");
