@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Staff;
 import vn.edu.fpt.cafemanagement.entities.Table;
@@ -84,7 +85,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     Order findFirstByTable(Table table);
 
-
+    // Tìm các đơn hàng chưa "Served" hoặc "Canceled" VÀ có bàn
+    @Query("SELECT o FROM Order o WHERE o.customer = :customer AND o.table IS NOT NULL AND o.status NOT IN ('Served', 'Canceled') ORDER BY o.createdAt DESC")
+    List<Order> findActiveOrdersByCustomer(@Param("customer") Customer customer);
 }
 
 

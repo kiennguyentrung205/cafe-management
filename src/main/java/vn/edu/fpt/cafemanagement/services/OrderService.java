@@ -168,4 +168,12 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         return orderRepository.findByCustomerCusIdOrderByCreatedAtDesc(customerId, pageable);
     }
+
+    public Order findActiveOrderByCustomer(Customer customer) {
+        List<Order> activeOrders = orderRepository.findActiveOrdersByCustomer(customer);
+        if (activeOrders != null && !activeOrders.isEmpty()) {
+            return activeOrders.get(0); // Lấy đơn hàng mới nhất
+        }
+        return null;
+    }
 }

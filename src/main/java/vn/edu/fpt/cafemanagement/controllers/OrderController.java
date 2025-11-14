@@ -84,14 +84,19 @@ public class OrderController {
             } else {
                 model.addAttribute("customer", customer);
 
-                // Kiểm tra xem khách này có đang ngồi ở bàn nào (đã check-in) không
-                TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer);
-
-//                 bookedTables = tableBookingRepository.findTableByCustomer_CusIdAndStatus(customer.getCusId(), "booked");
-
+                // Ưu tiên 1: Kiểm tra ĐẶT BÀN (Booking)
+                TableBooking activeBooking = tableBookingService.findActiveBookingByCustomer(customer); // (Hàm này nên tìm status "booked")
 
                 if (activeBooking != null) {
                     bookedTable = activeBooking.getTable();
+                } else {
+                    // Ưu tiên 2: Kiểm tra ĐƠN HÀNG (Order) đang hoạt động
+                    // Bạn cần tạo hàm findActiveOrderByCustomer (tìm các order có status "Pending", "Ready")
+                    Order activeOrder = orderService.findActiveOrderByCustomer(customer);
+
+                    if (activeOrder != null && activeOrder.getTable() != null) {
+                        bookedTable = activeOrder.getTable();
+                    }
                 }
             }
             model.addAttribute("customerPhone", customerPhone);

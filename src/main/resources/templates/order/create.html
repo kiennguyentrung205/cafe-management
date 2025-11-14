@@ -261,10 +261,16 @@
     /* ===== Hàm hiển thị modal cảnh báo ===== */
     function showAlertModal(message, isError = true) {
         const modalEl = document.getElementById('alertModal');
-        const msgEl = document.getElementById('alertMessage');
-        const header = modalEl.querySelector('.modal-header');
-        const title = modalEl.querySelector('.modal-title');
+
+        const newModalEl = modalEl.cloneNode(true);
+        modalEl.parentNode.replaceChild(newModalEl, modalEl);
+
+        const msgEl = newModalEl.querySelector('#alertMessage');
+        const header = newModalEl.querySelector('.modal-header');
+        const title = newModalEl.querySelector('.modal-title');
+
         msgEl.textContent = message;
+
         if (isError) {
             header.classList.remove('bg-success');
             header.classList.add('bg-danger');
@@ -273,79 +279,17 @@
             header.classList.remove('bg-danger');
             header.classList.add('bg-success');
             title.textContent = 'Success';
+
+            newModalEl.addEventListener('hidden.bs.modal', () => {
+                window.location.href = '/order/create';
+            }, { once: true }); // 'once: true' để nó chỉ chạy 1 lần
         }
-        const modal = new bootstrap.Modal(modalEl);
+
+        const modal = new bootstrap.Modal(newModalEl);
         modal.show();
     }
 
-    /* ===== [MỚI] Cập nhật Tồn kho trên UI ===== */
-    function updateStockOnUI() {
-        // 1. Lấy tất cả item vừa được đặt trong giỏ hàng (bên phải)
-        const orderItems = document.querySelectorAll(".order-list .order-item");
-
-        orderItems.forEach(item => {
-            const productId = item.getAttribute('data-product-id');
-            const qtyInput = item.querySelector('.item-qty-input');
-            if (!productId || !qtyInput) return;
-
-            const quantityPurchased = parseInt(qtyInput.value);
-            if (isNaN(quantityPurchased) || quantityPurchased <= 0) return;
-
-            // 2. Tìm card sản phẩm tương ứng trong lưới menu (bên trái)
-            const productCard = document.querySelector(`.menu-grid .product-card[data-product-id="${productId}"]`);
-
-            // 3. Nếu tìm thấy card đó trên trang hiện tại
-            // 3. Nếu tìm thấy card đó trên trang hiện tại
-            if (productCard) {
-                // Lấy tồn kho hiện tại (từ data-attribute)
-                const currentStock = parseInt(productCard.getAttribute('data-product-stock')) || 0;
-
-                // Tính tồn kho mới (đảm bảo không bị âm)
-                const newStock = Math.max(0, currentStock - quantityPurchased);
-
-                // 4. [SỬA ĐỔI] Cập nhật hoặc XÓA card sản phẩm
-
-                if (newStock <= 0) {
-                    // Nếu hết hàng, xóa card sản phẩm khỏi menu
-                    productCard.remove();
-                } else {
-                    // Nếu còn hàng, chỉ cập nhật lại thông tin
-
-                    // Cập nhật data-attribute
-                    productCard.setAttribute('data-product-stock', newStock);
-
-                    // Cập nhật text
-                    const stockTextElement = productCard.querySelector('.product-quantity span');
-                    if (stockTextElement) {
-                        stockTextElement.textContent = `In-stock: ${newStock}`;
-                    }
-                }
-            }
-        });
-    }
-
-    /* ===== Dọn dẹp panel sau khi thành công ===== */
-    function resetOrderPanel() {
-        document.querySelector(".order-list").innerHTML = "";
-        document.querySelector('select[name="voucherId"]').value = "";
-        const phoneInput = document.querySelector('input[name="customerPhone"]');
-        if (phoneInput) phoneInput.value = "";
-        const pointsInput = document.getElementById('pointsUsed');
-        if (pointsInput) {
-            pointsInput.value = 0;
-            pointsInput.setAttribute('data-max', 0);
-        }
-        document.querySelector('.customer-info p:nth-of-type(1) span').textContent = '-';
-        document.querySelector('.customer-info p:nth-of-type(2) span').textContent = '0';
-        document.getElementById("totalPrice").textContent = "0 VND";
-        document.getElementById("finalPrice").textContent = "0";
-        document.getElementById("displayVoucherDiscount").textContent = "- 0 VND";
-        document.getElementById("displayPointsDiscount").textContent = "- 0 VND";
-        document.getElementById("hiddenInputs").innerHTML = "";
-        updateLockState();
-    }
-
-    /* ===== Xử lý Submit Order (AJAX) ===== */
+    /* ===== Xử lý Submit Order (AJAX) - ĐÃ CẬP NHẬT ===== */
     function handleOrderSubmit(event) {
         event.preventDefault();
         updateHiddenInputs();
@@ -391,9 +335,8 @@
                 }
                 const successEl = doc.querySelector('.alert-success');
                 if (successEl) {
+                    // Chỉ cần gọi modal, nó sẽ tự tải lại trang khi đóng
                     showAlertModal(successEl.textContent, false);
-                    resetOrderPanel();
-                    fetchAndReplace(window.location.href, selectedCategoryId);
                 } else {
                     showAlertModal('An unknown error occurred. (No alert found)', true);
                 }
@@ -707,21 +650,33 @@
         const phoneInput = orderPanel.querySelector('input[name="customerPhone"]');
         const voucherSelect = orderPanel.querySelector('select[name="voucherId"]');
         const pointsInput = orderPanel.querySelector('#pointsUsed');
-        if (!phoneInput || !voucherSelect || !pointsInput) return;
+        const maxPointsBtn = orderPanel.querySelector('#maxPointsButton');
+
+        if (!phoneInput || !voucherSelect || !pointsInput || !maxPointsBtn) return;
+
         const voucherHasValue = voucherSelect.value !== "";
         const pointsHaveValue = parseInt(pointsInput.value) > 0;
         const customerHasPoints = (parseInt(pointsInput.getAttribute('data-max')) || 0) > 0;
+
         phoneInput.disabled = false;
+
         let redeemShouldBeDisabled = !customerHasPoints;
         let voucherShouldBeDisabled = false;
+
         if (voucherHasValue) {
             redeemShouldBeDisabled = true;
         } else if (pointsHaveValue) {
             voucherShouldBeDisabled = true;
         }
+
         voucherSelect.disabled = voucherShouldBeDisabled;
+
         if (pointsInput) {
             pointsInput.disabled = redeemShouldBeDisabled;
+        }
+
+        if (maxPointsBtn) {
+            maxPointsBtn.disabled = redeemShouldBeDisabled;
         }
     }
 
