@@ -296,10 +296,13 @@
                 // Cập nhật data-attribute (quan trọng cho lần mở modal sau)
                 productCard.setAttribute('data-product-stock', newStock);
 
-                // Cập nhật text hiển thị
                 const stockTextElement = productCard.querySelector('.product-quantity span');
                 if (stockTextElement) {
-                    stockTextElement.textContent = `In-stock: ${newStock}`;
+                    if (newStock > 0) {
+                        stockTextElement.textContent = `In-stock: ${newStock}`;
+                    } else {
+                        stockTextElement.textContent = `Out-of-stock`;
+                    }
                 }
 
                 // Nếu hết hàng, thêm class 'out-of-stock'
