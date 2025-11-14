@@ -20,8 +20,8 @@ public class Order {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id", nullable = false)
-    private Manager manager;
+    @JoinColumn(name = "staff_id", nullable = false)
+    private Staff staff;
 
     //Canceled, Served, Pending, Paid
     @Column(name = "status", length = 20)
@@ -40,8 +40,12 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by", referencedColumnName = "manager_id")
-    private Manager updatedBy;
+    @JoinColumn(name = "made_by", referencedColumnName = "staff_id")
+    private Staff madeBy;
+
+    @ManyToOne
+    @JoinColumn(name = "served_by", referencedColumnName = "staff_id")
+    private Staff servedBy;
 
     @ManyToOne
     @JoinColumn(name = "voucher_id") //nên bỏ nullable = false, vì có thể order nào đó ko có voucher
@@ -53,24 +57,30 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<PointHistory> pointHistories;
 
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private vn.edu.fpt.cafemanagement.entities.Table table;
+
     public Order() {
     }
 
-    public Order(int orderId, Customer customer, Manager manager, String status, double totalPrice,
-                 LocalDateTime createdAt, int pointsUsed, Voucher voucher, List<OrderItem> orderItems,
-                 List<PointHistory> pointHistories,  LocalDateTime updatedAt,  Manager updatedBy) {
+    public Order(int orderId, Customer customer, Staff staff, String status, double totalPrice, LocalDateTime createdAt,
+                 int pointsUsed, LocalDateTime updatedAt, Staff madeBy, Staff servedBy,Voucher voucher, List<OrderItem> orderItems,
+                 List<PointHistory> pointHistories, vn.edu.fpt.cafemanagement.entities.Table table) {
         this.orderId = orderId;
         this.customer = customer;
-        this.manager = manager;
+        this.staff = staff;
         this.status = status;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.pointsUsed = pointsUsed;
+        this.updatedAt = updatedAt;
+        this.madeBy = madeBy;
+        this.servedBy = servedBy;
         this.voucher = voucher;
         this.orderItems = orderItems;
         this.pointHistories = pointHistories;
-        this.updatedAt = updatedAt;
-        this.updatedBy = updatedBy;
+        this.table = table;
     }
 
     public int getOrderId() {
@@ -89,12 +99,12 @@ public class Order {
         this.customer = customer;
     }
 
-    public Manager getManager() {
-        return manager;
+    public Staff getStaff() {
+        return staff;
     }
 
-    public void setManager(Manager manager) {
-        this.manager = manager;
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 
     public String getStatus() {
@@ -161,11 +171,26 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    public Manager getUpdatedBy() {
-        return updatedBy;
+    public Staff getMadeBy() {
+        return madeBy;
+    }
+    public void setMadeBy(Staff madeBy) {
+        this.madeBy = madeBy;
     }
 
-    public void setUpdatedBy(Manager updatedBy) {
-        this.updatedBy = updatedBy;
+    public Staff getServedBy() {
+        return servedBy;
+    }
+
+    public void setServedBy(Staff servedBy) {
+        this.servedBy = servedBy;
+    }
+
+    public vn.edu.fpt.cafemanagement.entities.Table getTable() {
+        return table;
+    }
+
+    public void setTable(vn.edu.fpt.cafemanagement.entities.Table table) {
+        this.table = table;
     }
 }

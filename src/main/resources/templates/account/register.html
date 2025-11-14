@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragment/frag :: accregister}"></head>
-<body>
-<div th:insert="~{fragment/frag::navbar-accregister}"></div>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Register',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
 
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/account/register.css">
+</th:block>
+
+<body>
+
+<div th:replace="~{fragments/common :: navbar-guest}"></div>
 <!-- Page Content -->
 <div class="container-fluid main-content px-3">
     <div class="row justify-content-center w-100">
@@ -23,12 +31,14 @@
                                 <label class="form-label" for="fullName">Full Name</label>
                                 <!-- Removed .form-control-lg, added .form-control -->
                                 <input class="form-control" th:field="*{name}" id="fullName" required type="text"
-                                       placeholder="John Doe"/>
+                                      />
+                                <div id="error-fullName" class="invalid-feedback d-block"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="username">Username</label>
                                 <input class="form-control" th:field="*{username}" id="username" required type="text"
-                                       placeholder="johndoe123"/>
+                                       />
+                                <div id="error-username" class="invalid-feedback d-block"></div>
                             </div>
                         </div>
 
@@ -36,12 +46,14 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="email">Email</label>
                                 <input class="form-control" th:field="*{email}" id="email" required type="email"
-                                       placeholder="example@email.com"/>
+                                       />
+                                <div id="error-email" class="invalid-feedback d-block"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="phoneNumber">Phone number</label>
                                 <input class="form-control" th:field="*{phoneNumber}" id="phoneNumber" required
-                                       type="tel" placeholder="0901234567"/>
+                                       type="tel" />
+                                <div id="error-phone" class="invalid-feedback d-block"></div>
                             </div>
                         </div>
 
@@ -50,6 +62,7 @@
                                 <label class="form-label" for="birthdate">Birthdate</label>
                                 <input class="form-control" th:field="*{dateOfBirth}" id="birthdate" required
                                        type="date"/>
+                                <div id="error-birthdate" class="invalid-feedback d-block"></div>
                             </div>
                         </div>
 
@@ -57,12 +70,14 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="password">Password</label>
                                 <input class="form-control" th:field="*{password}" id="password" required
-                                       type="password" placeholder="••••••••"/>
+                                       type="password"/>
+                                <div id="error-password" class="invalid-feedback d-block"></div>
+
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="confirmPassword">Confirm Password</label>
                                 <input class="form-control" id="confirmPassword" required type="password"
-                                       placeholder="••••••••"/>
+                                       />
 
                                 <!-- Placed error message inside the column -->
                                 <div id="passwordError" class="text-danger mt-2"
@@ -80,7 +95,7 @@
 
                     <div class="text-center mt-4">
                         <span class="text-muted">Already have an account?</span>
-                        <a href="/login" class="text-decoration-none ms-1"
+                        <a href="/customer/login" class="text-decoration-none ms-1"
                            style="color: var(--brand-primary); font-weight: 500;">
                             Login here
                         </a>
@@ -115,57 +130,208 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 
 <!-- Bootstrap 5.3.3 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-<!-- Custom JS for password validation and modal -->
 <script>
-    const password = document.getElementById("password");
-    const confirmPassword = document.getElementById("confirmPassword");
-    const errorMsg = document.getElementById("passwordError");
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form");
 
-    function validatePassword() {
-        if (confirmPassword.value.trim() === "") {
-            errorMsg.style.display = "none";
-            confirmPassword.classList.remove("is-invalid", "is-valid");
-            return;
-        }
+        // Lấy các trường cần thiết
+        const passwordField = document.getElementById("password");
+        const confirmPasswordField = document.getElementById("confirmPassword");
 
-        if (password.value === confirmPassword.value) {
-            errorMsg.style.display = "none";
-            confirmPassword.classList.remove("is-invalid");
-            confirmPassword.classList.add("is-valid");
-        } else {
-            errorMsg.style.display = "block";
-            confirmPassword.classList.remove("is-valid");
-            confirmPassword.classList.add("is-invalid");
-        }
-    }
-
-    // Check as user types
-    if (password && confirmPassword) {
-        password.addEventListener("input", validatePassword);
-        confirmPassword.addEventListener("input", validatePassword);
-    }
-
-    // Block submit if passwords don't match
-    const regForm = document.querySelector('form[th:action="@{/register}"]');
-    if (regForm) {
-        regForm.addEventListener("submit", function (e) {
-            if (password.value !== confirmPassword.value) {
-                e.preventDefault();
-                errorMsg.style.display = "block";
-                confirmPassword.classList.add("is-invalid");
-                confirmPassword.focus();
+        // --- HÀM HỖ TRỢ XỬ LÝ LỖI ---
+        function setError(id, message) {
+            const errorElement = document.getElementById(id);
+            if (errorElement) {
+                errorElement.innerText = message;
             }
-        });
-    }
+        }
 
-    // Function to close the error modal
+        function clearError(id) {
+            const errorElement = document.getElementById(id);
+            if (errorElement) {
+                errorElement.innerText = "";
+            }
+        }
+
+        // --- VALIDATION XÁC NHẬN MẬT KHẨU THEO THỜI GIAN THỰC ---
+        function validatePasswordMatch() {
+            // Không làm gì nếu không có cả hai trường
+            if (!passwordField || !confirmPasswordField) return true;
+
+            const passwordValue = passwordField.value;
+            const confirmValue = confirmPasswordField.value;
+
+            // Nếu trường xác nhận rỗng, chỉ cần xóa trạng thái validation (để không báo lỗi khi chưa gõ)
+            if (confirmValue.trim() === "") {
+                clearError("error-confirmPassword");
+                confirmPasswordField.classList.remove("is-invalid", "is-valid");
+                return true;
+            }
+
+            if (passwordValue === confirmValue) {
+                // Mật khẩu khớp
+                clearError("error-confirmPassword");
+                confirmPasswordField.classList.remove("is-invalid");
+                confirmPasswordField.classList.add("is-valid");
+                return true;
+            } else {
+                // Mật khẩu không khớp
+                setError("error-confirmPassword", "Passwords do not match.");
+                confirmPasswordField.classList.remove("is-valid");
+                confirmPasswordField.classList.add("is-invalid");
+                return false;
+            }
+        }
+
+        // Gắn sự kiện kiểm tra khớp khi người dùng gõ
+        if (passwordField && confirmPasswordField) {
+            passwordField.addEventListener("input", validatePasswordMatch);
+            confirmPasswordField.addEventListener("input", validatePasswordMatch);
+        }
+
+        // --- XỬ LÝ SỰ KIỆN SUBMIT CHÍNH ---
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                let valid = true;
+
+                // Lấy giá trị
+                const fullName = document.getElementById("fullName")?.value?.trim() || "";
+                const username = document.getElementById("username")?.value?.trim() || "";
+                const email = document.getElementById("email")?.value?.trim() || "";
+                const phone = document.getElementById("phoneNumber")?.value?.trim() || "";
+                const birthdate = document.getElementById("birthdate")?.value?.trim() || "";
+                const password = passwordField?.value?.trim() || "";
+
+                // Clear lỗi trước đó
+                clearError("error-fullName");
+                clearError("error-username");
+                clearError("error-email");
+                clearError("error-phone");
+                clearError("error-birthdate");
+                clearError("error-password");
+                clearError("error-confirmPassword"); // Cho trường xác nhận mật khẩu
+
+                /* ---------------------------
+                   FULL NAME VALIDATION
+                ----------------------------*/
+                if (!fullName) {
+                    setError("error-fullName", "Full name cannot be null or blank");
+                    valid = false;
+                } else if (!/^[\p{L} ]+$/u.test(fullName)) {
+                    setError("error-fullName", "Full name can only contain letters");
+                    valid = false;
+                }
+
+                /* ---------------------------
+                   USERNAME VALIDATION
+                ----------------------------*/
+                if (!username) {
+                    setError("error-username", "Username cannot be null or blank");
+                    valid = false;
+                } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    setError("error-username", "Username can only contain letters, digits, and underscores");
+                    valid = false;
+                }
+
+                /* ---------------------------
+                   EMAIL VALIDATION
+                ----------------------------*/
+                if (!email) {
+                    setError("error-email", "Email cannot be null or blank");
+                    valid = false;
+                } else if (!/^[\w._%+-]+@[\w.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
+                    setError("error-email", "Invalid email format");
+                    valid = false;
+                }
+
+                /* ---------------------------
+                   PHONE VALIDATION
+                ----------------------------*/
+                if (!phone) {
+                    setError("error-phone", "Phone number cannot be null or blank");
+                    valid = false;
+                } else if (!/^\d{10}$/.test(phone)) {
+                    setError("error-phone", "Phone number must contain exactly 10 digits");
+                    valid = false;
+                } else if (phone === "0000000000") {
+                    setError("error-phone", "Phone number cannot be all zeros");
+                    valid = false;
+                }
+
+                /* ---------------------------
+                   DATE OF BIRTH VALIDATION
+                ----------------------------*/
+                if (!birthdate) {
+                    setError("error-birthdate", "Date of birth cannot be null");
+                    valid = false;
+                } else {
+                    const dob = new Date(birthdate);
+                    const today = new Date();
+
+                    let age = today.getFullYear() - dob.getFullYear();
+                    const m = today.getMonth() - dob.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+
+                    if (age < 15 || age > 100) {
+                        setError("error-birthdate", "Your age must be greater than 15.");
+                        valid = false;
+                    }
+                }
+
+                /* ---------------------------
+                   PASSWORD VALIDATION (Độ mạnh)
+                ----------------------------*/
+                let passwordValid = true;
+                if (passwordField) { // Chỉ kiểm tra nếu trường mật khẩu tồn tại
+                    if (!password) {
+                        setError("error-password", "Password cannot be null or blank");
+                        passwordValid = false;
+                    } else if (password.length < 8 || password.length > 64) {
+                        setError("error-password", "Password must be between 8 and 64 characters");
+                        passwordValid = false;
+                    } else if (password.includes(" ")) {
+                        setError("error-password", "Password must not contain spaces");
+                        passwordValid = false;
+                    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+/.test(password)) {
+                        setError("error-password",
+                            "Password must contain at least one uppercase letter, one lowercase letter, one digit and one special character"
+                        );
+                        passwordValid = false;
+                    }
+                }
+                if (!passwordValid) valid = false;
+
+                /* ---------------------------
+                   CONFIRM PASSWORD VALIDATION (Khớp)
+                ----------------------------*/
+                if (confirmPasswordField) {
+                    const match = validatePasswordMatch(); // Chạy lại kiểm tra khớp
+                    if (!match) {
+                        valid = false;
+                        // Focus vào trường confirm password nếu nó là lỗi đầu tiên
+                        if (valid) confirmPasswordField.focus();
+                    }
+                }
+
+                // Chặn submit nếu có bất kỳ lỗi nào
+                if (!valid) {
+                    e.preventDefault();
+                    // Bạn có thể thêm logic để focus vào trường lỗi đầu tiên tại đây
+                }
+            });
+        }
+    });
+
+    // Hàm closePopup giữ nguyên (dành cho modal nếu có)
     function closePopup() {
         // Find all elements associated with the modal and hide them
         const modal = document.querySelector('.modal.show');

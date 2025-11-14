@@ -41,6 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 WHERE 
                     p.is_active = 1
                     AND c.is_active = 1
+                              AND  p.quantity>0
                     AND p.pro_name COLLATE SQL_Latin1_General_CP1_CI_AI LIKE '%' + :searchText + '%'
             """, nativeQuery = true)
     // <--- QUAN TRỌNG: Đặt nativeQuery = true
@@ -53,6 +54,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                         WHERE 
                             p.is_active = 1
                             AND c.is_active = 1
+                                              AND p.quantity > 0 
                             AND p.pro_name COLLATE SQL_Latin1_General_CP1_CI_AI LIKE '%' + :searchText + '%'
                     """,
             // Sửa lỗi: Chỉ định truy vấn COUNT hợp lệ

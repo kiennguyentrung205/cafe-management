@@ -198,3 +198,44 @@ body {
     color: var(--brand-gray);
     font-size: 1.1rem;
 }
+
+     /* Đảm bảo khung banner là vùng chứa tương đối */
+ #banner-slider {
+     position: relative;
+     overflow: hidden;
+ }
+
+/* Nút mũi tên nằm trong khung */
+#banner-slider .swiper-button-next,
+#banner-slider .swiper-button-prev {
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Canh trái-phải gọn gàng */
+#banner-slider .swiper-button-prev {
+    left: 15px;
+}
+#banner-slider .swiper-button-next {
+    right: 15px;
+}
+
+/* Chấm tròn ở trong khung, không bị tràn */
+#banner-slider .swiper-pagination {
+    bottom: 10px !important;
+}
+
+#banner-slider .swiper-pagination-bullet {
+    background: white;
+    opacity: 0.8;
+}
+
+#banner-slider .swiper-pagination-bullet-active {
+    background: white;/* màu chủ đạo tuỳ chỉnh */
+    opacity: 1;
+}
+

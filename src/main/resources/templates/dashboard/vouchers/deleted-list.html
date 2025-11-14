@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head th:replace="~{fragment/frag :: voucher}"></head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Vouchers',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/vouchers/trash.css">
+</th:block>
 <body>
-<div th:insert="~{fragment/frag::navbar}"></div>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 <!-- Main Content -->
 <div class="container my-5">
 
@@ -16,6 +23,13 @@
                         <i class="fa-solid fa-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
+            </div>
+            <div class="col-12 mt-3">
+                <form class="d-flex" role="search" th:action="@{/dashboard/vouchers/deleted-list}" method="get">
+                    <input class="form-control me-2" type="search" name="keyword"
+                           placeholder="Search Voucher's name..." th:value="${keyword}" aria-label="Search">
+                    <button class="btn btn-brand-primary" type="submit" style="white-space: nowrap;">Search</button>
+                </form>
             </div>
         </div>
     </div>
@@ -46,10 +60,10 @@
                                         th:onclick="openDetailPopup([[${voucher.voucherId}]], [[${voucher.code}]], [[${voucher.voucherName}]], [[${voucher.minOrderValue}]], [[${voucher.discountValue}]], [[${voucher.discountType}]], [[${voucher.quantity}]], [[${voucher.startDate}]], [[${voucher.endDate}]], [[${voucher.discountType}]])">
                                     Details
                                 </button>
-                                <button type="button" class="btn btn-sm btn-success"
-                                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]])">
-                                    Restore
-                                </button>
+<!--                                <button type="button" class="btn btn-sm btn-success"-->
+<!--                                        th:onclick="openDeletePopup([[${voucher.voucherId}]] , [[${voucher.code}]], [[${voucher.voucherName}]])">-->
+<!--                                    Restore-->
+<!--                                </button>-->
                             </div>
                         </td>
                     </tr>
@@ -66,7 +80,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Restore Voucher popup (Styled as success) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

@@ -20,4 +20,14 @@ public class ErrorControllerCustom {
         model.addAttribute("message", "You are not allowed to access this resource");
         return "error/403";
     }
+    @GetMapping("/404")
+    public String notFound(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("username", principal.getName());
+        } else {
+            model.addAttribute("username", "guest");
+        }
+        model.addAttribute("message", "Can not found resource");
+        return "error/404";
+    }
 }

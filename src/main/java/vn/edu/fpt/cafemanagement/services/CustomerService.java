@@ -1,40 +1,41 @@
 package vn.edu.fpt.cafemanagement.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.PointHistory;
 import vn.edu.fpt.cafemanagement.repositories.PointHistoryRepository;
-import vn.edu.fpt.cafemanagement.repositories.CustomerRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
 
 
 @Service
 public class CustomerService {
     CustomerRepository customerRepository;
     PointHistoryRepository pointHistoryRepository;
-    ManagerService managerService;
-    public CustomerService(CustomerRepository customerRepository, ManagerService managerService, PointHistoryRepository pointHistoryRepository) {
+    StaffService staffService;
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
+    public CustomerService(CustomerRepository customerRepository, StaffService staffService, PointHistoryRepository pointHistoryRepository) {
         this.customerRepository = customerRepository;
-        this.managerService = managerService;
+        this.staffService = staffService;
         this.pointHistoryRepository = pointHistoryRepository;
     }
 
@@ -52,7 +53,7 @@ public class CustomerService {
     }
 
     public Customer save(Customer customer) {
-        return  customerRepository.save(customer);
+        return customerRepository.save(customer);
     }
 
 
@@ -60,43 +61,20 @@ public class CustomerService {
         return customerRepository.getCustomerByCusId(cusId);
     }
 
-    public List<PointHistory> getPointHistoryByCustomerId(int cusId) {
-        return customerRepository.getPointHistoryByCustomerId(cusId);
+    public Page<PointHistory> getPointHistoryByCustomerId(int cusId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        return pointHistoryRepository.findByCustomerCusIdOrderByChangeTimeDesc(cusId, pageable);
     }
 
     public void updateCustomer(Customer customer, MultipartFile imgFile) {
         Customer existingCustomer = customerRepository.findById(customer.getCusId()).orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
-        if (existingCustomer != null) {
+        if (!existingCustomer.isGoogleAccount()) {
             if (!existingCustomer.getEmail().equalsIgnoreCase(customer.getEmail())) {
-                if (customerRepository.existsByEmailIgnoreCase(customer.getEmail())) {
-                    throw new IllegalArgumentException("The email already exists, please use a different one!");
+                if (!customer.getEmail().matches(EMAIL_REGEX)) {
+                    throw new IllegalArgumentException("Email format is invalid! Example: example@gmail.com");
                 }
                 existingCustomer.setEmail(customer.getEmail());
             }
-
-            if (!customer.getPhoneNumber().equalsIgnoreCase(existingCustomer.getPhoneNumber())) {
-                if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
-                    throw new IllegalArgumentException("The phone number cannot be empty.");
-                }
-                if (customer.getPhoneNumber().length() != 10) {
-                    throw new IllegalArgumentException("The phone number must be 10 digits!");
-                }
-                if (!customer.getPhoneNumber().matches("\\d{10}")) {
-                    throw new IllegalArgumentException("The phone number must contain only digits!");
-                }
-                if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
-                    throw new IllegalArgumentException("The phone number already exists, please use a different one!");
-                }
-                existingCustomer.setPhoneNumber(customer.getPhoneNumber());
-            }
-
-            if (customer.getName() == null || customer.getName().isEmpty()) {
-                throw new IllegalArgumentException("The name cannot be empty.");
-            }
-            existingCustomer.setName(customer.getName());
-            // Nhut Them Update Birthdate
-            existingCustomer.setDateOfBirth(customer.getDateOfBirth());
-
             if (imgFile != null && !imgFile.isEmpty()) {
                 try {
                     String uploadDir = "D:/SWP/Project/uploads/";
@@ -110,8 +88,66 @@ public class CustomerService {
                     throw new IllegalArgumentException("Error uploading image!");
                 }
             }
-            customerRepository.save(existingCustomer);
         }
+
+        if (!customer.getUsername().equalsIgnoreCase(existingCustomer.getUsername())) {
+            if (customer.getUsername() == null || customer.getUsername().isEmpty()) {
+                throw new IllegalArgumentException("The phone number cannot be empty.");
+            }
+            if (!customer.getUsername().matches("^[a-z_][a-z0-9_]{0,14}$")) {
+                throw new IllegalArgumentException("The username must be 2-15 characters long and contain only lowercase letters, digits, and underscores (_).");
+            }
+            existingCustomer.setUsername(customer.getUsername());
+        }
+
+        if (!customer.getPhoneNumber().equalsIgnoreCase(existingCustomer.getPhoneNumber())) {
+            if (customer.getPhoneNumber() == null || customer.getPhoneNumber().isEmpty()) {
+                throw new IllegalArgumentException("The phone number cannot be empty.");
+            }
+            if (customer.getPhoneNumber().length() != 10) {
+                throw new IllegalArgumentException("The phone number must be 10 digits!");
+            }
+            if (!customer.getPhoneNumber().matches("\\d{10}")) {
+                throw new IllegalArgumentException("The phone number must contain only digits!");
+            }
+            if (!customer.getPhoneNumber().matches("^(0)(?!\\1{9})\\d{9}$")) {
+                throw new IllegalArgumentException("Invalid phone number! It must start with 0, contain exactly 10 digits, and not be all repeated digits.");
+            }
+            existingCustomer.setPhoneNumber(customer.getPhoneNumber());
+        }
+
+        if (customer.getName() == null || customer.getName().isEmpty()) {
+            throw new IllegalArgumentException("The name cannot be empty.");
+        }
+        if (!customer.getName().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+            throw new IllegalArgumentException("The name can only contain letters and spaces!");
+        }
+        existingCustomer.setName(customer.getName());
+        if (customer.getDateOfBirth() == null) {
+            throw new IllegalArgumentException("Birthdate cannot be null!");
+        }
+        if (existingCustomer.isGoogleAccount()) {
+            LocalDate birthDate = customer.getDateOfBirth();
+            int age = Period.between(birthDate, LocalDate.now()).getYears();
+            if (age < 15 || age > 100) {
+                throw new IllegalArgumentException("Customer age must be between 15 and 100 years old!");
+            }
+            existingCustomer.setDateOfBirth(customer.getDateOfBirth());
+        }
+        try {
+            customerRepository.save(existingCustomer);
+        } catch (DataIntegrityViolationException e) {
+            String message = e.getMessage();
+            if (message.contains("UQ_Customer_username")) {
+                throw new IllegalArgumentException("The username already exists, please use a different one!");
+            } else if (message.contains("UQ_Customer_phoneNumber")) {
+                throw new IllegalArgumentException("The phone number already exists, please use a different one!");
+            } else if (message.contains("UQ_Customer_email")) {
+                throw new IllegalArgumentException("The email address already exists, please use a different one!");
+            }
+            throw new IllegalArgumentException("Duplicate data detected!");
+        }
+
     }
 
     public void changePassword(int cusId, String newPassword, String confirmPassword, String currentPassword) {

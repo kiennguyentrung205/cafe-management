@@ -1,158 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Order List</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        table.table {
-            background-color: white;
-            overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        table.table td, table.table th {
-            border-color: black;
-            padding: 25px 30px;
-            font-size: 16px;
-            vertical-align: middle;
-        }
-
-        table.table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #fafafa;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .table-striped tbody tr:hover {
-            background-color: #d9d9d9;
-        }
-
-        .table-striped tbody tr.no-orders-row:hover {
-            background-color: #fafafa;
-            cursor: default;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .pagination a {
-            color: #007bff;
-            padding: 6px 12px;
-            margin: 0 4px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .pagination a:hover {
-            background-color: #0056b3;
-            color: white;
-        }
-
-        .status-pending {
-            color: orange !important;
-            font-weight: bold;
-        }
-
-        /* Modal chỉnh sửa */
-        .modal-dialog {
-            max-width: 180vw;
-            margin: auto;
-        }
-
-        .modal-content {
-            max-height: 100%;
-            overflow-y: hidden;
-            transform: scale(0.8);
-        }
-
-        .customer-info {
-            padding-left: 5%;
-        }
-
-        .customer-section {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 40px;
-        }
-
-        .customer-table {
-            flex: 1;
-            padding-left: 5%;
-
-        }
-
-        .customer-table table {
-            width: 700px;
-            font-size: 14px;
-        }
-
-        .customer-photo {
-            width: 160px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 40px;
-            padding-right: 15%;
-        }
-
-        .customer-photo img {
-            width: 300px;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid #ddd;
-        }
-
-        .customer-photo span {
-            margin-top: 10px;
-            font-weight: 500;
-            color: #555;
-        }
-    </style>
-</head>
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Create Order',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/order/list.css">
+</th:block>
 <body>
-
-<!-- Sidebar -->
-<div th:replace="fragment/frag :: order-sidebar('list')"></div>
-
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 
 <!-- Main content -->
 <div class="main-content">
@@ -160,7 +16,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="m-0">Order List</h2>
         <a href="/order/history-list" class="btn btn-outline-secondary">
-         History
+            History
         </a>
     </div>
     <table class="table table-striped">
@@ -169,6 +25,7 @@
             <th>#</th>
             <th>Customer</th>
             <th>Staff</th>
+            <th>Table</th>
             <th>Status</th>
             <th>Points Used</th>
             <th>Voucher</th>
@@ -190,7 +47,8 @@
 
             <td th:text="${order.orderId}"></td>
             <td th:text="${order.customer != null ? order.customer.name : 'Guest'}"></td>
-            <td th:text="${order.manager != null ? order.manager.name : 'N/A'}"></td>
+            <td th:text="${order.staff != null ? order.staff.name : 'N/A'}"></td>
+            <td th:text="${order.table != null ? order.table.tableId : 'Take-away'}"></td>
             <td th:text="${order.status}"
                 th:classappend="${order.status == 'Pending'} ? 'status-pending' : ''"></td>
             <td th:text="${order.pointsUsed}"></td>
@@ -202,7 +60,7 @@
 
         <!-- Nếu không có đơn -->
         <tr th:if="${orders == null or orders.isEmpty()}" class="no-orders-row">
-            <td colspan="9" class="text-center text-muted py-4">
+            <td colspan="10" class="text-center text-muted py-4">
                 There are not any orders.
             </td>
         </tr>
@@ -236,12 +94,11 @@
     </nav>
 
 </div>
-
 <!-- Modal hiển thị chi tiết -->
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header text-white" style="background-color: #FF7A00;">
                 <h5 class="modal-title">Order Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -253,8 +110,9 @@
                         <th>#</th>
                         <th>Customer</th>
                         <th>Staff</th>
+                        <th>Table</th>
                         <th>Status</th>
-                        <th>Product</th>
+                        <th>Product(s)</th>
                         <th>Points Used</th>
                         <th>Voucher</th>
                         <th>Total Price</th>
@@ -288,7 +146,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.querySelectorAll(".main-content table.table.table-striped tbody tr").forEach(row => {
         if (row.classList.contains("no-orders-row")) return;
@@ -323,7 +180,8 @@
                     document.getElementById("order-detail-row").innerHTML = `
                     <td>${o.id}</td>
                     <td>${o.customer}</td>
-                    <td>${o.manager}</td>
+                    <td>${o.staff}</td>
+                    <td>${o.table}</td>
                     <td>${o.status}</td>
                     <td>${productNames}</td>
                     <td>${o.pointsUsed}</td>
@@ -333,13 +191,26 @@
                     <td>-</td>
                 `;
 
-                    // hiển thị customer info
-                    document.getElementById("cust-id").textContent = c.id || "N/A";
-                    document.getElementById("cust-name").textContent = c.name || "N/A";
-                    document.getElementById("cust-phone").textContent = c.phone || "N/A";
-                    document.getElementById("cust-email").textContent = c.email || "N/A";
-                    document.getElementById("cust-address").textContent = c.address || "N/A";
-                    document.getElementById("cust-photo").src = c.img ? `/uploads/${c.img}` : "/uploads/default-user.jpg";
+                    if (c.id === "N/A") {
+                        // --- TRƯỜNG HỢP 1: KHÁCH VÃNG LAI (Guest) ---
+                        // (Vì backend trả về id="N/A" cho Guest)
+                        document.getElementById("cust-id").textContent = "N/A";
+                        document.getElementById("cust-name").textContent = "N/A";
+                        document.getElementById("cust-phone").textContent = "N/A";
+                        document.getElementById("cust-email").textContent = "N/A";
+                        document.getElementById("cust-address").textContent = "N/A";
+                        document.getElementById("cust-photo").src = "/uploads/avatar.jpeg";
+                    } else {
+                        // --- TRƯỜNG HỢP 2: KHÁCH HÀNG ĐÃ ĐĂNG KÝ ---
+                        document.getElementById("cust-id").textContent = c.id;
+                        document.getElementById("cust-name").textContent = c.name;
+
+                        // Dùng (?? "") để biến giá trị null (từ JSON) thành chuỗi rỗng ""
+                        document.getElementById("cust-phone").textContent = c.phone ?? "";
+                        document.getElementById("cust-email").textContent = c.email ?? "";
+                        document.getElementById("cust-address").textContent = c.address ?? "";
+                        document.getElementById("cust-photo").src = c.img ? `/uploads/${c.img}` : "/uploads/avatar.jpeg";
+                    }
 
                     new bootstrap.Modal(document.getElementById("orderDetailModal")).show();
                 })
@@ -369,6 +240,7 @@
     }
 </script>
 
-
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<div th:insert="~{layout/footer}"></div>
 </body>
 </html>

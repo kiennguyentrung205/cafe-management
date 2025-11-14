@@ -1,9 +1,13 @@
 <html>
-<head th:replace="~{fragment/frag :: staffmanagement}">
-</head>
-<body class="bg-light">
-<div th:insert="~{fragment/frag :: navbar}"></div>
-
+<head th:replace="~{fragments/common :: common-head(
+            pageTitle='Staffs',
+            pageSpecificCss=~{:: .page-css}
+          )}"></head>
+<th:block class="page-css">
+    <link rel="stylesheet" href="/assets/css/dashboard/staff/edit.css">
+</th:block>
+<body>
+<div th:replace="~{fragments/common :: navbar-main}"></div>
 <!-- Main Content -->
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -108,7 +112,7 @@
                                 <!-- Password -->
                                 <div class="mb-3">
                                     <label for="password" class="form-label fw-bold">Password</label>
-                                    <input type="password" class="form-control" id="password" name="password"
+                                    <input type="password" class="form-control" id="password" th:field="*{password}"
                                            placeholder="Leave blank to keep current password">
                                     <div class="form-text">Leave this field blank if you do not want to change the
                                         password.
@@ -120,7 +124,7 @@
                         <!-- Actions -->
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-4 border-top">
                             <a th:href="@{/dashboard/staff}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-brand-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-outline-primary">Save Changes</button>
                         </div>
 
                     </form>
@@ -129,7 +133,7 @@
         </div>
     </div>
 </div>
-
+<div th:insert="~{layout/footer}"></div>
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

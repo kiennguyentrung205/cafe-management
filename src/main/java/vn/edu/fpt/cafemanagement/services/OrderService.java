@@ -3,15 +3,12 @@ package vn.edu.fpt.cafemanagement.services;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.cafemanagement.entities.Manager;
-import vn.edu.fpt.cafemanagement.entities.Order;
-import vn.edu.fpt.cafemanagement.entities.OrderItem;
+import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.cafemanagement.entities.*;
 import vn.edu.fpt.cafemanagement.repositories.OrderItemRepository;
 import vn.edu.fpt.cafemanagement.repositories.OrderRepository;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,7 +19,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     private OrderItemRepository orderItemRepository;
 
-    public OrderService(OrderRepository orderRepository,  OrderItemRepository orderItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
     }
@@ -47,20 +44,29 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, size);
         return orderRepository.findAll(pageable);
     }
+
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         return orderItemRepository.findByOrder_OrderId(orderId);
     }
 
     // Lấy đơn đang hoạt động
-    public Page<Order> getActiveOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return orderRepository.findActiveOrders(pageable);
+    public Page<Order> getActiveOrders(Staff currentUser, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findActiveOrdersForUser(currentUser, userRole, pageable);
     }
 
     // Lấy đơn lịch sử (Served, Canceled)
-    public Page<Order> getHistoryOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("orderId").descending());
-        return orderRepository.findHistoryOrders(pageable);
+    public Page<Order> getHistoryOrders(Staff currentUser, LocalDate startDate, LocalDate endDate, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findCompletedOrdersByDateRange(currentUser, userRole, startDateTime, endDateTime, pageable);
     }
 
     public Page<Order> getUnservedOrders(int page, int size) {
@@ -76,12 +82,10 @@ public class OrderService {
         Map<String, Object> summaryMap = new HashMap<>();
 
         if (startDate == null || endDate == null) {
-            // Trả về Map rỗng nếu không có ngày
             return createEmptySummaryMap();
         }
         LocalDateTime startDateTime = startDate.atStartOfDay();
 
-        // endDate = 07/10 -> 08/10 00:00:00 (để query < 08/10)
         LocalDateTime adjustedEndDateTime = endDate.plusDays(1).atStartOfDay();
 
         List<Object[]> results = orderRepository.getSalesSummaryObject(startDateTime, adjustedEndDateTime);
@@ -119,14 +123,49 @@ public class OrderService {
         return orderRepository.findAllByCreatedAtGreaterThanEqualAndCreatedAtLessThan(startDateTime, adjustedEndDateTime);
     }
 
-    public Page<Order> getServedOrCanceledOrders(int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("orderId").descending());
-        return orderRepository.findByStatusIn(List.of("Served", "Canceled"), pageable);
+    public Page<Order> getServedOrCanceledOrders(Staff currentUser, LocalDate startDate, LocalDate endDate, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findCompletedOrdersByDateRange(currentUser, userRole, startDateTime, endDateTime, pageable);
     }
 
-    public void updateOrder(Order order, Manager currentManager) {
+    public void updateOrder(Order order, Staff currentStaff) {
         order.setUpdatedAt(LocalDateTime.now());
-        order.setUpdatedBy(currentManager);
         orderRepository.save(order);
+    }
+
+    public Page<Order> getKitchenOrders(Staff currentUser, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        String userRole = currentUser.getRole().getRoleName();
+
+        return orderRepository.findActiveOrdersForUser(currentUser, userRole, pageable);
+    }
+
+    @Transactional
+    public void deleteOrderById(int orderId) {
+        orderItemRepository.deleteByOrder_OrderId(orderId);
+        orderRepository.deleteById(orderId);
+    }
+
+    public Order findByTable(Table table) {
+//        return orderRepository.findActiveOrder(table);
+        return orderRepository.findFirstByTable(table);
+    }
+
+    public List<Integer> getUsedVoucherIdsByCustomer(Customer customer) {
+        if (customer == null) {
+            return Collections.emptyList();
+        }
+        return orderRepository.findUsedVoucherIdsByCustomerId(customer.getCusId());
+    }
+
+    public Page<Order> getOrderHistoryByCustomerId(int customerId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        return orderRepository.findByCustomerCusIdOrderByCreatedAtDesc(customerId, pageable);
     }
 }

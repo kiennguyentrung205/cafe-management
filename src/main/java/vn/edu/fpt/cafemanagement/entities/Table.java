@@ -26,8 +26,11 @@ public class Table {
 
     private int capacity;
 
-    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "table")
     private List<TableBooking> tableBookings;
+
+    @OneToMany(mappedBy = "table")
+    List<Order> orders;
 
     public Table() {
     }
@@ -65,6 +68,22 @@ public class Table {
 
     public int getCapacity() {
         return capacity;
+    }
+
+    public Table(int tableId, String status, int capacity, List<TableBooking> tableBookings, List<Order> orders) {
+        this.tableId = tableId;
+        this.status = status;
+        this.capacity = capacity;
+        this.tableBookings = tableBookings;
+        this.orders = orders;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 
     public void setCapacity(int capacity) {

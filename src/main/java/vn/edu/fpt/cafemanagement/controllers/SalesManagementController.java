@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -57,8 +58,11 @@ public class SalesManagementController {
         } else {
             Map<String, Object> summary = orderService.getSalesSummaryAsMap(startDate, endDate);
             List<Order> orderList = orderService.getOrdersByPeriod(startDate, endDate);
+            List<Order> activeOrders = orderList.stream()
+                    .filter(order -> !"Canceled".equalsIgnoreCase(order.getStatus()))
+                    .collect(Collectors.toList());
             model.addAttribute("salesSummary", summary);
-            model.addAttribute("orders", orderList);
+            model.addAttribute("orders", activeOrders);
         }
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);

@@ -19,14 +19,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query(
             value = "SELECT point_history_id, type_of_change, change_time, amount, cus_id, order_id " +
-                    "FROM dbo.PointHistory " +
+                    "FROM dbo.pointhistory " +
                     "WHERE cus_id = :cusId " +
                     "ORDER BY change_time DESC",
             nativeQuery = true)
     List<PointHistory> getPointHistoryByCustomerId(@Param("cusId") int cusId);
 
     boolean existsByEmailIgnoreCase(String email);
-    boolean existsByPhoneNumber(String phoneNumber);
 
 
 //Tặng điểm sinh nhật khách

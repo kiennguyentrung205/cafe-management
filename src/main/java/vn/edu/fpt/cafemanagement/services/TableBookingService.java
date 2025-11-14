@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.cafemanagement.entities.Customer;
 import vn.edu.fpt.cafemanagement.entities.TableBooking;
 import vn.edu.fpt.cafemanagement.repositories.TableBookingRepository;
 
@@ -24,10 +25,16 @@ public class TableBookingService {
         LocalDateTime bookingTime = tableBooking.getBookingTime();
         LocalDateTime now = LocalDateTime.now();
 
+        int count = tableBookingRepository.countByCustomerAndDate(tableBooking.getCustomer().getCusId(), bookingTime.toLocalDate() );
+
+        if(count > 2){
+            throw new IllegalArgumentException("You are allowed to book 3 tables per day");
+        }
+
 
         long diffMinutes = Duration.between(now, bookingTime).toMinutes();
-        if (diffMinutes < 0) {
-            throw new RuntimeException("You cannot book table in the past!");
+        if (diffMinutes < 30) {
+            throw new RuntimeException("Booking time must be 30+ minutes from now!");
         }
 
         if (diffMinutes > 120) {
@@ -38,7 +45,7 @@ public class TableBookingService {
             throw new RuntimeException("You cannot book table after 22:00!");
         }
 
-        tableBooking.setStatus("booked");
+        tableBooking.setStatus("pending");
 
         return tableBookingRepository.save(tableBooking);
     }
@@ -92,5 +99,16 @@ public class TableBookingService {
         } else{
             return tableBookingRepository.findByStatusAndBookingTimeBetweenOrderByBookingTimeDesc(status, start, end, pageable);
         }
+    }
+
+    public List<TableBooking> findActiveBookingByTable(int tableId){
+        return tableBookingRepository.findActiveBookingByTable(tableId);
+    }
+
+    public TableBooking findActiveBookingByCustomer(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+        return tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "booked");
     }
 }
