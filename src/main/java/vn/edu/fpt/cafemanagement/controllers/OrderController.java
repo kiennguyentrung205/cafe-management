@@ -356,8 +356,6 @@ public class OrderController {
             Table table = tableService.findById(tableId);
             TableBooking tableBooking = tableBookingRepository.findFirstByTableAndStatus(table, "booked");
 
-            System.out.println("0000000000000000000000000000000000000");
-            System.out.println(tableBooking.getTable().getTableId());
 
             if (table != null) {
                 // 1. Gán bàn vào đơn hàng

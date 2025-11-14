@@ -180,4 +180,22 @@ public class ProductService {
         return productRepository.searchNonActiveProductsByCategoryAndKeyword(finalCategoryId, searchKeyword, pageable);
 
     }
+    public void updateStatusForZeroQuantity(List<Product> products) {
+        boolean needSave = false;
+
+        for (Product p : products) {
+            if (p.getQuantity() == 0 && !"unavailable".equalsIgnoreCase(p.getStatus())) {
+                p.setStatus("unavailable");
+                needSave = true;
+            }
+            if (p.getQuantity() > 0 && "unavailable".equalsIgnoreCase(p.getStatus())) {
+                p.setStatus("available");
+                needSave = true;
+            }
+        }
+
+        if (needSave) {
+            productRepository.saveAll(products);
+        }
+    }
 }

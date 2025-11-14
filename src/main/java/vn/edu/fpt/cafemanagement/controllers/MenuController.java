@@ -55,6 +55,7 @@ public class MenuController {
 
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Product> list = productService.getAllProductsPaged(pageable);
+
         if (page > list.getTotalPages()) {
             page = list.getTotalPages();
             pageable = PageRequest.of(page - 1, size);
