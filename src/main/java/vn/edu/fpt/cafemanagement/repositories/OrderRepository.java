@@ -75,4 +75,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("userRole") String userRole,
             Pageable pageable);
 
-    Page<Order> findByCustomerCusIdOrderByCreatedAtDesc(int customerId, Pageable pageable);}
+    Page<Order> findByCustomerCusIdOrderByCreatedAtDesc(int customerId, Pageable pageable);
+
+    @Query("SELECT o FROM Order o WHERE o.table = :table AND o.status = 'ACTIVE'")
+    Order findActiveOrder(@Param("table") Table table);
+
+
+}
+
+

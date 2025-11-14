@@ -153,7 +153,8 @@ public class OrderService {
     }
 
     public Order findByTable(Table table) {
-        return orderRepository.findOrderByTable(table).orElse(null);
+        return orderRepository.findActiveOrder(table);
+
     }
 
     public List<Integer> getUsedVoucherIdsByCustomer(Customer customer) {
