@@ -250,6 +250,7 @@ public class OrderController {
         // --- [STEP 7] Tính Subtotal ---
         double totalPrice = 0; // Subtotal
         List<OrderItem> orderItems = new ArrayList<>();
+
         for (int i = 0; i < productIds.size(); i++) {
             Product product = productService.getProductById(productIds.get(i));
 
@@ -259,6 +260,22 @@ public class OrderController {
             }
 
             int qty = quantities.get(i);
+
+            // 1. Kiểm tra xem tồn kho có đủ không
+            if (product.getQuantity() < qty) {
+                model.addAttribute("error", "Not enough stock for '" + product.getProName() + "'. Only " + product.getQuantity() + " left.");
+                return reloadCreatePage(model, customer);
+            }
+
+            // 2. Trừ số lượng tồn kho
+            product.setQuantity(product.getQuantity() - qty);
+
+            // 3. Lưu lại sản phẩm với số lượng mới
+            // (Giả sử ProductService của bạn có phương thức save,
+            // tương tự như OrderService và CustomerService)
+            productService.saveProduct(product); // <-- RẤT QUAN TRỌNG
+
+
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";
 
             OrderItem item = new OrderItem();
