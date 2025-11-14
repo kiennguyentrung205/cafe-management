@@ -106,6 +106,7 @@ public class ProductController {
             } else {
                 // Chỉ tìm kiếm theo Keyword (Category = All)
                 list = productService.getSearchProducts(keyword, pageable);
+                productService.updateStatusForZeroQuantity(list.getContent());
                 categoryIdForModel = 0; // Đảm bảo filter category hiển thị 'All'
             }
 
@@ -115,9 +116,11 @@ public class ProductController {
             if (finalCategoryId > 0 && isValidCategory) {
                 // Chỉ lọc theo Category
                 list = productService.getActiveProductsByCategory(finalCategoryId, pageable);
+                productService.updateStatusForZeroQuantity(list.getContent());
             } else {
                 // Mặc định: Lấy tất cả sản phẩm
                 list = productService.getAllProductsPaged(pageable);
+                productService.updateStatusForZeroQuantity(list.getContent());
                 categoryIdForModel = 0;
             }
         }
@@ -137,6 +140,7 @@ public class ProductController {
         }
 
         // --- BƯỚC 4: TRUYỀN DỮ LIỆU VỀ VIEW ---
+
         model.addAttribute("pageProduct", list);
         model.addAttribute("categoryList", categoryList);
         model.addAttribute("selectedCategoryId", categoryIdForModel);
@@ -417,7 +421,11 @@ public class ProductController {
         originalProduct.setActive(product.isActive());
         originalProduct.setImg(product.getImg());
         originalProduct.setCategory(product.getCategory());
-        originalProduct.setStatus(product.getStatus());
+        if (originalProduct.getQuantity() == 0) {
+            originalProduct.setStatus("Unavailable");
+        } else {
+            originalProduct.setStatus(product.getStatus());
+        }
         originalProduct.setQuantity(product.getQuantity());
         System.out.println("Product nay la: " + originalProduct.isActive());
 

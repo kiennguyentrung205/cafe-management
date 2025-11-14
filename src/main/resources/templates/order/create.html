@@ -78,7 +78,10 @@
 
                         <p class="product-quantity mb-1 fw-bold"
                            th:classappend="${product.quantity <= 0} ? 'text-danger' : ''">
-                            <span th:text="|In-stock: ${product.quantity}|"></span>
+
+                            <span th:if="${product.quantity > 0}" th:text="|In-stock: ${product.quantity}|"></span>
+
+                            <span th:if="${product.quantity <= 0}">Out-of-stock</span>
                         </p>
 
                         <p class="product-price mb-0">
@@ -278,6 +281,54 @@
         modal.show();
     }
 
+    /* ===== [MỚI] Cập nhật Tồn kho trên UI ===== */
+    function updateStockOnUI() {
+        // 1. Lấy tất cả item vừa được đặt trong giỏ hàng (bên phải)
+        const orderItems = document.querySelectorAll(".order-list .order-item");
+
+        orderItems.forEach(item => {
+            const productId = item.getAttribute('data-product-id');
+            const qtyInput = item.querySelector('.item-qty-input');
+            if (!productId || !qtyInput) return;
+
+            const quantityPurchased = parseInt(qtyInput.value);
+            if (isNaN(quantityPurchased) || quantityPurchased <= 0) return;
+
+            // 2. Tìm card sản phẩm tương ứng trong lưới menu (bên trái)
+            const productCard = document.querySelector(`.menu-grid .product-card[data-product-id="${productId}"]`);
+
+            // 3. Nếu tìm thấy card đó trên trang hiện tại
+            if (productCard) {
+                // Lấy tồn kho hiện tại (từ data-attribute)
+                const currentStock = parseInt(productCard.getAttribute('data-product-stock')) || 0;
+
+                // Tính tồn kho mới (đảm bảo không bị âm)
+                const newStock = Math.max(0, currentStock - quantityPurchased);
+
+                // 4. Cập nhật lại card sản phẩm
+
+                // Cập nhật data-attribute (quan trọng cho lần mở modal sau)
+                productCard.setAttribute('data-product-stock', newStock);
+
+                const stockTextElement = productCard.querySelector('.product-quantity span');
+                if (stockTextElement) {
+                    if (newStock > 0) {
+                        stockTextElement.textContent = `In-stock: ${newStock}`;
+                    } else {
+                        stockTextElement.textContent = `Out-of-stock`;
+                    }
+                }
+
+                // Nếu hết hàng, thêm class 'out-of-stock'
+                if (newStock <= 0) {
+                    productCard.classList.add('out-of-stock');
+                    const stockP = productCard.querySelector('.product-quantity');
+                    if(stockP) stockP.classList.add('text-danger');
+                }
+            }
+        });
+    }
+
     /* ===== Dọn dẹp panel sau khi thành công ===== */
     function resetOrderPanel() {
         document.querySelector(".order-list").innerHTML = "";
@@ -346,6 +397,7 @@
                 const successEl = doc.querySelector('.alert-success');
                 if (successEl) {
                     showAlertModal(successEl.textContent, false);
+                    updateStockOnUI();
                     resetOrderPanel();
                 } else {
                     showAlertModal('An unknown error occurred. (No alert found)', true);
