@@ -106,13 +106,13 @@ public class OrderController {
             productPage = productService.searchActiveProductsByCategory(categoryId, query.trim(), pageable);
         } else if (query != null && !query.trim().isEmpty()) {
             // chỉ tìm theo tên
-            productPage = productService.searchActiveProducts(query.trim(), pageable);
+            productPage = productService.searchActiveProducts1(query.trim(), pageable);
         } else if (categoryId != null && categoryId > 0) {
             // chỉ lọc theo category
-            productPage = productService.getProductsByCategoryPaged(categoryId, pageable);
+            productPage = productService.getProductsByCategoryPaged1(categoryId, pageable);
         } else {
             // Mặc định: lấy tất cả
-            productPage = productService.getActiveProductsPaged(pageable);
+            productPage = productService.getActiveProductsPaged1(pageable);
         }
 
         int totalPages = productPage.getTotalPages();
@@ -278,10 +278,12 @@ public class OrderController {
             // 2. Trừ số lượng tồn kho
             product.setQuantity(product.getQuantity() - qty);
 
+            if (product.getQuantity() <= 0) {
+                product.setStatus("Unavailable");
+            }
+
             // 3. Lưu lại sản phẩm với số lượng mới
-            // (Giả sử ProductService của bạn có phương thức save,
-            // tương tự như OrderService và CustomerService)
-            productService.saveProduct(product); // <-- RẤT QUAN TRỌNG
+            productService.saveProduct(product);
 
 
             String note = (notes != null && notes.size() > i) ? notes.get(i) : "";

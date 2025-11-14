@@ -62,9 +62,10 @@
 
                 <div class="menu-grid">
 
-                    <div th:each="product : ${productList}" class="product-card"
+                    <div th:each="product : ${productList}"
+                         th:if="${product.quantity > 0}"
+                         class="product-card"
                          th:data-product-id="${product.proId}"
-                         th:classappend="${product.quantity <= 0} ? 'out-of-stock' : ''"
                          th:data-product-stock="${product.quantity}"
                          th:data-product-description="${product.description}"
                          th:data-product-category="${product.category != null ? product.category.cateName : 'N/A'}"
@@ -76,12 +77,8 @@
                         <img th:src="@{/uploads/{img}(img=${product.img})}" alt="Product Image"/>
                         <p class="product-name fw-semibold" th:text="${product.proName}"></p>
 
-                        <p class="product-quantity mb-1 fw-bold"
-                           th:classappend="${product.quantity <= 0} ? 'text-danger' : ''">
-
-                            <span th:if="${product.quantity > 0}" th:text="|In-stock: ${product.quantity}|"></span>
-
-                            <span th:if="${product.quantity <= 0}">Out-of-stock</span>
+                        <p class="product-quantity mb-1 fw-bold">
+                            <span th:text="|In-stock: ${product.quantity}|"></span>
                         </p>
 
                         <p class="product-price mb-0">
@@ -146,7 +143,7 @@
 
 
                     <h4 style="font-size:16px;">Customer Info</h4>
-                    <p>Username: <span th:text="${customer != null ? customer.username : '-'}"></span></p>
+                    <p>Name: <span th:text="${customer != null ? customer.name : '-'}"></span></p>
                     <p>Point: <span th:text="${customer != null ? customer.point : 0}"></span></p>
 
                     <div class="redeem">
@@ -174,17 +171,17 @@
                                    th:value="|Table ${bookedTable.tableId} (Booked)|"
                                    style="width: 200px; background-color: #e9ecef;"/>
                             <input type="hidden" name="tableId" th:value="${bookedTable.tableId}" />
-<!--                            <div style="display:flex; flex-direction: column; gap: 5px;">-->
-<!--                                <div th:each="table : ${bookedTables}">-->
-<!--                                    <input type="text" class="form-control form-control-sm"-->
-<!--                                           th:value="|Table ${table.tableId} (booked)|"-->
-<!--                                           disabled-->
-<!--                                           style="width: 200px; background-color: #e9ecef;"/>-->
-<!--                                    <input type="hidden" name="tableIds[]" th:value="${table.tableId}" />-->
-<!--                                </div>-->
+                            <!--                            <div style="display:flex; flex-direction: column; gap: 5px;">-->
+                            <!--                                <div th:each="table : ${bookedTables}">-->
+                            <!--                                    <input type="text" class="form-control form-control-sm"-->
+                            <!--                                           th:value="|Table ${table.tableId} (booked)|"-->
+                            <!--                                           disabled-->
+                            <!--                                           style="width: 200px; background-color: #e9ecef;"/>-->
+                            <!--                                    <input type="hidden" name="tableIds[]" th:value="${table.tableId}" />-->
+                            <!--                                </div>-->
 
-<!--                                <span style="font-size: 12px; color: green;">* Đã check-in toàn bộ đặt bàn.</span>-->
-<!--                            </div>-->
+                            <!--                                <span style="font-size: 12px; color: green;">* Đã check-in toàn bộ đặt bàn.</span>-->
+                            <!--                            </div>-->
                         </div>
 
                         <div th:if="${bookedTable == null}">
@@ -298,6 +295,7 @@
             const productCard = document.querySelector(`.menu-grid .product-card[data-product-id="${productId}"]`);
 
             // 3. Nếu tìm thấy card đó trên trang hiện tại
+            // 3. Nếu tìm thấy card đó trên trang hiện tại
             if (productCard) {
                 // Lấy tồn kho hiện tại (từ data-attribute)
                 const currentStock = parseInt(productCard.getAttribute('data-product-stock')) || 0;
@@ -305,25 +303,22 @@
                 // Tính tồn kho mới (đảm bảo không bị âm)
                 const newStock = Math.max(0, currentStock - quantityPurchased);
 
-                // 4. Cập nhật lại card sản phẩm
+                // 4. [SỬA ĐỔI] Cập nhật hoặc XÓA card sản phẩm
 
-                // Cập nhật data-attribute (quan trọng cho lần mở modal sau)
-                productCard.setAttribute('data-product-stock', newStock);
-
-                const stockTextElement = productCard.querySelector('.product-quantity span');
-                if (stockTextElement) {
-                    if (newStock > 0) {
-                        stockTextElement.textContent = `In-stock: ${newStock}`;
-                    } else {
-                        stockTextElement.textContent = `Out-of-stock`;
-                    }
-                }
-
-                // Nếu hết hàng, thêm class 'out-of-stock'
                 if (newStock <= 0) {
-                    productCard.classList.add('out-of-stock');
-                    const stockP = productCard.querySelector('.product-quantity');
-                    if(stockP) stockP.classList.add('text-danger');
+                    // Nếu hết hàng, xóa card sản phẩm khỏi menu
+                    productCard.remove();
+                } else {
+                    // Nếu còn hàng, chỉ cập nhật lại thông tin
+
+                    // Cập nhật data-attribute
+                    productCard.setAttribute('data-product-stock', newStock);
+
+                    // Cập nhật text
+                    const stockTextElement = productCard.querySelector('.product-quantity span');
+                    if (stockTextElement) {
+                        stockTextElement.textContent = `In-stock: ${newStock}`;
+                    }
                 }
             }
         });
@@ -397,8 +392,8 @@
                 const successEl = doc.querySelector('.alert-success');
                 if (successEl) {
                     showAlertModal(successEl.textContent, false);
-                    updateStockOnUI();
                     resetOrderPanel();
+                    fetchAndReplace(window.location.href, selectedCategoryId);
                 } else {
                     showAlertModal('An unknown error occurred. (No alert found)', true);
                 }

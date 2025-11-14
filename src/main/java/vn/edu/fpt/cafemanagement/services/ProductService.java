@@ -198,4 +198,20 @@ public class ProductService {
             productRepository.saveAll(products);
         }
     }
+
+    public Page<Product> getProductsByCategoryPaged1(Integer categoryId, Pageable pageable) {
+        if (categoryId == null || categoryId == 0) {
+            return productRepository.findByIsActiveTrueAndCategoryIsActiveTrueAndQuantityGreaterThan(0, pageable);
+        } else {
+            return productRepository.findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrueAndQuantityGreaterThan(categoryId, 0, pageable);
+        }
+    }
+
+    public Page<Product> searchActiveProducts1(String keyword, Pageable pageable) {
+        return productRepository.findByProNameContainingIgnoreCaseAndIsActiveTrueAndQuantityGreaterThan(keyword, 0, pageable);
+    }
+
+    public Page<Product> getActiveProductsPaged1(Pageable pageable) {
+        return productRepository.findByIsActiveTrueAndCategoryIsActiveTrueAndQuantityGreaterThan(0, pageable);
+    }
 }
