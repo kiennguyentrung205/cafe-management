@@ -82,6 +82,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("SELECT o FROM Order o WHERE o.table = :table AND o.status IN ('Pending', 'Served')")
     Order findActiveOrder(@Param("table") Table table);
 
+    Order findFirstByTable(Table table);
+
 
 }
 

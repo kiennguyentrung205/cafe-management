@@ -4,7 +4,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.cafemanagement.entities.Order;
 import vn.edu.fpt.cafemanagement.entities.Table;
 import vn.edu.fpt.cafemanagement.entities.TableBooking;
@@ -72,18 +75,17 @@ public class TableController {
 //    @PostMapping(path = "/management/update-status")
 //    @ResponseBody
 //    public String updateTableStatus(@RequestBody Table table) {
-////        Table oldTable = tableService.findById(table.getTableId());
-////
-////        if("available".equalsIgnoreCase(oldTable.getStatus())) {
-////            return "Update status error";
-////        }
+
+    /// /        Table oldTable = tableService.findById(table.getTableId());
+    /// /
+    /// /        if("available".equalsIgnoreCase(oldTable.getStatus())) {
+    /// /            return "Update status error";
+    /// /        }
 //
 //        tableService.updateTableStatus(table.getTableId(), table.getStatus());
 //        return "Status updated successfully";
 //        return "redirect:/table/management";
 //    }
-
-
     @PostMapping(path = "/management/update-status")
     public String updateTableStatus(@RequestParam("status") String status, @RequestParam("tableId") int tableId) {
 //        Table oldTable = tableService.findById(table.getTableId());
@@ -117,9 +119,14 @@ public class TableController {
         }
 
         // Move table in table booking
-        TableBooking tableBooking = tableBookingRepository.findByTableAndStatus (oldTable, "booked");
+        TableBooking tableBooking = tableBookingRepository.findFirstByTable(oldTable);
+        if (tableBooking == null) {
+            return "redirect:/table/management?error=notFound";
+        }
+
         tableBooking.setTable(newTable);
         tableBookingRepository.save(tableBooking);
+
 
         Order order = orderService.findByTable(oldTable);
 

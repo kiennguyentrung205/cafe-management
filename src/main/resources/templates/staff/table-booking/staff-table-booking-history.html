@@ -83,14 +83,19 @@
 
                         <td class="p-3 text-center" th:text="${x.note != null} ? ${x.note} : '-'">${x.note}</td>
                         <td classs="p-3">
-<!--                            <button class="btn btn-warning btn-sm" th:if="${x.status == 'booked'}"-->
-<!--                                    th:onclick="openCancelPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"-->
-<!--                                    type="button">Cancel-->
+                            <a class="btn btn-success btn-sm" th:href="@{/order/create}"
+                               th:if="${x.status == 'booked'}">Check in</a>
+                            <div th:if="${x.status == 'pending'}">
+                                <form method="post" th:action="@{/table/booking/management/update-status}">
+                                    <input name="tableBookingId" th:value="${x.bookingId}" type="hidden">
+                                    <input name="action" value="confirm" type="hidden">
+                                    <button class="btn btn-primary" type="submit">Confirm</button>
+                                </form>
+                            </div>
+<!--                            <button class="btn btn-success btn-sm" th:if="${x.status == 'booked'}"-->
+<!--                                    th:onclick="openCheckinPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"-->
+<!--                                    type="button">Check in-->
 <!--                            </button>-->
-                            <button class="btn btn-success btn-sm" th:if="${x.status == 'booked'}"
-                                    th:onclick="openCheckinPopup([[${x.bookingId}]], [[${x.table.tableId}]], [[${x.bookingTime}]])"
-                                    type="button">Check in
-                            </button>
                         </td>
                     </tr>
                     </tbody>

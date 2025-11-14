@@ -3,7 +3,6 @@ package vn.edu.fpt.cafemanagement.services;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.cafemanagement.entities.*;
@@ -20,7 +19,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     private OrderItemRepository orderItemRepository;
 
-    public OrderService(OrderRepository orderRepository,  OrderItemRepository orderItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
     }
@@ -45,6 +44,7 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page - 1, size);
         return orderRepository.findAll(pageable);
     }
+
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         return orderItemRepository.findByOrder_OrderId(orderId);
     }
@@ -153,8 +153,8 @@ public class OrderService {
     }
 
     public Order findByTable(Table table) {
-        return orderRepository.findActiveOrder(table);
-
+//        return orderRepository.findActiveOrder(table);
+        return orderRepository.findFirstByTable(table);
     }
 
     public List<Integer> getUsedVoucherIdsByCustomer(Customer customer) {

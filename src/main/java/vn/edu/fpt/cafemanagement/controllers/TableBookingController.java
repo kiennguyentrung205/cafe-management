@@ -519,7 +519,7 @@ public class TableBookingController {
 
 
     @PreAuthorize("hasAnyRole('CASHIER', 'WAITER')")
-    @PostMapping("/management/updateStatus")
+    @PostMapping("/management/update-status")
     public String updateStatus(@RequestParam("tableBookingId") int bookingId,
                                @RequestParam("action") String actionType, RedirectAttributes redirectAttributes) {
         TableBooking booking = tableBookingService.findById(bookingId);
@@ -533,6 +533,8 @@ public class TableBookingController {
                 booking.setStatus("checked-in");
                 tableService.updateTableStatus(booking.getTable().getTableId(), "occupied");
             }
+        } else if ("confirm".equals(actionType)) {
+            booking.setStatus("booked");
         }
 
         tableBookingService.save(booking);
