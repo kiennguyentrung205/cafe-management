@@ -7,19 +7,11 @@
 <!-- Main Content -->
 <div class="container py-5">
     <div class="row justify-content-center">
-        <!-- Layout của bạn rất tốt (col-md-8 col-lg-6), tôi giữ nguyên -->
         <div class="col-md-8 col-lg-6">
 
-            <!--
-              THAY ĐỔI: Bỏ shadow-lg, border-0, rounded-4
-              CSS chung của chúng ta sẽ tự áp dụng bo góc và đổ bóng
-            -->
+
             <div class="card">
-                <!--
-                  THAY ĐỔI: Bỏ rounded-top-4
-                  CSS chung đã xử lý
-                  .bg-primary giờ sẽ là MÀU CAM
-                -->
+
                 <div class="card-header bg-primary text-white text-center p-4">
                     <h2 class="mb-0">Table Booking Form</h2>
                     <h4 class="fw-light mt-2" th:text="'Table ID: '+ ${table.tableId}">Table ID: A1</h4>
@@ -30,7 +22,6 @@
                         <input th:field="*{table}" th:value="${table}" type="hidden"/>
 
                         <div class="mb-3">
-                            <!-- THÊM: class .me-2 cho icon -->
                             <label class="form-label" for="customerName">
                                 <i class="fas fa-user me-2"></i>Fullname
                             </label>
@@ -39,7 +30,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <!-- THÊM: class .me-2 cho icon -->
                             <label class="form-label" for="phoneNumber">
                                 <i class="fas fa-phone me-2"></i>Phone Number
                             </label>
@@ -67,9 +57,8 @@
 
 
                         <div class="mb-4">
-                            <!-- THÊM: class .me-2 cho icon -->
                             <label class="form-label" for="notes">
-                                <i class="fas fa-pencil-alt me-2"></i>Ghi chú (tùy chọn)
+                                <i class="fas fa-pencil-alt me-2"></i>Note (optional)
                             </label>
                             <textarea class="form-control" id="notes" placeholder="Vd: Cho tôi một ghế trẻ em..."
                                       th:field="*{note}"

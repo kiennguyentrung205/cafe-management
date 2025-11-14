@@ -166,6 +166,7 @@ public class OrderController {
             model.addAttribute("tableList", availableTables);
         }
 
+        model.addAttribute("customerPhone", customerPhone);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("title", "Create In-Store Order");

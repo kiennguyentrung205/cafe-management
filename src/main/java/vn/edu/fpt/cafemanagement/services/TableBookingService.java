@@ -101,7 +101,7 @@ public class TableBookingService {
         }
     }
 
-    public TableBooking findActiveBookingByTable(int tableId){
+    public List<TableBooking> findActiveBookingByTable(int tableId){
         return tableBookingRepository.findActiveBookingByTable(tableId);
     }
 
