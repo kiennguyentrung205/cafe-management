@@ -10,7 +10,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        String imagePath = "file:///D:/SWP/Project/uploads/";
+        String imagePath = "file:///F:/SWP/Project/uploads/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(imagePath);

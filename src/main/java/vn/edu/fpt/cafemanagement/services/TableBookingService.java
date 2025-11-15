@@ -41,9 +41,9 @@ public class TableBookingService {
             throw new RuntimeException("You can only book a table within 2 hours before your arrival");
         }
 
-        if (bookingTime.getHour() >= 22) {
-            throw new RuntimeException("You cannot book table after 22:00!");
-        }
+//        if (bookingTime.getHour() >= 22) {
+//            throw new RuntimeException("You cannot book table after 22:00!");
+//        }
 
         tableBooking.setStatus("pending");
 
@@ -109,6 +109,15 @@ public class TableBookingService {
         if (customer == null) {
             return null;
         }
+
+        TableBooking checkedInBooking = tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "checked-in");
+
+        if (checkedInBooking != null) {
+            return checkedInBooking;
+        }
+
         return tableBookingRepository.findFirstByCustomerCusIdAndStatus(customer.getCusId(), "booked");
     }
+
+
 }

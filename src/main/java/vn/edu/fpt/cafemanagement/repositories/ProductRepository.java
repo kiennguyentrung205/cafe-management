@@ -78,7 +78,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("SELECT p FROM Product p WHERE p.category.cateId = :categoryId " +
             "AND LOWER(p.proName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "AND p.isActive = true")
+            "AND p.isActive = true AND p.quantity > 0")
     Page<Product> findByCategoryAndNameContainingIgnoreCaseAndActiveTrue(
             @Param("categoryId") Integer categoryId,
             @Param("keyword") String keyword,
@@ -130,5 +130,11 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findNonActiveSearchProductsByAllCriteria(@Param("searchText") String searchText, Pageable pageable);
 
     Page<Product> findByIsActiveFalseAndCategoryCateIdAndCategoryIsActiveTrue(int categoryId, Pageable pageable);
+
+    Page<Product> findByIsActiveTrueAndCategoryIsActiveTrueAndQuantityGreaterThan(int quantity, Pageable pageable);
+
+    Page<Product> findByIsActiveTrueAndCategoryCateIdAndCategoryIsActiveTrueAndQuantityGreaterThan(int categoryId, int quantity, Pageable pageable);
+
+    Page<Product> findByProNameContainingIgnoreCaseAndIsActiveTrueAndQuantityGreaterThan(String name, int quantity, Pageable pageable);
 
 }
